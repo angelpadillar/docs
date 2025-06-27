@@ -1,0 +1,402 @@
+---
+title: "List API Keys"
+api: "GET https://api.buena.ai/api/v2/keys"
+description: "Retrieve all your API keys with their permissions and usage statistics"
+---
+
+# List API Keys
+
+Get a list of all API keys associated with your account. This endpoint returns key metadata without exposing the actual key secrets for security purposes.
+
+<Note>
+  For security reasons, the actual API key values are never returned. Only the
+  key prefix (first 8 characters) is shown for identification.
+</Note>
+
+## Request
+
+<ParamField header="x-api-key" type="string" required>
+  Your API key for authentication
+</ParamField>
+
+<CodeGroup>
+
+```bash cURL
+curl -X GET "https://api.buena.ai/api/v2/keys" \
+  -H "x-api-key: YOUR_API_KEY"
+```
+
+```javascript JavaScript
+const response = await fetch("https://api.buena.ai/api/v2/keys", {
+  headers: {
+    "x-api-key": "YOUR_API_KEY",
+  },
+});
+
+const data = await response.json();
+console.log(data.data);
+```
+
+```python Python
+import requests
+
+response = requests.get(
+    'https://api.buena.ai/api/v2/keys',
+    headers={'x-api-key': 'YOUR_API_KEY'}
+)
+
+data = response.json()
+for key in data['data']:
+    print(f"Key: {key['name']} - Prefix: {key['prefix']}")
+```
+
+</CodeGroup>
+
+## Response
+
+<ResponseField name="success" type="boolean">
+  Always `true` for successful requests
+</ResponseField>
+
+<ResponseField name="data" type="array">
+  Array of API key objects
+  <Expandable title="API Key Object">
+    <ResponseField name="id" type="string">
+      Unique identifier for the API key
+    </ResponseField>
+    <ResponseField name="name" type="string">
+      Human-readable name of the API key
+    </ResponseField>
+    <ResponseField name="prefix" type="string">
+      First 8 characters of the API key for identification
+    </ResponseField>
+    <ResponseField name="permissions" type="array">
+      List of permissions granted to this API key
+    </ResponseField>
+    <ResponseField name="isActive" type="boolean">
+      Whether the API key is currently active
+    </ResponseField>
+    <ResponseField name="createdAt" type="string">
+      ISO 8601 timestamp when the key was created
+    </ResponseField>
+    <ResponseField name="expiresAt" type="string">
+      ISO 8601 timestamp when the key expires (null if no expiration)
+    </ResponseField>
+    <ResponseField name="lastUsed" type="string">
+      ISO 8601 timestamp of the last request made with this key
+    </ResponseField>
+    <ResponseField name="usageCount" type="number">
+      Total number of requests made with this key
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseExample>
+
+```json Response
+{
+  "success": true,
+  "data": [
+    {
+      "id": "key_abc123",
+      "name": "Production Integration",
+      "prefix": "abc12345",
+      "permissions": [
+        "linkedin:schedule",
+        "linkedin:upload",
+        "leads:read",
+        "leads:write"
+      ],
+      "isActive": true,
+      "createdAt": "2024-01-15T10:30:00Z",
+      "expiresAt": "2025-01-15T10:30:00Z",
+      "lastUsed": "2024-01-20T14:22:00Z",
+      "usageCount": 1247
+    },
+    {
+      "id": "key_def456",
+      "name": "Development Key",
+      "prefix": "def67890",
+      "permissions": ["linkedin:read", "leads:read"],
+      "isActive": true,
+      "createdAt": "2024-01-10T08:15:00Z",
+      "expiresAt": "2024-02-10T08:15:00Z",
+      "lastUsed": "2024-01-19T16:45:00Z",
+      "usageCount": 89
+    },
+    {
+      "id": "key_ghi789",
+      "name": "Expired Testing Key",
+      "prefix": "ghi01234",
+      "permissions": ["leads:read"],
+      "isActive": false,
+      "createdAt": "2023-12-01T12:00:00Z",
+      "expiresAt": "2024-01-01T12:00:00Z",
+      "lastUsed": "2023-12-28T09:30:00Z",
+      "usageCount": 25
+    }
+  ]
+}
+```
+
+</ResponseExample>
+
+## Use Cases
+
+### 1. API Key Audit
+
+Review all API keys and their permissions:
+
+```javascript
+async function auditAPIKeys() {
+  const response = await fetch("https://api.buena.ai/api/v2/keys", {
+    headers: { "x-api-key": process.env.BUENA_API_KEY },
+  });
+
+  const { data: keys } = await response.json();
+
+  console.log("API Key Audit Report");
+  console.log("==================");
+
+  keys.forEach((key) => {
+    console.log(`\nKey: ${key.name}`);
+    console.log(`Prefix: ${key.prefix}`);
+    console.log(`Status: ${key.isActive ? "Active" : "Inactive"}`);
+    console.log(`Usage: ${key.usageCount} requests`);
+    console.log(`Permissions: ${key.permissions.join(", ")}`);
+
+    if (key.expiresAt) {
+      const expiryDate = new Date(key.expiresAt);
+      const daysUntilExpiry = Math.ceil(
+        (expiryDate - new Date()) / (1000 * 60 * 60 * 24)
+      );
+
+      if (daysUntilExpiry < 30) {
+        console.log(`⚠️ Expires in ${daysUntilExpiry} days`);
+      }
+    }
+
+    if (key.usageCount === 0) {
+      console.log("⚠️ Never used");
+    }
+  });
+}
+```
+
+### 2. Clean Up Unused Keys
+
+Identify and potentially remove unused API keys:
+
+```python
+import requests
+from datetime import datetime, timedelta
+
+def find_unused_keys():
+    response = requests.get(
+        'https://api.buena.ai/api/v2/keys',
+        headers={'x-api-key': os.getenv('BUENA_API_KEY')}
+    )
+
+    keys = response.json()['data']
+    unused_keys = []
+
+    for key in keys:
+        # Never used
+        if key['usageCount'] == 0:
+            unused_keys.append(key)
+            continue
+
+        # Not used in last 30 days
+        if key['lastUsed']:
+            last_used = datetime.fromisoformat(key['lastUsed'].replace('Z', '+00:00'))
+            if last_used < datetime.now() - timedelta(days=30):
+                unused_keys.append(key)
+
+    print(f"Found {len(unused_keys)} potentially unused keys:")
+    for key in unused_keys:
+        print(f"- {key['name']} ({key['prefix']}) - {key['usageCount']} uses")
+
+    return unused_keys
+```
+
+### 3. Permission Analysis
+
+Analyze permission distribution across keys:
+
+```javascript
+function analyzePermissions(keys) {
+  const permissionCounts = {};
+  const keysByPermission = {};
+
+  keys.forEach((key) => {
+    key.permissions.forEach((permission) => {
+      permissionCounts[permission] = (permissionCounts[permission] || 0) + 1;
+
+      if (!keysByPermission[permission]) {
+        keysByPermission[permission] = [];
+      }
+      keysByPermission[permission].push(key.name);
+    });
+  });
+
+  console.log("Permission Usage:");
+  Object.entries(permissionCounts)
+    .sort(([, a], [, b]) => b - a)
+    .forEach(([permission, count]) => {
+      console.log(`${permission}: ${count} keys`);
+    });
+
+  return { permissionCounts, keysByPermission };
+}
+```
+
+### 4. Expiration Monitoring
+
+Monitor keys approaching expiration:
+
+```python
+def check_expiring_keys(days_threshold=30):
+    response = requests.get(
+        'https://api.buena.ai/api/v2/keys',
+        headers={'x-api-key': os.getenv('BUENA_API_KEY')}
+    )
+
+    keys = response.json()['data']
+    expiring_soon = []
+
+    for key in keys:
+        if not key['isActive'] or not key['expiresAt']:
+            continue
+
+        expires_at = datetime.fromisoformat(key['expiresAt'].replace('Z', '+00:00'))
+        days_until_expiry = (expires_at - datetime.now()).days
+
+        if 0 <= days_until_expiry <= days_threshold:
+            expiring_soon.append({
+                'name': key['name'],
+                'prefix': key['prefix'],
+                'days_left': days_until_expiry,
+                'usage': key['usageCount']
+            })
+
+    if expiring_soon:
+        print(f"Keys expiring in {days_threshold} days:")
+        for key in sorted(expiring_soon, key=lambda x: x['days_left']):
+            print(f"- {key['name']} ({key['prefix']}) expires in {key['days_left']} days")
+
+    return expiring_soon
+```
+
+## Filtering and Analysis
+
+While the API doesn't support query parameters for filtering, you can filter results client-side:
+
+```javascript
+function filterKeys(keys, filters = {}) {
+  return keys.filter((key) => {
+    // Filter by active status
+    if (filters.isActive !== undefined && key.isActive !== filters.isActive) {
+      return false;
+    }
+
+    // Filter by permission
+    if (
+      filters.hasPermission &&
+      !key.permissions.includes(filters.hasPermission)
+    ) {
+      return false;
+    }
+
+    // Filter by usage threshold
+    if (filters.minUsage && key.usageCount < filters.minUsage) {
+      return false;
+    }
+
+    // Filter by name pattern
+    if (
+      filters.namePattern &&
+      !key.name.match(new RegExp(filters.namePattern, "i"))
+    ) {
+      return false;
+    }
+
+    return true;
+  });
+}
+
+// Example usage
+const prodKeys = filterKeys(allKeys, {
+  namePattern: "production",
+  isActive: true,
+  hasPermission: "linkedin:schedule",
+});
+```
+
+## Error Responses
+
+### Unauthorized (401)
+
+```json
+{
+  "error": true,
+  "code": "UNAUTHORIZED",
+  "message": "Invalid API key",
+  "version": "2.0",
+  "timestamp": "2024-01-20T15:30:00Z"
+}
+```
+
+### Rate Limited (429)
+
+```json
+{
+  "error": true,
+  "code": "RATE_LIMIT_EXCEEDED",
+  "message": "Rate limit exceeded",
+  "version": "2.0",
+  "timestamp": "2024-01-20T15:30:00Z",
+  "retryAfter": 60
+}
+```
+
+## Security Considerations
+
+<AccordionGroup>
+  <Accordion title="Key Identification">
+    Use the `prefix` field to identify keys in logs and configurations:
+    ```javascript console.log(`Request made with key: ${apiKey.substring(0, 8)}
+    ***`); ```
+  </Accordion>
+
+{" "}
+<Accordion title="Regular Audits">
+  Regularly review your API keys: - Remove unused keys - Rotate keys approaching
+  expiration - Review permissions for least privilege
+</Accordion>
+
+  <Accordion title="Monitoring">
+    Monitor for suspicious activity: - Sudden usage spikes - Keys used from
+    unexpected locations - High error rates from specific keys
+  </Accordion>
+</AccordionGroup>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Create New Key" icon="plus" href="/api-reference/keys/create">
+    Generate a new API key
+  </Card>
+  <Card title="Update Key" icon="edit" href="/api-reference/keys/update">
+    Modify key permissions
+  </Card>
+  <Card
+    title="View Usage Stats"
+    icon="chart-bar"
+    href="/api-reference/keys/stats"
+  >
+    Get detailed usage statistics
+  </Card>
+  <Card title="Delete Key" icon="trash" href="/api-reference/keys/delete">
+    Deactivate an API key
+  </Card>
+</CardGroup>{" "}

@@ -1,0 +1,823 @@
+---
+title: "Enrich Leads"
+api: "POST https://api.buena.ai/api/v2/enrich"
+description: "Enrich lead data with additional information from multiple premium sources"
+---
+
+# Enrich Leads
+
+Enhance your leads with comprehensive data from premium sources including Apollo, Clearbit, Hunter, and more. Get additional contact information, company details, social profiles, and professional background data.
+
+<Note>
+  Requires the `leads:enrich` permission. Each enrichment request consumes
+  credits from your account.
+</Note>
+
+## Request
+
+<ParamField header="x-api-key" type="string" required>
+  Your API key with `leads:enrich` permission
+</ParamField>
+
+<ParamField header="Content-Type" type="string" required>
+  Must be `application/json`
+</ParamField>
+
+### Body Parameters
+
+<ParamField body="leads" type="array" required>
+  Array of lead objects to enrich. At least one identifier (email, LinkedIn URL,
+  or name + company) is required per lead.
+</ParamField>
+
+<ParamField body="enrichmentOptions" type="object">
+  Configuration options for the enrichment process
+  <Expandable title="Enrichment Options">
+    <ParamField body="includePersonalInfo" type="boolean" default="true">
+      Include personal information (full name, location, experience, skills)
+    </ParamField>
+    <ParamField body="includeCompanyInfo" type="boolean" default="true">
+      Include company information (size, industry, website, description)
+    </ParamField>
+    <ParamField body="includeSocialProfiles" type="boolean" default="false">
+      Include social media profiles (Twitter, GitHub, etc.)
+    </ParamField>
+    <ParamField body="includeContactInfo" type="boolean" default="true">
+      Include additional contact information (phone, alternative emails)
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Lead Input Formats
+
+You can provide leads in various formats. The more information you provide, the better the enrichment results:
+
+<AccordionGroup>
+  <Accordion title="Email-based Enrichment">
+    Provide email address for best results:
+    ```json
+    {
+      "email": "john@techcorp.com",
+      "firstName": "John",  // Optional but helpful
+      "lastName": "Doe",    // Optional but helpful
+      "company": "Tech Corp" // Optional but helpful
+    }
+    ```
+  </Accordion>
+  
+  <Accordion title="LinkedIn URL-based">
+    Use LinkedIn profile URL:
+    ```json
+    {
+      "linkedinUrl": "https://linkedin.com/in/johndoe"
+    }
+    ```
+  </Accordion>
+  
+  <Accordion title="Name + Company">
+    Minimum viable option:
+    ```json
+    {
+      "firstName": "John",
+      "lastName": "Doe", 
+      "company": "Tech Corp"
+    }
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Examples
+
+### Basic Enrichment
+
+<CodeGroup>
+
+```bash cURL
+curl -X POST "https://api.buena.ai/api/v2/enrich" \
+  -H "x-api-key: YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "leads": [
+      {
+        "email": "john@techcorp.com",
+        "firstName": "John",
+        "lastName": "Doe"
+      }
+    ],
+    "enrichmentOptions": {
+      "includePersonalInfo": true,
+      "includeCompanyInfo": true,
+      "includeContactInfo": true
+    }
+  }'
+```
+
+```javascript JavaScript
+const response = await fetch("https://api.buena.ai/api/v2/enrich", {
+  method: "POST",
+  headers: {
+    "x-api-key": "YOUR_API_KEY",
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    leads: [
+      {
+        email: "john@techcorp.com",
+        firstName: "John",
+        lastName: "Doe",
+      },
+    ],
+    enrichmentOptions: {
+      includePersonalInfo: true,
+      includeCompanyInfo: true,
+      includeContactInfo: true,
+    },
+  }),
+});
+
+const data = await response.json();
+console.log(data.data.enriched);
+```
+
+```python Python
+import requests
+
+response = requests.post(
+    'https://api.buena.ai/api/v2/enrich',
+    headers={
+        'x-api-key': 'YOUR_API_KEY',
+        'Content-Type': 'application/json'
+    },
+    json={
+        'leads': [
+            {
+                'email': 'john@techcorp.com',
+                'firstName': 'John',
+                'lastName': 'Doe'
+            }
+        ],
+        'enrichmentOptions': {
+            'includePersonalInfo': True,
+            'includeCompanyInfo': True,
+            'includeContactInfo': True
+        }
+    }
+)
+
+data = response.json()
+for enriched in data['data']['enriched']:
+    print(f"Enriched: {enriched['enrichedData']['firstName']} {enriched['enrichedData']['lastName']}")
+```
+
+</CodeGroup>
+
+### Bulk Enrichment
+
+<CodeGroup>
+
+```bash cURL
+curl -X POST "https://api.buena.ai/api/v2/enrich" \
+  -H "x-api-key: YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "leads": [
+      {
+        "email": "john@techcorp.com"
+      },
+      {
+        "linkedinUrl": "https://linkedin.com/in/janedoe"
+      },
+      {
+        "firstName": "Bob",
+        "lastName": "Smith",
+        "company": "Startup Inc"
+      }
+    ]
+  }'
+```
+
+```javascript JavaScript
+const leadsToEnrich = [
+  { email: "john@techcorp.com" },
+  { linkedinUrl: "https://linkedin.com/in/janedoe" },
+  { firstName: "Bob", lastName: "Smith", company: "Startup Inc" },
+];
+
+const response = await fetch("https://api.buena.ai/api/v2/enrich", {
+  method: "POST",
+  headers: {
+    "x-api-key": "YOUR_API_KEY",
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    leads: leadsToEnrich,
+    enrichmentOptions: {
+      includePersonalInfo: true,
+      includeCompanyInfo: true,
+      includeSocialProfiles: true,
+    },
+  }),
+});
+
+const data = await response.json();
+console.log(`Enriched ${data.data.enriched.length} leads`);
+console.log(`Failed ${data.data.failed.length} leads`);
+```
+
+</CodeGroup>
+
+## Response
+
+<ResponseField name="success" type="boolean">
+  Always `true` for successful requests
+</ResponseField>
+
+<ResponseField name="data" type="object">
+  Container for enrichment results and metadata
+  <Expandable title="Data Object">
+    <ResponseField name="enriched" type="array">
+      Array of successfully enriched leads
+      <Expandable title="Enriched Lead Object">
+        <ResponseField name="input" type="object">
+          Original lead data provided for enrichment
+        </ResponseField>
+        <ResponseField name="enrichedData" type="object">
+          Enhanced lead data from enrichment sources
+          <Expandable title="Enriched Data Fields">
+            <ResponseField name="firstName" type="string">
+              Lead's first name
+            </ResponseField>
+            <ResponseField name="lastName" type="string">
+              Lead's last name
+            </ResponseField>
+            <ResponseField name="email" type="string">
+              Primary email address
+            </ResponseField>
+            <ResponseField name="alternativeEmails" type="array">
+              Additional email addresses found
+            </ResponseField>
+            <ResponseField name="phone" type="string">
+              Phone number
+            </ResponseField>
+            <ResponseField name="linkedinUrl" type="string">
+              LinkedIn profile URL
+            </ResponseField>
+            <ResponseField name="company" type="string">
+              Current company name
+            </ResponseField>
+            <ResponseField name="title" type="string">
+              Current job title
+            </ResponseField>
+            <ResponseField name="location" type="string">
+              Geographic location
+            </ResponseField>
+            <ResponseField name="experience" type="string">
+              Years of experience
+            </ResponseField>
+            <ResponseField name="skills" type="array">
+              Professional skills and technologies
+            </ResponseField>
+            <ResponseField name="bio" type="string">
+              Professional biography/summary
+            </ResponseField>
+            <ResponseField name="companyInfo" type="object">
+              Company information
+              <Expandable title="Company Info Fields">
+                <ResponseField name="name" type="string">
+                  Company name
+                </ResponseField>
+                <ResponseField name="website" type="string">
+                  Company website
+                </ResponseField>
+                <ResponseField name="industry" type="string">
+                  Industry sector
+                </ResponseField>
+                <ResponseField name="size" type="string">
+                  Employee count range
+                </ResponseField>
+                <ResponseField name="description" type="string">
+                  Company description
+                </ResponseField>
+                <ResponseField name="founded" type="string">
+                  Year founded
+                </ResponseField>
+                <ResponseField name="headquarters" type="string">
+                  Company headquarters location
+                </ResponseField>
+              </Expandable>
+            </ResponseField>
+            <ResponseField name="socialProfiles" type="object">
+              Social media profiles (if included)
+              <Expandable title="Social Profiles">
+                <ResponseField name="twitter" type="string">
+                  Twitter profile URL
+                </ResponseField>
+                <ResponseField name="github" type="string">
+                  GitHub profile URL
+                </ResponseField>
+                <ResponseField name="facebook" type="string">
+                  Facebook profile URL
+                </ResponseField>
+              </Expandable>
+            </ResponseField>
+          </Expandable>
+        </ResponseField>
+        <ResponseField name="confidence" type="number">
+          Confidence score for the enrichment (0.0 to 1.0)
+        </ResponseField>
+        <ResponseField name="sources" type="array">
+          Data sources used for enrichment
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+
+    <ResponseField name="failed" type="array">
+      Array of leads that could not be enriched
+      <Expandable title="Failed Lead Object">
+        <ResponseField name="input" type="object">
+          Original lead data provided
+        </ResponseField>
+        <ResponseField name="reason" type="string">
+          Reason for enrichment failure
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+
+    <ResponseField name="creditsUsed" type="number">
+      Number of enrichment credits consumed
+    </ResponseField>
+
+    <ResponseField name="remainingCredits" type="number">
+      Remaining enrichment credits in your account
+    </ResponseField>
+
+  </Expandable>
+</ResponseField>
+
+<ResponseExample>
+
+```json Response
+{
+  "success": true,
+  "data": {
+    "enriched": [
+      {
+        "input": {
+          "email": "john@techcorp.com",
+          "firstName": "John",
+          "lastName": "Doe"
+        },
+        "enrichedData": {
+          "firstName": "John",
+          "lastName": "Doe",
+          "email": "john@techcorp.com",
+          "alternativeEmails": ["j.doe@techcorp.com"],
+          "phone": "+1-555-123-4567",
+          "linkedinUrl": "https://linkedin.com/in/johndoe",
+          "company": "Tech Corp",
+          "title": "Senior Software Engineer",
+          "location": "San Francisco, CA",
+          "experience": "8 years",
+          "skills": ["JavaScript", "React", "Node.js", "Python", "AWS"],
+          "bio": "Experienced software engineer specializing in full-stack development and cloud architecture.",
+          "companyInfo": {
+            "name": "Tech Corp",
+            "website": "https://techcorp.com",
+            "industry": "Technology",
+            "size": "100-500",
+            "description": "Leading provider of enterprise software solutions.",
+            "founded": "2010",
+            "headquarters": "San Francisco, CA"
+          },
+          "socialProfiles": {
+            "twitter": "https://twitter.com/johndoe",
+            "github": "https://github.com/johndoe"
+          }
+        },
+        "confidence": 0.95,
+        "sources": ["apollo", "clearbit", "hunter"]
+      }
+    ],
+    "failed": [],
+    "creditsUsed": 1,
+    "remainingCredits": 99
+  }
+}
+```
+
+</ResponseExample>
+
+## Advanced Use Cases
+
+### 1. CRM Integration Enrichment
+
+```javascript
+async function enrichCRMContacts() {
+  // Get contacts from your CRM that need enrichment
+  const contacts = await getCRMContacts({ needsEnrichment: true });
+
+  // Prepare leads for enrichment
+  const leadsToEnrich = contacts.map((contact) => ({
+    email: contact.email,
+    firstName: contact.firstName,
+    lastName: contact.lastName,
+    company: contact.company,
+  }));
+
+  // Batch enrichment (max 50 per request)
+  const batchSize = 50;
+  const enrichedLeads = [];
+
+  for (let i = 0; i < leadsToEnrich.length; i += batchSize) {
+    const batch = leadsToEnrich.slice(i, i + batchSize);
+
+    const response = await fetch("https://api.buena.ai/api/v2/enrich", {
+      method: "POST",
+      headers: {
+        "x-api-key": process.env.BUENA_API_KEY,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        leads: batch,
+        enrichmentOptions: {
+          includePersonalInfo: true,
+          includeCompanyInfo: true,
+          includeContactInfo: true,
+        },
+      }),
+    });
+
+    const data = await response.json();
+    enrichedLeads.push(...data.data.enriched);
+
+    console.log(
+      `Enriched batch ${Math.floor(i / batchSize) + 1}: ${
+        data.data.enriched.length
+      } leads`
+    );
+
+    // Rate limiting
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+  }
+
+  // Update CRM with enriched data
+  for (const enriched of enrichedLeads) {
+    await updateCRMContact(enriched.input.email, enriched.enrichedData);
+  }
+
+  return enrichedLeads;
+}
+```
+
+### 2. Lead Scoring with Enrichment
+
+```python
+import requests
+
+def enrich_and_score_leads(leads):
+    """Enrich leads and calculate quality scores"""
+
+    response = requests.post(
+        'https://api.buena.ai/api/v2/enrich',
+        headers={
+            'x-api-key': os.getenv('BUENA_API_KEY'),
+            'Content-Type': 'application/json'
+        },
+        json={
+            'leads': leads,
+            'enrichmentOptions': {
+                'includePersonalInfo': True,
+                'includeCompanyInfo': True
+            }
+        }
+    )
+
+    data = response.json()
+    scored_leads = []
+
+    for enriched in data['data']['enriched']:
+        lead_data = enriched['enrichedData']
+        score = calculate_lead_score(lead_data)
+
+        scored_leads.append({
+            **lead_data,
+            'score': score,
+            'confidence': enriched['confidence']
+        })
+
+    return sorted(scored_leads, key=lambda x: x['score'], reverse=True)
+
+def calculate_lead_score(lead_data):
+    """Calculate lead quality score based on enriched data"""
+    score = 0
+
+    # Company size scoring
+    company_size = lead_data.get('companyInfo', {}).get('size', '')
+    size_scores = {
+        '1000+': 10,
+        '500-1000': 8,
+        '100-500': 6,
+        '50-100': 4,
+        '10-50': 2
+    }
+    score += size_scores.get(company_size, 0)
+
+    # Title scoring
+    title = lead_data.get('title', '').lower()
+    senior_titles = ['ceo', 'cto', 'vp', 'director', 'head', 'senior', 'lead']
+    if any(t in title for t in senior_titles):
+        score += 5
+
+    # Technology fit scoring
+    skills = lead_data.get('skills', [])
+    target_skills = ['python', 'javascript', 'aws', 'machine learning', 'api']
+    skill_matches = sum(1 for skill in skills if any(target in skill.lower() for target in target_skills))
+    score += skill_matches * 2
+
+    # Contact info completeness
+    if lead_data.get('phone'):
+        score += 2
+    if lead_data.get('linkedinUrl'):
+        score += 2
+
+    return min(score, 25)  # Cap at 25
+
+# Example usage
+leads_to_enrich = [
+    {'email': 'john@techcorp.com'},
+    {'email': 'jane@startup.io'},
+    {'linkedinUrl': 'https://linkedin.com/in/bobsmith'}
+]
+
+scored_leads = enrich_and_score_leads(leads_to_enrich)
+print("Top scoring leads:")
+for lead in scored_leads[:5]:
+    print(f"{lead['firstName']} {lead['lastName']} ({lead['company']}) - Score: {lead['score']}")
+```
+
+### 3. Real-time Enrichment for Forms
+
+```javascript
+// Real-time enrichment as users fill out forms
+class FormEnrichment {
+  constructor(apiKey) {
+    this.apiKey = apiKey;
+    this.cache = new Map();
+    this.enrichmentTimeout = null;
+  }
+
+  async onEmailChange(email) {
+    // Debounce enrichment requests
+    clearTimeout(this.enrichmentTimeout);
+
+    this.enrichmentTimeout = setTimeout(async () => {
+      try {
+        const enrichedData = await this.enrichLead({ email });
+        if (enrichedData) {
+          this.autofillForm(enrichedData);
+        }
+      } catch (error) {
+        console.log("Enrichment failed:", error.message);
+      }
+    }, 1000);
+  }
+
+  async enrichLead(leadData) {
+    const cacheKey = JSON.stringify(leadData);
+    if (this.cache.has(cacheKey)) {
+      return this.cache.get(cacheKey);
+    }
+
+    const response = await fetch("https://api.buena.ai/api/v2/enrich", {
+      method: "POST",
+      headers: {
+        "x-api-key": this.apiKey,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        leads: [leadData],
+        enrichmentOptions: {
+          includePersonalInfo: true,
+          includeCompanyInfo: true,
+        },
+      }),
+    });
+
+    const data = await response.json();
+    const enriched = data.data.enriched[0];
+
+    if (enriched) {
+      this.cache.set(cacheKey, enriched.enrichedData);
+      return enriched.enrichedData;
+    }
+
+    return null;
+  }
+
+  autofillForm(enrichedData) {
+    // Auto-fill form fields with enriched data
+    const fieldMap = {
+      firstName: enrichedData.firstName,
+      lastName: enrichedData.lastName,
+      company: enrichedData.company,
+      title: enrichedData.title,
+      phone: enrichedData.phone,
+      linkedinUrl: enrichedData.linkedinUrl,
+    };
+
+    Object.entries(fieldMap).forEach(([fieldName, value]) => {
+      const field = document.querySelector(`[name="${fieldName}"]`);
+      if (field && !field.value && value) {
+        field.value = value;
+        field.dispatchEvent(new Event("change"));
+      }
+    });
+
+    // Show enrichment success indicator
+    this.showEnrichmentSuccess(enrichedData);
+  }
+
+  showEnrichmentSuccess(data) {
+    const notification = document.createElement("div");
+    notification.className = "enrichment-success";
+    notification.innerHTML = `
+      <div>✅ Auto-filled with data from ${data.company}</div>
+      <small>Found additional details for ${data.firstName} ${data.lastName}</small>
+    `;
+    document.body.appendChild(notification);
+
+    setTimeout(() => notification.remove(), 3000);
+  }
+}
+
+// Usage
+const enricher = new FormEnrichment("your-api-key");
+document.querySelector("#email").addEventListener("blur", (e) => {
+  enricher.onEmailChange(e.target.value);
+});
+```
+
+## Data Sources
+
+Buena.ai aggregates data from multiple premium sources:
+
+<AccordionGroup>
+  <Accordion title="Contact Data Sources">
+    - **Apollo**: Professional contact information and company data -
+    **Hunter**: Email verification and additional contact details -
+    **Clearbit**: Company information and professional profiles - **ZoomInfo**:
+    B2B contact and company intelligence
+  </Accordion>
+
+{" "}
+
+<Accordion title="Social Media Sources">
+  - **LinkedIn**: Professional profiles and work history - **Twitter**: Social
+  media profiles and activity - **GitHub**: Technical profiles and project
+  information - **Facebook**: Additional social verification
+</Accordion>
+
+  <Accordion title="Company Data Sources">
+    - **Crunchbase**: Funding, valuation, and company details - **Company
+    websites**: Direct company information - **Industry databases**:
+    Sector-specific information - **Public records**: Legal and registration
+    data
+  </Accordion>
+</AccordionGroup>
+
+## Error Responses
+
+### Insufficient Credits (402)
+
+```json
+{
+  "error": true,
+  "code": "ENRICHMENT_CREDITS_EXHAUSTED",
+  "message": "Insufficient enrichment credits",
+  "version": "2.0",
+  "timestamp": "2024-01-20T15:30:00Z",
+  "details": {
+    "remaining": 0,
+    "required": 5,
+    "upgradeUrl": "https://app.buena.ai/billing"
+  }
+}
+```
+
+### Invalid Lead Data (400)
+
+```json
+{
+  "error": true,
+  "code": "VALIDATION_ERROR",
+  "message": "Invalid lead data for enrichment",
+  "version": "2.0",
+  "timestamp": "2024-01-20T15:30:00Z",
+  "details": {
+    "errors": [
+      {
+        "index": 0,
+        "message": "At least one identifier (email, LinkedIn URL, or name + company) is required"
+      }
+    ]
+  }
+}
+```
+
+### Rate Limited (429)
+
+```json
+{
+  "error": true,
+  "code": "RATE_LIMIT_EXCEEDED",
+  "message": "Enrichment rate limit exceeded",
+  "version": "2.0",
+  "timestamp": "2024-01-20T15:30:00Z",
+  "retryAfter": 60,
+  "details": {
+    "limit": "100 enrichments per hour",
+    "resetTime": "2024-01-20T16:30:00Z"
+  }
+}
+```
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion title="Optimize Credit Usage">
+    Use enrichment strategically to maximize value:
+    
+    ```javascript
+    // Only enrich high-value leads
+    const shouldEnrich = (lead) => {
+      return lead.source === 'referral' || 
+             lead.company.includes('Enterprise') ||
+             lead.title.includes('Director');
+    };
+    
+    const leadsToEnrich = allLeads.filter(shouldEnrich);
+    ```
+  </Accordion>
+  
+  <Accordion title="Batch Processing">
+    Process leads in batches for efficiency:
+    
+    ```javascript
+    // Process in batches of 50
+    const batchSize = 50;
+    for (let i = 0; i < leads.length; i += batchSize) {
+      const batch = leads.slice(i, i + batchSize);
+      await enrichBatch(batch);
+      
+      // Rate limiting between batches
+      await new Promise(resolve => setTimeout(resolve, 1000));
+    }
+    ```
+  </Accordion>
+  
+  <Accordion title="Cache Results">
+    Cache enrichment results to avoid duplicate requests:
+    
+    ```javascript
+    const enrichmentCache = new Map();
+    
+    function getCacheKey(lead) {
+      return lead.email || lead.linkedinUrl || `${lead.firstName}-${lead.lastName}-${lead.company}`;
+    }
+    
+    async function enrichWithCache(lead) {
+      const key = getCacheKey(lead);
+      
+      if (enrichmentCache.has(key)) {
+        return enrichmentCache.get(key);
+      }
+      
+      const enriched = await enrichLead(lead);
+      enrichmentCache.set(key, enriched);
+      
+      return enriched;
+    }
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Create Lead" icon="plus" href="/api-reference/leads/create">
+    Add enriched leads to your database
+  </Card>
+  <Card title="Update Lead" icon="edit" href="/api-reference/leads/update">
+    Update leads with enriched information
+  </Card>
+  <Card
+    title="Find Prospects"
+    icon="search"
+    href="/api-reference/prospecting/search"
+  >
+    Discover new leads to enrich
+  </Card>
+  <Card title="Enrichment Guide" icon="book" href="/guides/lead-management">
+    Learn advanced enrichment strategies
+  </Card>
+</CardGroup>{" "}

@@ -1,0 +1,213 @@
+---
+title: "Update API Key"
+api: "PUT https://api.buena.ai/api/v2/keys/{keyId}"
+description: "Update API key permissions and metadata"
+---
+
+# Update API Key
+
+Modify an existing API key's permissions, description, or other metadata. You can change permissions, update descriptions, and modify expiration dates.
+
+<Note>
+  Requires the `keys:manage` permission. You can only update keys that you have
+  created or have been granted access to.
+</Note>
+
+## Request
+
+<ParamField path="keyId" type="string" required>
+  The unique identifier of the API key to update
+</ParamField>
+
+<ParamField header="x-api-key" type="string" required>
+  Your API key with `keys:manage` permission
+</ParamField>
+
+<ParamField header="Content-Type" type="string" required>
+  Must be `application/json`
+</ParamField>
+
+### Body Parameters
+
+<ParamField body="description" type="string">
+  Updated description for the API key
+</ParamField>
+
+<ParamField body="permissions" type="array">
+  Array of permission strings to grant to this key
+  <Expandable title="Available Permissions">
+    <ParamField body="keys:create" type="string">
+      Create new API keys
+    </ParamField>
+    <ParamField body="keys:read" type="string">
+      Read API key information
+    </ParamField>
+    <ParamField body="keys:manage" type="string">
+      Update and delete API keys
+    </ParamField>
+    <ParamField body="leads:read" type="string">
+      Read lead data
+    </ParamField>
+    <ParamField body="leads:write" type="string">
+      Create and update leads
+    </ParamField>
+    <ParamField body="leads:enrich" type="string">
+      Enrich lead data
+    </ParamField>
+    <ParamField body="linkedin:schedule" type="string">
+      Schedule LinkedIn actions
+    </ParamField>
+    <ParamField body="prospecting:search" type="string">
+      Search for prospects
+    </ParamField>
+    <ParamField body="campaigns:manage" type="string">
+      Manage campaigns
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="expiresAt" type="string">
+  ISO 8601 timestamp when the key should expire (optional)
+</ParamField>
+
+## Examples
+
+### Update Key Permissions
+
+<CodeGroup>
+
+```bash cURL
+curl -X PUT "https://api.buena.ai/api/v2/keys/key_123abc" \
+  -H "x-api-key: YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "description": "Updated marketing automation key",
+    "permissions": [
+      "leads:read",
+      "leads:write",
+      "leads:enrich",
+      "linkedin:schedule"
+    ]
+  }'
+```
+
+```javascript JavaScript
+const response = await fetch("https://api.buena.ai/api/v2/keys/key_123abc", {
+  method: "PUT",
+  headers: {
+    "x-api-key": "YOUR_API_KEY",
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    description: "Updated marketing automation key",
+    permissions: [
+      "leads:read",
+      "leads:write",
+      "leads:enrich",
+      "linkedin:schedule",
+    ],
+  }),
+});
+
+const data = await response.json();
+console.log(data);
+```
+
+```python Python
+import requests
+
+response = requests.put(
+    'https://api.buena.ai/api/v2/keys/key_123abc',
+    headers={
+        'x-api-key': 'YOUR_API_KEY',
+        'Content-Type': 'application/json'
+    },
+    json={
+        'description': 'Updated marketing automation key',
+        'permissions': [
+            'leads:read',
+            'leads:write',
+            'leads:enrich',
+            'linkedin:schedule'
+        ]
+    }
+)
+
+print(response.json())
+```
+
+</CodeGroup>
+
+## Response
+
+<ResponseField name="success" type="boolean">
+  Always `true` for successful requests
+</ResponseField>
+
+<ResponseField name="data" type="object">
+  Updated API key information
+  <Expandable title="API Key Object">
+    <ResponseField name="id" type="string">
+      Unique identifier for the API key
+    </ResponseField>
+    <ResponseField name="description" type="string">
+      Description of the API key
+    </ResponseField>
+    <ResponseField name="permissions" type="array">
+      Array of permissions granted to this key
+    </ResponseField>
+    <ResponseField name="createdAt" type="string">
+      ISO 8601 timestamp when the key was created
+    </ResponseField>
+    <ResponseField name="updatedAt" type="string">
+      ISO 8601 timestamp when the key was last updated
+    </ResponseField>
+    <ResponseField name="lastUsed" type="string">
+      ISO 8601 timestamp when the key was last used
+    </ResponseField>
+    <ResponseField name="expiresAt" type="string">
+      ISO 8601 timestamp when the key expires (null if never expires)
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseExample>
+
+```json Response
+{
+  "success": true,
+  "data": {
+    "id": "key_123abc",
+    "description": "Updated marketing automation key",
+    "permissions": [
+      "leads:read",
+      "leads:write",
+      "leads:enrich",
+      "linkedin:schedule"
+    ],
+    "createdAt": "2024-01-15T10:30:00Z",
+    "updatedAt": "2024-01-20T15:30:00Z",
+    "lastUsed": "2024-01-20T14:25:00Z",
+    "expiresAt": null
+  }
+}
+```
+
+</ResponseExample>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="List Keys" icon="list" href="/api-reference/keys/list">
+    View all your API keys
+  </Card>
+  <Card title="Delete Key" icon="trash" href="/api-reference/keys/delete">
+    Remove an API key
+  </Card>
+  <Card title="Key Stats" icon="chart-line" href="/api-reference/keys/stats">
+    View usage statistics
+  </Card>
+  <Card title="Authentication Guide" icon="shield" href="/authentication">
+    Learn about API security
+  </Card>
+</CardGroup>{" "}

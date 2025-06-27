@@ -1,42 +1,140 @@
 ---
-title: "Introduction"
-description: "Welcome to the Buena AI User Manual. This guide will help you navigate and utilize all features within the Buena AI platform"
+title: Introduction
+description: "Automate your LinkedIn outreach, manage leads, and scale your prospecting with Buena.ai API v2"
 ---
 
-## 2. Dashboard Overview&#x20;
+<img
+  className="block dark:hidden"
+  src="/logo/dark-logo.png"
+  alt="Buena.ai Hero Light"
+/>
+<img
+  className="hidden dark:block"
+  src="/logo/buena_white_logo.avif"
+  alt="Buena.ai Hero Dark"
+/>
 
-![](/images/February15,20257_23_59PM-Screenshot.png)
+# Welcome to Buena.ai API v2
 
-The Buena AI dashboard is the central hub for managing your sales AI tools and features.
+The most powerful LinkedIn automation and lead management API for modern sales teams and developers.
 
-**Key Components:**
+## What is Buena.ai?
 
-* **Left Sidebar Navigation:** Home, Analytics, Agent Emails, Companies, Prospects, Go-To-Market, LinkedIn tools, Custom Outreach, and Team Management.
+Buena.ai provides cutting-edge LinkedIn automation, lead management, and prospecting capabilities with user-specific authentication and granular permissions. Our API enables you to:
 
-* **Settings, Domains, and Mailboxes:** Configure platform settings, domains, and email.
+<CardGroup cols={2}>
+  <Card
+    title="LinkedIn Automation"
+    icon="linkedin"
+    href="/api-reference/linkedin/schedule-action"
+  >
+    Schedule connection requests, send personalized messages, and manage your
+    LinkedIn outreach at scale.
+  </Card>
+  <Card title="Lead Management" icon="users" href="/api-reference/leads/list">
+    Create, update, and organize your leads with advanced filtering and search
+    capabilities.
+  </Card>
+  <Card
+    title="Lead Enrichment"
+    icon="sparkles"
+    href="/api-reference/enrich/leads"
+  >
+    Enrich your leads with additional data from multiple sources to improve
+    conversion rates.
+  </Card>
+  <Card
+    title="Prospecting"
+    icon="search"
+    href="/api-reference/prospecting/search"
+  >
+    Find new prospects based on specific criteria and automatically add them to
+    your campaigns.
+  </Card>
+</CardGroup>
 
-* **Profile Section:** Displays user information and role.
+## Key Features
 
-* **Main Dashboard Area:** Highlights features like AI-powered analytics and email automation.
+<AccordionGroup>
+  <Accordion title="User-Specific API Keys">
+    Each API key is tied to a specific user account with granular permissions, ensuring secure and controlled access to your data.
+  </Accordion>
 
-* **Agent Actions Panel:** Shows recent and active agent actions.
+{" "}
 
-## Feature Guides:
+<Accordion title="Rate Limiting & Usage Tracking">
+  Built-in rate limiting protects against abuse while usage tracking helps you
+  monitor API consumption and costs.
+</Accordion>
 
-1. Analytics&#x20;
+{" "}
 
-2. Agent Emails
+<Accordion title="Comprehensive LinkedIn Integration">
+  Full LinkedIn automation including connection requests, messaging,
+  conversation management, and contact synchronization.
+</Accordion>
 
-3. Companies
+{" "}
 
-4. Prospects
+<Accordion title="Advanced Lead Management">
+  Create, update, search, and organize leads with custom fields, tags, and
+  advanced filtering capabilities.
+</Accordion>
 
-5. Go-To-Market
+{" "}
 
-6. LinkedIn tools
+<Accordion title="Multi-Source Data Enrichment">
+  Enrich leads with data from Apollo, Clearbit, Hunter, and other premium data
+  sources.
+</Accordion>
 
-7. Custom Outreach
+  <Accordion title="Campaign Management">
+    Generate CSV exports for email campaigns and manage multi-step LinkedIn outreach sequences.
+  </Accordion>
+</AccordionGroup>
 
-8. Team Management
+## Getting Started
 
-##
+<Steps>
+  <Step title="Get Your API Key">
+    Create an API key through your [Buena.ai dashboard](https://app.buena.ai) or
+    contact support.
+  </Step>
+  <Step title="Make Your First Request">
+    Test the API with a simple health check request.
+  </Step>
+  <Step title="Start Automating">
+    Begin scheduling LinkedIn actions and managing your leads.
+  </Step>
+</Steps>
+
+## Base URL
+
+All API requests should be made to:
+
+```
+https://api.buena.ai/api/v2
+```
+
+## Support
+
+Need help? We're here for you:
+
+<CardGroup cols={2}>
+  <Card title="Documentation" icon="book" href="/quickstart">
+    Complete guides and API reference
+  </Card>
+  <Card
+    title="Discord Community"
+    icon="discord"
+    href="https://discord.gg/buena"
+  >
+    Join our developer community
+  </Card>
+  <Card title="Email Support" icon="envelope" href="mailto:support@buena.ai">
+    Get help from our team
+  </Card>
+  <Card title="Status Page" icon="chart-line" href="https://status.buena.ai">
+    Check API status and uptime
+  </Card>
+</CardGroup>

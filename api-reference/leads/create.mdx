@@ -1,0 +1,281 @@
+---
+title: "Create Lead"
+api: "POST https://api.buena.ai/api/v2/leads"
+description: "Create a new lead in your database"
+---
+
+# Create Lead
+
+Add a new lead to your database with contact information, company details, and custom attributes. Leads can be created manually or imported from various sources.
+
+<Note>Requires the `leads:write` permission.</Note>
+
+## Request
+
+<ParamField header="x-api-key" type="string" required>
+  Your API key with `leads:write` permission
+</ParamField>
+
+<ParamField header="Content-Type" type="string" required>
+  Must be `application/json`
+</ParamField>
+
+### Body Parameters
+
+<ParamField body="firstName" type="string" required>
+  Lead's first name
+</ParamField>
+
+<ParamField body="lastName" type="string" required>
+  Lead's last name
+</ParamField>
+
+<ParamField body="email" type="string" required>
+  Primary email address
+</ParamField>
+
+<ParamField body="company" type="string">
+  Company name
+</ParamField>
+
+<ParamField body="title" type="string">
+  Job title
+</ParamField>
+
+<ParamField body="phone" type="string">
+  Phone number
+</ParamField>
+
+<ParamField body="linkedinUrl" type="string">
+  LinkedIn profile URL
+</ParamField>
+
+<ParamField body="industry" type="string">
+  Industry sector
+</ParamField>
+
+<ParamField body="location" type="string">
+  Geographic location
+</ParamField>
+
+<ParamField body="source" type="string">
+  Lead source (e.g., "website", "referral", "linkedin")
+</ParamField>
+
+<ParamField body="tags" type="array">
+  Array of tag strings for categorization
+</ParamField>
+
+<ParamField body="customFields" type="object">
+  Object containing custom field key-value pairs
+</ParamField>
+
+## Examples
+
+### Basic Lead Creation
+
+<CodeGroup>
+
+```bash cURL
+curl -X POST "https://api.buena.ai/api/v2/leads" \
+  -H "x-api-key: YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "firstName": "John",
+    "lastName": "Doe",
+    "email": "john@techcorp.com",
+    "company": "Tech Corp",
+    "title": "Software Engineer",
+    "phone": "+1-555-123-4567",
+    "linkedinUrl": "https://linkedin.com/in/johndoe",
+    "source": "linkedin"
+  }'
+```
+
+```javascript JavaScript
+const response = await fetch("https://api.buena.ai/api/v2/leads", {
+  method: "POST",
+  headers: {
+    "x-api-key": "YOUR_API_KEY",
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    firstName: "John",
+    lastName: "Doe",
+    email: "john@techcorp.com",
+    company: "Tech Corp",
+    title: "Software Engineer",
+    phone: "+1-555-123-4567",
+    linkedinUrl: "https://linkedin.com/in/johndoe",
+    source: "linkedin",
+  }),
+});
+
+const data = await response.json();
+console.log(data);
+```
+
+```python Python
+import requests
+
+response = requests.post(
+    'https://api.buena.ai/api/v2/leads',
+    headers={
+        'x-api-key': 'YOUR_API_KEY',
+        'Content-Type': 'application/json'
+    },
+    json={
+        'firstName': 'John',
+        'lastName': 'Doe',
+        'email': 'john@techcorp.com',
+        'company': 'Tech Corp',
+        'title': 'Software Engineer',
+        'phone': '+1-555-123-4567',
+        'linkedinUrl': 'https://linkedin.com/in/johndoe',
+        'source': 'linkedin'
+    }
+)
+
+print(response.json())
+```
+
+</CodeGroup>
+
+### Lead with Custom Fields and Tags
+
+<CodeGroup>
+
+```bash cURL
+curl -X POST "https://api.buena.ai/api/v2/leads" \
+  -H "x-api-key: YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "firstName": "Jane",
+    "lastName": "Smith",
+    "email": "jane@startup.io",
+    "company": "Startup Inc",
+    "title": "CEO",
+    "industry": "Technology",
+    "location": "San Francisco, CA",
+    "source": "referral",
+    "tags": ["hot-lead", "enterprise", "decision-maker"],
+    "customFields": {
+      "companySize": "50-100",
+      "budget": "100k+",
+      "timeline": "Q2 2024"
+    }
+  }'
+```
+
+```javascript JavaScript
+const response = await fetch("https://api.buena.ai/api/v2/leads", {
+  method: "POST",
+  headers: {
+    "x-api-key": "YOUR_API_KEY",
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    firstName: "Jane",
+    lastName: "Smith",
+    email: "jane@startup.io",
+    company: "Startup Inc",
+    title: "CEO",
+    industry: "Technology",
+    location: "San Francisco, CA",
+    source: "referral",
+    tags: ["hot-lead", "enterprise", "decision-maker"],
+    customFields: {
+      companySize: "50-100",
+      budget: "100k+",
+      timeline: "Q2 2024",
+    },
+  }),
+});
+
+const data = await response.json();
+console.log(data);
+```
+
+</CodeGroup>
+
+## Response
+
+<ResponseField name="success" type="boolean">
+  Always `true` for successful requests
+</ResponseField>
+
+<ResponseField name="data" type="object">
+  The created lead object
+  <Expandable title="Lead Object">
+    <ResponseField name="id" type="string">
+      Unique identifier for the lead
+    </ResponseField>
+    <ResponseField name="firstName" type="string">
+      Lead's first name
+    </ResponseField>
+    <ResponseField name="lastName" type="string">
+      Lead's last name
+    </ResponseField>
+    <ResponseField name="email" type="string">
+      Primary email address
+    </ResponseField>
+    <ResponseField name="company" type="string">
+      Company name
+    </ResponseField>
+    <ResponseField name="title" type="string">
+      Job title
+    </ResponseField>
+    <ResponseField name="status" type="string">
+      Lead status (e.g., "new", "contacted", "qualified")
+    </ResponseField>
+    <ResponseField name="createdAt" type="string">
+      ISO 8601 timestamp when the lead was created
+    </ResponseField>
+    <ResponseField name="updatedAt" type="string">
+      ISO 8601 timestamp when the lead was last updated
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseExample>
+
+```json Response
+{
+  "success": true,
+  "data": {
+    "id": "lead_123abc",
+    "firstName": "John",
+    "lastName": "Doe",
+    "email": "john@techcorp.com",
+    "company": "Tech Corp",
+    "title": "Software Engineer",
+    "phone": "+1-555-123-4567",
+    "linkedinUrl": "https://linkedin.com/in/johndoe",
+    "source": "linkedin",
+    "status": "new",
+    "tags": [],
+    "customFields": {},
+    "createdAt": "2024-01-20T15:30:00Z",
+    "updatedAt": "2024-01-20T15:30:00Z"
+  }
+}
+```
+
+</ResponseExample>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Update Lead" icon="edit" href="/api-reference/leads/update">
+    Modify lead information
+  </Card>
+  <Card title="Enrich Lead" icon="sparkles" href="/api-reference/enrich/leads">
+    Add enriched data to leads
+  </Card>
+  <Card title="List Leads" icon="list" href="/api-reference/leads/list">
+    View all your leads
+  </Card>
+  <Card title="Lead Management" icon="book" href="/guides/lead-management">
+    Learn lead management best practices
+  </Card>
+</CardGroup>{" "}

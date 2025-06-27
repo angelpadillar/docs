@@ -1,0 +1,94 @@
+---
+title: "Delete API Key"
+api: "DELETE https://api.buena.ai/api/v2/keys/{keyId}"
+description: "Permanently delete an API key"
+---
+
+# Delete API Key
+
+Permanently delete an API key. This action cannot be undone and will immediately revoke access for any applications using this key.
+
+<Warning>
+  This action is irreversible. Make sure you're not using this key in any
+  production applications before deleting it.
+</Warning>
+
+## Request
+
+<ParamField path="keyId" type="string" required>
+  The unique identifier of the API key to delete
+</ParamField>
+
+<ParamField header="x-api-key" type="string" required>
+  Your API key with `keys:manage` permission
+</ParamField>
+
+## Examples
+
+### Delete API Key
+
+<CodeGroup>
+
+```bash cURL
+curl -X DELETE "https://api.buena.ai/api/v2/keys/key_123abc" \
+  -H "x-api-key: YOUR_API_KEY"
+```
+
+```javascript JavaScript
+const response = await fetch("https://api.buena.ai/api/v2/keys/key_123abc", {
+  method: "DELETE",
+  headers: {
+    "x-api-key": "YOUR_API_KEY",
+  },
+});
+
+const data = await response.json();
+console.log(data);
+```
+
+```python Python
+import requests
+
+response = requests.delete(
+    'https://api.buena.ai/api/v2/keys/key_123abc',
+    headers={
+        'x-api-key': 'YOUR_API_KEY'
+    }
+)
+
+print(response.json())
+```
+
+</CodeGroup>
+
+## Response
+
+<ResponseField name="success" type="boolean">
+  Always `true` for successful requests
+</ResponseField>
+
+<ResponseField name="message" type="string">
+  Confirmation message
+</ResponseField>
+
+<ResponseExample>
+
+```json Response
+{
+  "success": true,
+  "message": "API key key_123abc has been successfully deleted"
+}
+```
+
+</ResponseExample>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Create New Key" icon="plus" href="/api-reference/keys/create">
+    Create a replacement API key
+  </Card>
+  <Card title="List Keys" icon="list" href="/api-reference/keys/list">
+    View remaining API keys
+  </Card>
+</CardGroup>{" "}

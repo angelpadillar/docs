@@ -1,0 +1,461 @@
+---
+title: "Create API Key"
+api: "POST https://api.buena.ai/api/v2/keys"
+description: "Create a new API key with specific permissions and expiration"
+---
+
+# Create API Key
+
+Create a new API key for your account with granular permissions and optional expiration. This endpoint allows you to generate API keys programmatically for different use cases and team members.
+
+<Warning>
+  You need an existing API key to create new ones. If you don't have any API
+  keys yet, create your first one through the [Buena.ai
+  dashboard](https://app.buena.ai).
+</Warning>
+
+## Request
+
+<ParamField header="x-api-key" type="string" required>
+  Your existing API key for authentication
+</ParamField>
+
+<ParamField header="Content-Type" type="string" required>
+  Must be `application/json`
+</ParamField>
+
+### Body Parameters
+
+<ParamField body="name" type="string" required>
+  Human-readable name for the API key (e.g., "Production Integration",
+  "Development Key")
+</ParamField>
+
+<ParamField body="permissions" type="array" default="[]">
+  Array of permissions to grant to this API key. See [permission
+  reference](#available-permissions).
+</ParamField>
+
+<ParamField body="expiresInDays" type="number" default="365">
+  Number of days until the API key expires (1-365 days). Set to 0 for no
+  expiration.
+</ParamField>
+
+<CodeGroup>
+
+```bash cURL
+curl -X POST "https://api.buena.ai/api/v2/keys" \
+  -H "x-api-key: YOUR_EXISTING_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Production Integration",
+    "permissions": ["linkedin:schedule", "linkedin:upload", "leads:read", "leads:write"],
+    "expiresInDays": 365
+  }'
+```
+
+```javascript JavaScript
+const response = await fetch("https://api.buena.ai/api/v2/keys", {
+  method: "POST",
+  headers: {
+    "x-api-key": "YOUR_EXISTING_KEY",
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    name: "Production Integration",
+    permissions: [
+      "linkedin:schedule",
+      "linkedin:upload",
+      "leads:read",
+      "leads:write",
+    ],
+    expiresInDays: 365,
+  }),
+});
+
+const data = await response.json();
+console.log(data.data.key); // Store this securely!
+```
+
+```python Python
+import requests
+
+response = requests.post(
+    'https://api.buena.ai/api/v2/keys',
+    headers={
+        'x-api-key': 'YOUR_EXISTING_KEY',
+        'Content-Type': 'application/json'
+    },
+    json={
+        'name': 'Production Integration',
+        'permissions': ['linkedin:schedule', 'linkedin:upload', 'leads:read', 'leads:write'],
+        'expiresInDays': 365
+    }
+)
+
+data = response.json()
+print(f"New API key: {data['data']['key']}")  # Store this securely!
+```
+
+```php PHP
+<?php
+$data = json_encode([
+    'name' => 'Production Integration',
+    'permissions' => ['linkedin:schedule', 'linkedin:upload', 'leads:read', 'leads:write'],
+    'expiresInDays' => 365
+]);
+
+$context = stream_context_create([
+    'http' => [
+        'method' => 'POST',
+        'header' => 'x-api-key: YOUR_EXISTING_KEY' . "\r\n" .
+                   'Content-Type: application/json' . "\r\n",
+        'content' => $data
+    ]
+]);
+
+$response = file_get_contents('https://api.buena.ai/api/v2/keys', false, $context);
+$result = json_decode($response, true);
+echo "New API key: " . $result['data']['key'];
+?>
+```
+
+</CodeGroup>
+
+## Response
+
+<ResponseField name="success" type="boolean">
+  Always `true` for successful requests
+</ResponseField>
+
+<ResponseField name="data" type="object">
+  The created API key information
+  <Expandable title="API Key Object">
+    <ResponseField name="id" type="string">
+      Unique identifier for the API key (e.g., "key_abc123")
+    </ResponseField>
+    <ResponseField name="name" type="string">
+      Human-readable name of the API key
+    </ResponseField>
+    <ResponseField name="key" type="string">
+      The full API key string (format: prefix-secret)
+    </ResponseField>
+    <ResponseField name="prefix" type="string">
+      First 8 characters of the API key for identification
+    </ResponseField>
+    <ResponseField name="permissions" type="array">
+      Array of permissions granted to this key
+    </ResponseField>
+    <ResponseField name="isActive" type="boolean">
+      Whether the API key is currently active
+    </ResponseField>
+    <ResponseField name="createdAt" type="string">
+      ISO 8601 timestamp when the key was created
+    </ResponseField>
+    <ResponseField name="expiresAt" type="string">
+      ISO 8601 timestamp when the key expires (null if no expiration)
+    </ResponseField>
+    <ResponseField name="usageCount" type="number">
+      Number of requests made with this key (starts at 0)
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="message" type="string">
+  Success message with security reminder
+</ResponseField>
+
+<ResponseExample>
+
+```json Response
+{
+  "success": true,
+  "data": {
+    "id": "key_abc123",
+    "name": "Production Integration",
+    "key": "abc12345-xyz789def456ghi123jkl456mno789pqr",
+    "prefix": "abc12345",
+    "permissions": [
+      "linkedin:schedule",
+      "linkedin:upload",
+      "leads:read",
+      "leads:write"
+    ],
+    "isActive": true,
+    "createdAt": "2024-01-15T10:30:00Z",
+    "expiresAt": "2025-01-15T10:30:00Z",
+    "usageCount": 0
+  },
+  "message": "API key created successfully. Please store the key securely as it won't be shown again."
+}
+```
+
+</ResponseExample>
+
+## Available Permissions
+
+<AccordionGroup>
+  <Accordion title="LinkedIn Permissions">
+    - `linkedin:schedule` - Schedule LinkedIn actions (connection requests,
+    messages) - `linkedin:upload` - Upload prospect lists for automation
+    campaigns - `linkedin:read` - Read LinkedIn data and integration status
+  </Accordion>
+
+{" "}
+
+<Accordion title="Lead Permissions">
+  - `leads:read` - Read lead data and search leads - `leads:write` - Create,
+  update, and delete leads - `leads:enrich` - Enrich lead data with external
+  sources
+</Accordion>
+
+{" "}
+
+<Accordion title="User Permissions">
+  - `users:read` - Read user data and team information - `admin` - Full
+  administrative access to account
+</Accordion>
+
+</AccordionGroup>
+
+## Common Permission Sets
+
+Here are some common permission combinations for different use cases:
+
+### Read-Only Access
+
+```json
+{
+  "permissions": ["linkedin:read", "leads:read", "users:read"]
+}
+```
+
+### LinkedIn Automation
+
+```json
+{
+  "permissions": ["linkedin:schedule", "linkedin:upload", "linkedin:read"]
+}
+```
+
+### Full Lead Management
+
+```json
+{
+  "permissions": ["leads:read", "leads:write", "leads:enrich"]
+}
+```
+
+### Complete Integration
+
+```json
+{
+  "permissions": [
+    "linkedin:schedule",
+    "linkedin:upload",
+    "linkedin:read",
+    "leads:read",
+    "leads:write",
+    "leads:enrich",
+    "users:read"
+  ]
+}
+```
+
+## Use Cases & Examples
+
+### 1. Development Environment Key
+
+Create a key for development with read-only permissions:
+
+```javascript
+const devKey = await createAPIKey({
+  name: "Development Environment",
+  permissions: ["linkedin:read", "leads:read"],
+  expiresInDays: 30,
+});
+```
+
+### 2. Production Integration Key
+
+Create a key for production with full permissions:
+
+```javascript
+const prodKey = await createAPIKey({
+  name: "Production - LinkedIn Automation",
+  permissions: [
+    "linkedin:schedule",
+    "linkedin:upload",
+    "linkedin:read",
+    "leads:read",
+    "leads:write",
+    "leads:enrich",
+  ],
+  expiresInDays: 365,
+});
+```
+
+### 3. Team Member Key
+
+Create a restricted key for a team member:
+
+```javascript
+const teamKey = await createAPIKey({
+  name: "John Smith - Analytics",
+  permissions: ["leads:read", "users:read"],
+  expiresInDays: 90,
+});
+```
+
+### 4. Temporary Integration Key
+
+Create a short-lived key for testing:
+
+```javascript
+const tempKey = await createAPIKey({
+  name: "Temporary Testing Key",
+  permissions: ["linkedin:read", "leads:read"],
+  expiresInDays: 7,
+});
+```
+
+## Security Best Practices
+
+<AccordionGroup>
+  <Accordion title="Store Keys Securely">
+    ```bash
+    # Use environment variables
+    export BUENA_API_KEY="abc12345-xyz789..."
+    
+    # Never commit to version control
+    echo "BUENA_API_KEY=abc12345-xyz789..." >> .env
+    echo ".env" >> .gitignore
+    ```
+  </Accordion>
+  
+  <Accordion title="Principle of Least Privilege">
+    Only grant the minimum permissions needed:
+    
+    ```javascript
+    // ❌ Too broad
+    permissions: ["*"]
+    
+    // ✅ Specific to use case
+    permissions: ["linkedin:schedule", "leads:read"]
+    ```
+  </Accordion>
+  
+  <Accordion title="Regular Rotation">
+    Rotate keys regularly, especially for production:
+    
+    ```javascript
+    // Rotate every 90 days
+    const newKey = await createAPIKey({
+      name: "Production Key - Q1 2024",
+      permissions: existingPermissions,
+      expiresInDays: 90
+    });
+    
+    // Update your application configuration
+    // Deactivate old key after transition
+    ```
+  </Accordion>
+  
+  <Accordion title="Monitor Usage">
+    Track API key usage for security monitoring:
+    
+    ```javascript
+    // Check usage periodically
+    const keys = await listAPIKeys();
+    keys.forEach(key => {
+      if (key.usageCount === 0 && isOlderThan(key.createdAt, 30)) {
+        console.warn(`Unused key: ${key.name}`);
+      }
+    });
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Error Responses
+
+### Invalid Permissions (400)
+
+```json
+{
+  "error": true,
+  "code": "VALIDATION_ERROR",
+  "message": "Invalid permission specified",
+  "version": "2.0",
+  "timestamp": "2024-01-20T15:30:00Z",
+  "details": {
+    "invalidPermissions": ["invalid:permission"],
+    "validPermissions": [
+      "linkedin:schedule",
+      "linkedin:upload",
+      "linkedin:read",
+      "leads:read",
+      "leads:write",
+      "leads:enrich",
+      "users:read"
+    ]
+  }
+}
+```
+
+### Insufficient Permissions (403)
+
+```json
+{
+  "error": true,
+  "code": "PERMISSION_DENIED",
+  "message": "Cannot create API key with higher permissions than your own",
+  "version": "2.0",
+  "timestamp": "2024-01-20T15:30:00Z",
+  "details": {
+    "yourPermissions": ["linkedin:read", "leads:read"],
+    "requestedPermissions": ["admin"]
+  }
+}
+```
+
+### Rate Limited (429)
+
+```json
+{
+  "error": true,
+  "code": "RATE_LIMIT_EXCEEDED",
+  "message": "Too many API key creation requests",
+  "version": "2.0",
+  "timestamp": "2024-01-20T15:30:00Z",
+  "retryAfter": 300
+}
+```
+
+<Warning>
+  **Important Security Note**: The full API key is only returned once during
+  creation. Store it immediately in a secure location. If you lose the key,
+  you'll need to regenerate it or create a new one.
+</Warning>
+
+## Next Steps
+
+After creating your API key:
+
+<CardGroup cols={2}>
+  <Card title="Test Your Key" icon="heart" href="/api-reference/health">
+    Verify your new key works with a health check
+  </Card>
+  <Card title="List All Keys" icon="list" href="/api-reference/keys/list">
+    View all your API keys and their permissions
+  </Card>
+  <Card
+    title="Start Automating"
+    icon="linkedin"
+    href="/api-reference/linkedin/schedule-action"
+  >
+    Begin LinkedIn automation with your new key
+  </Card>
+  <Card title="Best Practices" icon="shield" href="/guides/best-practices">
+    Learn security best practices for API keys
+  </Card>
+</CardGroup>{" "}

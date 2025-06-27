@@ -1,0 +1,136 @@
+---
+title: "LinkedIn Integration Status"
+api: "GET https://api.buena.ai/api/v2/users/linkedin"
+description: "Check LinkedIn integration status and account details"
+---
+
+# LinkedIn Integration Status
+
+Verify your LinkedIn integration status, connection details, and account information. Useful for checking if LinkedIn automation is properly configured.
+
+<Note>Requires the `linkedin:read` permission.</Note>
+
+## Request
+
+<ParamField header="x-api-key" type="string" required>
+  Your API key with `linkedin:read` permission
+</ParamField>
+
+## Examples
+
+### Check LinkedIn Status
+
+<CodeGroup>
+
+```bash cURL
+curl -X GET "https://api.buena.ai/api/v2/users/linkedin" \
+  -H "x-api-key: YOUR_API_KEY"
+```
+
+```javascript JavaScript
+const response = await fetch("https://api.buena.ai/api/v2/users/linkedin", {
+  method: "GET",
+  headers: {
+    "x-api-key": "YOUR_API_KEY",
+  },
+});
+
+const data = await response.json();
+console.log(data);
+```
+
+```python Python
+import requests
+
+response = requests.get(
+    'https://api.buena.ai/api/v2/users/linkedin',
+    headers={
+        'x-api-key': 'YOUR_API_KEY'
+    }
+)
+
+print(response.json())
+```
+
+</CodeGroup>
+
+## Response
+
+<ResponseField name="success" type="boolean">
+  Always `true` for successful requests
+</ResponseField>
+
+<ResponseField name="data" type="object">
+  LinkedIn integration information
+  <Expandable title="LinkedIn Status Object">
+    <ResponseField name="connected" type="boolean">
+      Whether LinkedIn account is connected
+    </ResponseField>
+    <ResponseField name="profileUrl" type="string">
+      Connected LinkedIn profile URL
+    </ResponseField>
+    <ResponseField name="name" type="string">
+      LinkedIn account name
+    </ResponseField>
+    <ResponseField name="timezone" type="string">
+      Account timezone
+    </ResponseField>
+    <ResponseField name="connectionCount" type="number">
+      Number of LinkedIn connections
+    </ResponseField>
+    <ResponseField name="actionsToday" type="number">
+      LinkedIn actions performed today
+    </ResponseField>
+    <ResponseField name="dailyLimit" type="number">
+      Daily action limit
+    </ResponseField>
+    <ResponseField name="lastActivity" type="string">
+      ISO 8601 timestamp of last LinkedIn activity
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseExample>
+
+```json Response
+{
+  "success": true,
+  "data": {
+    "connected": true,
+    "profileUrl": "https://linkedin.com/in/yourprofile",
+    "name": "Your Name",
+    "timezone": "America/New_York",
+    "connectionCount": 1247,
+    "actionsToday": 12,
+    "dailyLimit": 100,
+    "lastActivity": "2024-01-20T14:30:00Z"
+  }
+}
+```
+
+</ResponseExample>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card
+    title="Schedule Action"
+    icon="calendar"
+    href="/api-reference/linkedin/schedule-action"
+  >
+    Schedule LinkedIn actions
+  </Card>
+  <Card title="Job Status" icon="clock" href="/api-reference/users/jobs">
+    Check job status
+  </Card>
+  <Card
+    title="Upload Prospects"
+    icon="upload"
+    href="/api-reference/linkedin/upload-prospects"
+  >
+    Upload prospect lists
+  </Card>
+  <Card title="LinkedIn Guide" icon="book" href="/guides/linkedin-automation">
+    Learn LinkedIn automation
+  </Card>
+</CardGroup>{" "}

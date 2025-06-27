@@ -1,0 +1,315 @@
+---
+title: "Health Check"
+api: "GET https://api.buena.ai/api/v2/health"
+description: "Check API health and verify authentication status"
+---
+
+# Health Check
+
+The health endpoint provides a quick way to verify that:
+
+- The API is operational
+- Your API key is valid
+- Your authentication is working properly
+
+This is typically the first endpoint you should test when integrating with the Buena.ai API.
+
+<Note>
+  This endpoint does not require any specific permissions and does not count
+  heavily against rate limits.
+</Note>
+
+## Request
+
+<ParamField header="x-api-key" type="string" required>
+  Your API key for authentication
+</ParamField>
+
+<CodeGroup>
+
+```bash cURL
+curl -X GET "https://api.buena.ai/api/v2/health" \
+  -H "x-api-key: YOUR_API_KEY"
+```
+
+```javascript JavaScript
+const response = await fetch("https://api.buena.ai/api/v2/health", {
+  headers: {
+    "x-api-key": "YOUR_API_KEY",
+  },
+});
+
+const data = await response.json();
+console.log(data);
+```
+
+```python Python
+import requests
+
+response = requests.get(
+    'https://api.buena.ai/api/v2/health',
+    headers={'x-api-key': 'YOUR_API_KEY'}
+)
+
+data = response.json()
+print(data)
+```
+
+```php PHP
+<?php
+$response = file_get_contents('https://api.buena.ai/api/v2/health', false, stream_context_create([
+    'http' => [
+        'method' => 'GET',
+        'header' => 'x-api-key: YOUR_API_KEY'
+    ]
+]));
+
+$data = json_decode($response, true);
+print_r($data);
+?>
+```
+
+</CodeGroup>
+
+## Response
+
+<ResponseField name="version" type="string">
+  Current API version (e.g., "2.0")
+</ResponseField>
+
+<ResponseField name="status" type="string">
+  API health status ("healthy" or "degraded")
+</ResponseField>
+
+<ResponseField name="authentication" type="string">
+  Authentication type ("user" for valid API key)
+</ResponseField>
+
+<ResponseField name="user" type="object">
+  Information about the authenticated user
+  <Expandable title="User Properties">
+    <ResponseField name="id" type="string">
+      Unique user identifier
+    </ResponseField>
+    <ResponseField name="email" type="string">
+      User's email address
+    </ResponseField>
+    <ResponseField name="role" type="string">
+      User's subscription role (e.g., "Premium", "Basic")
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="apiKey" type="object">
+  Information about the API key used
+  <Expandable title="API Key Properties">
+    <ResponseField name="name" type="string">
+      Human-readable name of the API key
+    </ResponseField>
+    <ResponseField name="permissions" type="array">
+      List of permissions granted to this API key
+    </ResponseField>
+    <ResponseField name="usageCount" type="number">
+      Total number of requests made with this key
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="timestamp" type="string">
+  ISO 8601 timestamp of the response
+</ResponseField>
+
+<ResponseExample>
+
+```json Response
+{
+  "version": "2.0",
+  "status": "healthy",
+  "authentication": "user",
+  "user": {
+    "id": "user_abc123",
+    "email": "john@company.com",
+    "role": "Premium"
+  },
+  "apiKey": {
+    "name": "My Integration Key",
+    "permissions": [
+      "linkedin:schedule",
+      "linkedin:upload",
+      "leads:read",
+      "leads:write"
+    ],
+    "usageCount": 150
+  },
+  "timestamp": "2024-01-20T15:30:00Z"
+}
+```
+
+</ResponseExample>
+
+## Use Cases
+
+### 1. Integration Testing
+
+Use the health endpoint to verify your integration setup:
+
+```javascript
+async function verifySetup() {
+  try {
+    const response = await fetch("https://api.buena.ai/api/v2/health", {
+      headers: { "x-api-key": process.env.BUENA_API_KEY },
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      console.log("✅ API integration working");
+      console.log("📝 Permissions:", data.apiKey.permissions);
+      return true;
+    } else {
+      console.error("❌ API integration failed");
+      return false;
+    }
+  } catch (error) {
+    console.error("❌ Connection failed:", error.message);
+    return false;
+  }
+}
+```
+
+### 2. Permission Verification
+
+Check if your API key has the required permissions:
+
+```python
+def check_permissions(required_permissions):
+    response = requests.get(
+        'https://api.buena.ai/api/v2/health',
+        headers={'x-api-key': os.getenv('BUENA_API_KEY')}
+    )
+
+    if response.status_code == 200:
+        data = response.json()
+        available = set(data['apiKey']['permissions'])
+        required = set(required_permissions)
+
+        if required.issubset(available):
+            print("✅ All required permissions available")
+            return True
+        else:
+            missing = required - available
+            print(f"❌ Missing permissions: {missing}")
+            return False
+    else:
+        print("❌ Health check failed")
+        return False
+
+# Example usage
+check_permissions(['linkedin:schedule', 'leads:write'])
+```
+
+### 3. Monitoring and Alerting
+
+Use for uptime monitoring and health checks:
+
+```bash
+#!/bin/bash
+# health-check.sh - Simple monitoring script
+
+RESPONSE=$(curl -s -w "%{http_code}" -H "x-api-key: $BUENA_API_KEY" \
+  https://api.buena.ai/api/v2/health)
+
+HTTP_CODE="${RESPONSE: -3}"
+BODY="${RESPONSE%???}"
+
+if [ "$HTTP_CODE" -eq 200 ]; then
+  STATUS=$(echo "$BODY" | jq -r '.status')
+  if [ "$STATUS" = "healthy" ]; then
+    echo "✅ API is healthy"
+    exit 0
+  else
+    echo "⚠️ API status: $STATUS"
+    exit 1
+  fi
+else
+  echo "❌ API health check failed: HTTP $HTTP_CODE"
+  exit 2
+fi
+```
+
+## Error Responses
+
+### Invalid API Key (401)
+
+```json
+{
+  "error": true,
+  "code": "UNAUTHORIZED",
+  "message": "Invalid API key",
+  "version": "2.0",
+  "timestamp": "2024-01-20T15:30:00Z"
+}
+```
+
+### Rate Limited (429)
+
+```json
+{
+  "error": true,
+  "code": "RATE_LIMIT_EXCEEDED",
+  "message": "Rate limit exceeded. Try again in 30 seconds.",
+  "version": "2.0",
+  "timestamp": "2024-01-20T15:30:00Z",
+  "retryAfter": 30
+}
+```
+
+### Service Issues (5xx)
+
+```json
+{
+  "error": true,
+  "code": "SERVICE_UNAVAILABLE",
+  "message": "Service temporarily unavailable",
+  "version": "2.0",
+  "timestamp": "2024-01-20T15:30:00Z"
+}
+```
+
+## Status Indicators
+
+The `status` field in the response can be:
+
+| Status        | Description             | Action                                       |
+| ------------- | ----------------------- | -------------------------------------------- |
+| `healthy`     | All systems operational | Continue normal operations                   |
+| `degraded`    | Partial functionality   | Monitor closely, some features may be slower |
+| `maintenance` | Scheduled maintenance   | Retry after maintenance window               |
+
+<Tip>
+  **Pro Tip**: Set up automated health checks in your monitoring system to
+  detect API issues early. We recommend checking every 5-10 minutes for
+  production applications.
+</Tip>
+
+## Next Steps
+
+Once your health check passes:
+
+<CardGroup cols={2}>
+  <Card title="Create API Keys" icon="key" href="/api-reference/keys/create">
+    Generate additional API keys for your team
+  </Card>
+  <Card
+    title="Schedule LinkedIn Actions"
+    icon="linkedin"
+    href="/api-reference/linkedin/schedule-action"
+  >
+    Start automating LinkedIn outreach
+  </Card>
+  <Card title="Manage Leads" icon="users" href="/api-reference/leads/list">
+    Work with your lead database
+  </Card>
+  <Card title="Check Rate Limits" icon="clock" href="/rate-limits">
+    Understand API usage limits
+  </Card>
+</CardGroup>{" "}

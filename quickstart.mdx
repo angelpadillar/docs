@@ -1,72 +1,387 @@
 ---
 title: "Quickstart"
-description: "Start building awesome documentation in under 5 minutes"
+description: "Get up and running with Buena.ai API v2 in under 5 minutes"
 ---
 
-## Setup your development
+# Quickstart Guide
 
-Learn how to update your docs locally and deploy them to the public.
+Get started with the Buena.ai API v2 in just a few steps. This guide will walk you through making your first API call and setting up LinkedIn automation.
 
-### Edit and preview
+## Step 1: Get Your API Key
 
-<AccordionGroup>
-  <Accordion icon="github" title="Clone your docs locally">
-    During the onboarding process, we created a repository on your Github with
-    your docs content. You can find this repository on our
-    [dashboard](https://dashboard.mintlify.com). To clone the repository
-    locally, follow these
-    [instructions](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository)
-    in your terminal.
-  </Accordion>
+First, you'll need to create an API key. You can either:
 
-  <Accordion icon="rectangle-terminal" title="Preview changes">
-    Previewing helps you make sure your changes look as intended. We built a
-    command line interface to render these changes locally. 1. Install the
-    [Mintlify CLI](https://www.npmjs.com/package/mintlify) to preview the
-    documentation changes locally with this command: `npm i -g mintlify`
-    2\. Run the following command at the root of your documentation (where
-    `mint.json` is): `mintlify dev`
-  </Accordion>
-</AccordionGroup>
+1. **Dashboard Method**: Create one through your [Buena.ai dashboard](https://app.buena.ai)
+2. **API Method**: Use an existing key to create a new one via API
 
-### Deploy your changes
+<Tip>
+  If you don't have an existing API key, contact
+  [support@buena.ai](mailto:support@buena.ai) to enable API access for your
+  account.
+</Tip>
 
-<AccordionGroup>
-  <Accordion icon="message-bot" title="Install our Github app">
-    Our Github app automatically deploys your changes to your docs site, so you
-    don't need to manage deployments yourself. You can find the link to install on
-    your [dashboard](https://dashboard.mintlify.com). Once the bot has been
-    successfully installed, there should be a check mark next to the commit hash
-    of the repo.
-  </Accordion>
+### Create API Key via API
 
-  <Accordion icon="rocket" title="Push your changes">
-    [Commit and push your changes to
-    Git](https://docs.github.com/en/get-started/using-git/pushing-commits-to-a-remote-repository#about-git-push)
-    for your changes to update in your docs site. If you push and don't see that
-    the Github app successfully deployed your changes, you can also manually
-    update your docs through our [dashboard](https://dashboard.mintlify.com).
-  </Accordion>
-</AccordionGroup>
+<CodeGroup>
 
-## Update your docs
+```bash cURL
+curl -X POST "https://api.buena.ai/api/v2/keys" \
+  -H "x-api-key: YOUR_EXISTING_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "My First Integration",
+    "permissions": ["linkedin:schedule", "linkedin:upload", "leads:read", "leads:write"],
+    "expiresInDays": 365
+  }'
+```
 
-Add content directly in your files with MDX syntax and React components. You can use any of our components, or even build your own.
+```javascript JavaScript
+const response = await fetch("https://api.buena.ai/api/v2/keys", {
+  method: "POST",
+  headers: {
+    "x-api-key": "YOUR_EXISTING_KEY",
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    name: "My First Integration",
+    permissions: [
+      "linkedin:schedule",
+      "linkedin:upload",
+      "leads:read",
+      "leads:write",
+    ],
+    expiresInDays: 365,
+  }),
+});
 
-<CardGroup>
-  <Card title="Style Your Docs" icon="paintbrush" href="/settings/global">
-    Add flair to your docs with personalized branding.
+const data = await response.json();
+console.log(data.data.key); // Your new API key
+```
+
+```python Python
+import requests
+
+response = requests.post(
+    'https://api.buena.ai/api/v2/keys',
+    headers={
+        'x-api-key': 'YOUR_EXISTING_KEY',
+        'Content-Type': 'application/json'
+    },
+    json={
+        'name': 'My First Integration',
+        'permissions': ['linkedin:schedule', 'linkedin:upload', 'leads:read', 'leads:write'],
+        'expiresInDays': 365
+    }
+)
+
+data = response.json()
+print(data['data']['key'])  # Your new API key
+```
+
+</CodeGroup>
+
+<Warning>
+  Store your API key securely! It won't be shown again after creation.
+</Warning>
+
+## Step 2: Test Your Connection
+
+Let's verify your API key works with a health check:
+
+<CodeGroup>
+
+```bash cURL
+curl -X GET "https://api.buena.ai/api/v2/health" \
+  -H "x-api-key: YOUR_API_KEY"
+```
+
+```javascript JavaScript
+const response = await fetch("https://api.buena.ai/api/v2/health", {
+  headers: {
+    "x-api-key": "YOUR_API_KEY",
+  },
+});
+
+const data = await response.json();
+console.log(data);
+```
+
+```python Python
+import requests
+
+response = requests.get(
+    'https://api.buena.ai/api/v2/health',
+    headers={'x-api-key': 'YOUR_API_KEY'}
+)
+
+print(response.json())
+```
+
+</CodeGroup>
+
+### Expected Response
+
+```json
+{
+  "version": "2.0",
+  "status": "healthy",
+  "authentication": "user",
+  "user": {
+    "id": "user_abc123",
+    "email": "john@company.com",
+    "role": "Premium"
+  },
+  "apiKey": {
+    "name": "My First Integration",
+    "permissions": [
+      "linkedin:schedule",
+      "linkedin:upload",
+      "leads:read",
+      "leads:write"
+    ],
+    "usageCount": 1
+  },
+  "timestamp": "2024-01-20T15:30:00Z"
+}
+```
+
+## Step 3: Schedule Your First LinkedIn Action
+
+Now let's schedule a LinkedIn connection request:
+
+<CodeGroup>
+
+```bash cURL
+curl -X POST "https://api.buena.ai/api/v2/linkedin/scheduleLinkedInAction" \
+  -H "x-api-key: YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "actionType": "sendConnectionRequest",
+    "profileUrl": "https://linkedin.com/in/johndoe",
+    "message": "Hi John, I'd love to connect and discuss opportunities!",
+    "linkedInIntegration": {
+      "enabled": true,
+      "timezone": {
+        "value": "America/New_York",
+        "offset": -5
+      }
+    }
+  }'
+```
+
+```javascript JavaScript
+const response = await fetch(
+  "https://api.buena.ai/api/v2/linkedin/scheduleLinkedInAction",
+  {
+    method: "POST",
+    headers: {
+      "x-api-key": "YOUR_API_KEY",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      actionType: "sendConnectionRequest",
+      profileUrl: "https://linkedin.com/in/johndoe",
+      message: "Hi John, I'd love to connect and discuss opportunities!",
+      linkedInIntegration: {
+        enabled: true,
+        timezone: {
+          value: "America/New_York",
+          offset: -5,
+        },
+      },
+    }),
+  }
+);
+
+const data = await response.json();
+console.log(data);
+```
+
+```python Python
+import requests
+
+response = requests.post(
+    'https://api.buena.ai/api/v2/linkedin/scheduleLinkedInAction',
+    headers={
+        'x-api-key': 'YOUR_API_KEY',
+        'Content-Type': 'application/json'
+    },
+    json={
+        'actionType': 'sendConnectionRequest',
+        'profileUrl': 'https://linkedin.com/in/johndoe',
+        'message': "Hi John, I'd love to connect and discuss opportunities!",
+        'linkedInIntegration': {
+            'enabled': True,
+            'timezone': {
+                'value': 'America/New_York',
+                'offset': -5
+            }
+        }
+    }
+)
+
+print(response.json())
+```
+
+</CodeGroup>
+
+### Expected Response
+
+```json
+{
+  "success": true,
+  "message": "sendConnectionRequest action scheduled successfully with delay of 75000 ms."
+}
+```
+
+## Step 4: Create Your First Lead
+
+Let's add a lead to your database:
+
+<CodeGroup>
+
+```bash cURL
+curl -X POST "https://api.buena.ai/api/v2/leads" \
+  -H "x-api-key: YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "firstName": "John",
+    "lastName": "Doe",
+    "email": "john@example.com",
+    "linkedinUrl": "https://linkedin.com/in/johndoe",
+    "company": "Tech Corp",
+    "title": "Software Engineer",
+    "source": "linkedin",
+    "notes": "Interested in automation solutions"
+  }'
+```
+
+```javascript JavaScript
+const response = await fetch("https://api.buena.ai/api/v2/leads", {
+  method: "POST",
+  headers: {
+    "x-api-key": "YOUR_API_KEY",
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    firstName: "John",
+    lastName: "Doe",
+    email: "john@example.com",
+    linkedinUrl: "https://linkedin.com/in/johndoe",
+    company: "Tech Corp",
+    title: "Software Engineer",
+    source: "linkedin",
+    notes: "Interested in automation solutions",
+  }),
+});
+
+const data = await response.json();
+console.log(data);
+```
+
+```python Python
+import requests
+
+response = requests.post(
+    'https://api.buena.ai/api/v2/leads',
+    headers={
+        'x-api-key': 'YOUR_API_KEY',
+        'Content-Type': 'application/json'
+    },
+    json={
+        'firstName': 'John',
+        'lastName': 'Doe',
+        'email': 'john@example.com',
+        'linkedinUrl': 'https://linkedin.com/in/johndoe',
+        'company': 'Tech Corp',
+        'title': 'Software Engineer',
+        'source': 'linkedin',
+        'notes': 'Interested in automation solutions'
+    }
+)
+
+print(response.json())
+```
+
+</CodeGroup>
+
+## Step 5: Retrieve Your Leads
+
+Now let's fetch your leads:
+
+<CodeGroup>
+
+```bash cURL
+curl -X GET "https://api.buena.ai/api/v2/leads?limit=10" \
+  -H "x-api-key: YOUR_API_KEY"
+```
+
+```javascript JavaScript
+const response = await fetch("https://api.buena.ai/api/v2/leads?limit=10", {
+  headers: {
+    "x-api-key": "YOUR_API_KEY",
+  },
+});
+
+const data = await response.json();
+console.log(data);
+```
+
+```python Python
+import requests
+
+response = requests.get(
+    'https://api.buena.ai/api/v2/leads?limit=10',
+    headers={'x-api-key': 'YOUR_API_KEY'}
+)
+
+print(response.json())
+```
+
+</CodeGroup>
+
+## Next Steps
+
+Congratulations! You've successfully:
+
+- ✅ Created an API key
+- ✅ Made your first API call
+- ✅ Scheduled a LinkedIn action
+- ✅ Created and retrieved leads
+
+### What's Next?
+
+<CardGroup cols={2}>
+  <Card
+    title="LinkedIn Automation Guide"
+    icon="linkedin"
+    href="/guides/linkedin-automation"
+  >
+    Learn advanced LinkedIn automation techniques
   </Card>
-
-  <Card title="Add API Endpoints" icon="square-code" href="/api-playground/configuration">
-    Implement your OpenAPI spec and enable API user interaction.
+  <Card title="Lead Management" icon="users" href="/guides/lead-management">
+    Master lead organization and enrichment
   </Card>
-
-  <Card title="Integrate Analytics" icon="chart-mixed" href="/analytics/supported-integrations">
-    Draw insights from user interactions with your documentation.
+  <Card title="API Reference" icon="code" href="/api-reference/introduction">
+    Explore all available endpoints
   </Card>
-
-  <Card title="Host on a Custom Domain" icon="browser" href="/settings/custom-domain/subdomain">
-    Keep your docs on your own website's subdomain.
+  <Card title="Best Practices" icon="lightbulb" href="/guides/best-practices">
+    Learn optimization tips and tricks
   </Card>
 </CardGroup>
+
+### Rate Limits
+
+Keep these limits in mind as you scale:
+
+- **60** requests per minute
+- **1,000** requests per hour
+- **10,000** requests per day
+
+Rate limit headers are included in all responses to help you monitor usage.
+
+### Need Help?
+
+- Join our [Discord community](https://discord.gg/buena)
+- Email [support@buena.ai](mailto:support@buena.ai)
+- Check our [status page](https://status.buena.ai)

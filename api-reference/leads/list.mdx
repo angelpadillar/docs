@@ -1,0 +1,732 @@
+---
+title: "List Leads"
+api: "GET https://api.buena.ai/api/v2/leads"
+description: "Retrieve your leads with advanced filtering, search, and pagination"
+---
+
+# List Leads
+
+Retrieve leads from your database with powerful filtering, search, and pagination capabilities. This endpoint supports various query parameters to help you find exactly the leads you need.
+
+<Note>Requires the `leads:read` permission.</Note>
+
+## Request
+
+<ParamField header="x-api-key" type="string" required>
+  Your API key with `leads:read` permission
+</ParamField>
+
+### Query Parameters
+
+<ParamField query="page" type="number" default="1">
+  Page number for pagination (1-based)
+</ParamField>
+
+<ParamField query="limit" type="number" default="50">
+  Number of leads per page (1-100)
+</ParamField>
+
+<ParamField query="status" type="string">
+  Filter by lead status: `new`, `contacted`, `replied`, `converted`, `cold`
+</ParamField>
+
+<ParamField query="source" type="string">
+  Filter by lead source: `linkedin`, `website`, `referral`, `import`, `api`
+</ParamField>
+
+<ParamField query="search" type="string">
+  Search by name, email, company, or title (minimum 2 characters)
+</ParamField>
+
+<ParamField query="company" type="string">
+  Filter by exact company name
+</ParamField>
+
+<ParamField query="title" type="string">
+  Filter by job title (partial match)
+</ParamField>
+
+<ParamField query="createdAfter" type="string">
+  ISO 8601 date to filter leads created after this date
+</ParamField>
+
+<ParamField query="createdBefore" type="string">
+  ISO 8601 date to filter leads created before this date
+</ParamField>
+
+<ParamField query="lastContactedAfter" type="string">
+  ISO 8601 date to filter leads last contacted after this date
+</ParamField>
+
+<ParamField query="sortBy" type="string" default="createdAt">
+  Sort field: `createdAt`, `updatedAt`, `firstName`, `lastName`, `company`,
+  `lastContactedAt`
+</ParamField>
+
+<ParamField query="sortOrder" type="string" default="desc">
+  Sort order: `asc` or `desc`
+</ParamField>
+
+## Examples
+
+### Basic List
+
+<CodeGroup>
+
+```bash cURL
+curl -X GET "https://api.buena.ai/api/v2/leads?limit=10" \
+  -H "x-api-key: YOUR_API_KEY"
+```
+
+```javascript JavaScript
+const response = await fetch("https://api.buena.ai/api/v2/leads?limit=10", {
+  headers: {
+    "x-api-key": "YOUR_API_KEY",
+  },
+});
+
+const data = await response.json();
+console.log(data.data.leads);
+```
+
+```python Python
+import requests
+
+response = requests.get(
+    'https://api.buena.ai/api/v2/leads',
+    headers={'x-api-key': 'YOUR_API_KEY'},
+    params={'limit': 10}
+)
+
+data = response.json()
+for lead in data['data']['leads']:
+    print(f"{lead['firstName']} {lead['lastName']} - {lead['company']}")
+```
+
+</CodeGroup>
+
+### Advanced Filtering
+
+<CodeGroup>
+
+```bash cURL
+curl -X GET "https://api.buena.ai/api/v2/leads?status=contacted&source=linkedin&company=Google&limit=25" \
+  -H "x-api-key: YOUR_API_KEY"
+```
+
+```javascript JavaScript
+const params = new URLSearchParams({
+  status: "contacted",
+  source: "linkedin",
+  search: "software engineer",
+  createdAfter: "2024-01-01T00:00:00Z",
+  sortBy: "lastContactedAt",
+  sortOrder: "desc",
+  limit: 25,
+});
+
+const response = await fetch(`https://api.buena.ai/api/v2/leads?${params}`, {
+  headers: {
+    "x-api-key": "YOUR_API_KEY",
+  },
+});
+
+const data = await response.json();
+console.log(data.data.leads);
+```
+
+```python Python
+import requests
+from datetime import datetime, timedelta
+
+# Get leads contacted in the last 30 days
+thirty_days_ago = (datetime.now() - timedelta(days=30)).isoformat() + 'Z'
+
+response = requests.get(
+    'https://api.buena.ai/api/v2/leads',
+    headers={'x-api-key': 'YOUR_API_KEY'},
+    params={
+        'status': 'contacted',
+        'lastContactedAfter': thirty_days_ago,
+        'sortBy': 'lastContactedAt',
+        'sortOrder': 'desc',
+        'limit': 50
+    }
+)
+
+data = response.json()
+print(f"Found {len(data['data']['leads'])} recently contacted leads")
+```
+
+</CodeGroup>
+
+### Search Leads
+
+<CodeGroup>
+
+```bash cURL
+curl -X GET "https://api.buena.ai/api/v2/leads?search=john%20software&limit=20" \
+  -H "x-api-key: YOUR_API_KEY"
+```
+
+```javascript JavaScript
+const searchTerm = encodeURIComponent("john software");
+const response = await fetch(
+  `https://api.buena.ai/api/v2/leads?search=${searchTerm}&limit=20`,
+  {
+    headers: {
+      "x-api-key": "YOUR_API_KEY",
+    },
+  }
+);
+
+const data = await response.json();
+console.log(data.data.leads);
+```
+
+</CodeGroup>
+
+## Response
+
+<ResponseField name="success" type="boolean">
+  Always `true` for successful requests
+</ResponseField>
+
+<ResponseField name="data" type="object">
+  Container for leads data and pagination
+  <Expandable title="Data Object">
+    <ResponseField name="leads" type="array">
+      Array of lead objects
+      <Expandable title="Lead Object">
+        <ResponseField name="id" type="string">
+          Unique lead identifier (e.g., "lead_abc123")
+        </ResponseField>
+        <ResponseField name="firstName" type="string">
+          Lead's first name
+        </ResponseField>
+        <ResponseField name="lastName" type="string">
+          Lead's last name
+        </ResponseField>
+        <ResponseField name="email" type="string">
+          Lead's email address
+        </ResponseField>
+        <ResponseField name="linkedinUrl" type="string">
+          LinkedIn profile URL
+        </ResponseField>
+        <ResponseField name="company" type="string">
+          Company name
+        </ResponseField>
+        <ResponseField name="title" type="string">
+          Job title
+        </ResponseField>
+        <ResponseField name="phone" type="string">
+          Phone number
+        </ResponseField>
+        <ResponseField name="location" type="string">
+          Geographic location
+        </ResponseField>
+        <ResponseField name="status" type="string">
+          Lead status (new, contacted, replied, converted, cold)
+        </ResponseField>
+        <ResponseField name="source" type="string">
+          Lead source (linkedin, website, referral, import, api)
+        </ResponseField>
+        <ResponseField name="notes" type="string">
+          Additional notes about the lead
+        </ResponseField>
+        <ResponseField name="tags" type="array">
+          Array of tags associated with the lead
+        </ResponseField>
+        <ResponseField name="customFields" type="object">
+          Custom field data (key-value pairs)
+        </ResponseField>
+        <ResponseField name="createdAt" type="string">
+          ISO 8601 timestamp when the lead was created
+        </ResponseField>
+        <ResponseField name="updatedAt" type="string">
+          ISO 8601 timestamp when the lead was last updated
+        </ResponseField>
+        <ResponseField name="lastContactedAt" type="string">
+          ISO 8601 timestamp when the lead was last contacted
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+
+    <ResponseField name="pagination" type="object">
+      Pagination information
+      <Expandable title="Pagination Object">
+        <ResponseField name="page" type="number">
+          Current page number
+        </ResponseField>
+        <ResponseField name="limit" type="number">
+          Results per page
+        </ResponseField>
+        <ResponseField name="total" type="number">
+          Total number of leads matching the filters
+        </ResponseField>
+        <ResponseField name="pages" type="number">
+          Total number of pages
+        </ResponseField>
+        <ResponseField name="hasNextPage" type="boolean">
+          Whether there are more pages
+        </ResponseField>
+        <ResponseField name="hasPrevPage" type="boolean">
+          Whether there are previous pages
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+
+  </Expandable>
+</ResponseField>
+
+<ResponseExample>
+
+```json Response
+{
+  "success": true,
+  "data": {
+    "leads": [
+      {
+        "id": "lead_abc123",
+        "firstName": "John",
+        "lastName": "Doe",
+        "email": "john@techcorp.com",
+        "linkedinUrl": "https://linkedin.com/in/johndoe",
+        "company": "Tech Corp",
+        "title": "Senior Software Engineer",
+        "phone": "+1-555-123-4567",
+        "location": "San Francisco, CA",
+        "status": "contacted",
+        "source": "linkedin",
+        "notes": "Interested in AI solutions. Follow up next week.",
+        "tags": ["ai", "enterprise", "high-priority"],
+        "customFields": {
+          "industry": "Technology",
+          "employeeCount": "100-500",
+          "budget": "$50k+"
+        },
+        "createdAt": "2024-01-15T10:30:00Z",
+        "updatedAt": "2024-01-18T14:22:00Z",
+        "lastContactedAt": "2024-01-16T09:15:00Z"
+      },
+      {
+        "id": "lead_def456",
+        "firstName": "Jane",
+        "lastName": "Smith",
+        "email": "jane@startup.io",
+        "linkedinUrl": "https://linkedin.com/in/janesmith",
+        "company": "Startup Inc",
+        "title": "CTO",
+        "phone": null,
+        "location": "New York, NY",
+        "status": "new",
+        "source": "website",
+        "notes": null,
+        "tags": ["startup", "technical"],
+        "customFields": {
+          "industry": "FinTech",
+          "employeeCount": "10-50"
+        },
+        "createdAt": "2024-01-20T08:45:00Z",
+        "updatedAt": "2024-01-20T08:45:00Z",
+        "lastContactedAt": null
+      }
+    ],
+    "pagination": {
+      "page": 1,
+      "limit": 10,
+      "total": 247,
+      "pages": 25,
+      "hasNextPage": true,
+      "hasPrevPage": false
+    }
+  }
+}
+```
+
+</ResponseExample>
+
+## Lead Statuses
+
+| Status      | Description                       | Use Case                        |
+| ----------- | --------------------------------- | ------------------------------- |
+| `new`       | Recently added, not yet contacted | Fresh leads from imports or API |
+| `contacted` | Initial outreach completed        | Follow-up needed                |
+| `replied`   | Lead has responded                | Active engagement               |
+| `converted` | Lead became a customer            | Success tracking                |
+| `cold`      | No response or not interested     | Nurture campaigns               |
+
+## Advanced Use Cases
+
+### 1. Lead Dashboard Analytics
+
+```javascript
+async function getLeadAnalytics() {
+  const statuses = ["new", "contacted", "replied", "converted", "cold"];
+  const analytics = {};
+
+  for (const status of statuses) {
+    const response = await fetch(
+      `https://api.buena.ai/api/v2/leads?status=${status}&limit=1`,
+      {
+        headers: { "x-api-key": process.env.BUENA_API_KEY },
+      }
+    );
+
+    const data = await response.json();
+    analytics[status] = data.data.pagination.total;
+  }
+
+  console.log("Lead Analytics:", analytics);
+
+  // Calculate conversion rate
+  const total = Object.values(analytics).reduce((sum, count) => sum + count, 0);
+  const conversionRate = ((analytics.converted / total) * 100).toFixed(1);
+
+  console.log(`Conversion Rate: ${conversionRate}%`);
+
+  return analytics;
+}
+```
+
+### 2. Follow-up Lead Identification
+
+```python
+import requests
+from datetime import datetime, timedelta
+
+def find_leads_needing_followup():
+    """Find contacted leads that haven't been followed up in 7 days"""
+
+    seven_days_ago = (datetime.now() - timedelta(days=7)).isoformat() + 'Z'
+
+    response = requests.get(
+        'https://api.buena.ai/api/v2/leads',
+        headers={'x-api-key': os.getenv('BUENA_API_KEY')},
+        params={
+            'status': 'contacted',
+            'lastContactedBefore': seven_days_ago,
+            'sortBy': 'lastContactedAt',
+            'sortOrder': 'asc',
+            'limit': 100
+        }
+    )
+
+    data = response.json()
+    followup_leads = data['data']['leads']
+
+    print(f"Found {len(followup_leads)} leads needing follow-up:")
+
+    for lead in followup_leads:
+        last_contacted = datetime.fromisoformat(lead['lastContactedAt'].replace('Z', '+00:00'))
+        days_ago = (datetime.now() - last_contacted).days
+
+        print(f"- {lead['firstName']} {lead['lastName']} ({lead['company']}) - {days_ago} days ago")
+
+    return followup_leads
+```
+
+### 3. Lead Export and Backup
+
+```javascript
+async function exportAllLeads() {
+  const allLeads = [];
+  let page = 1;
+  let hasMore = true;
+
+  while (hasMore) {
+    const response = await fetch(
+      `https://api.buena.ai/api/v2/leads?page=${page}&limit=100&sortBy=createdAt&sortOrder=asc`,
+      {
+        headers: { "x-api-key": process.env.BUENA_API_KEY },
+      }
+    );
+
+    const data = await response.json();
+    allLeads.push(...data.data.leads);
+
+    hasMore = data.data.pagination.hasNextPage;
+    page++;
+
+    console.log(`Exported page ${page - 1} (${data.data.leads.length} leads)`);
+
+    // Rate limiting
+    await new Promise((resolve) => setTimeout(resolve, 100));
+  }
+
+  console.log(`Total leads exported: ${allLeads.length}`);
+
+  // Save to file or send to backup service
+  require("fs").writeFileSync(
+    `leads-backup-${new Date().toISOString().split("T")[0]}.json`,
+    JSON.stringify(allLeads, null, 2)
+  );
+
+  return allLeads;
+}
+```
+
+### 4. Smart Lead Segmentation
+
+```python
+def segment_leads_by_engagement():
+    """Segment leads based on engagement patterns"""
+
+    segments = {
+        'hot_prospects': [],      # Recent activity, high engagement
+        'warm_leads': [],         # Some activity, needs nurturing
+        'cold_prospects': [],     # No recent activity
+        'converted': []           # Successful conversions
+    }
+
+    # Get all leads with recent activity
+    response = requests.get(
+        'https://api.buena.ai/api/v2/leads',
+        headers={'x-api-key': os.getenv('BUENA_API_KEY')},
+        params={
+            'limit': 100,
+            'sortBy': 'lastContactedAt',
+            'sortOrder': 'desc'
+        }
+    )
+
+    leads = response.json()['data']['leads']
+
+    for lead in leads:
+        if lead['status'] == 'converted':
+            segments['converted'].append(lead)
+        elif lead['status'] == 'replied' and lead['lastContactedAt']:
+            # Recent reply = hot prospect
+            last_contact = datetime.fromisoformat(lead['lastContactedAt'].replace('Z', '+00:00'))
+            if (datetime.now() - last_contact).days <= 7:
+                segments['hot_prospects'].append(lead)
+            else:
+                segments['warm_leads'].append(lead)
+        elif lead['status'] == 'contacted':
+            segments['warm_leads'].append(lead)
+        else:
+            segments['cold_prospects'].append(lead)
+
+    # Print segment summary
+    for segment, leads in segments.items():
+        print(f"{segment.replace('_', ' ').title()}: {len(leads)} leads")
+
+    return segments
+```
+
+### 5. Lead Quality Scoring
+
+```javascript
+function calculateLeadScore(lead) {
+  let score = 0;
+
+  // Company size scoring
+  if (lead.customFields?.employeeCount) {
+    const sizeMap = {
+      "1-10": 1,
+      "11-50": 2,
+      "51-200": 3,
+      "201-1000": 4,
+      "1000+": 5,
+    };
+    score += sizeMap[lead.customFields.employeeCount] || 0;
+  }
+
+  // Title scoring
+  const seniorTitles = ["ceo", "cto", "vp", "director", "head", "senior"];
+  if (seniorTitles.some((title) => lead.title?.toLowerCase().includes(title))) {
+    score += 3;
+  }
+
+  // Engagement scoring
+  if (lead.status === "replied") score += 5;
+  else if (lead.status === "contacted") score += 2;
+
+  // Source scoring
+  if (lead.source === "referral") score += 4;
+  else if (lead.source === "linkedin") score += 2;
+
+  // Recency scoring
+  if (lead.lastContactedAt) {
+    const daysSinceContact = Math.floor(
+      (new Date() - new Date(lead.lastContactedAt)) / (1000 * 60 * 60 * 24)
+    );
+
+    if (daysSinceContact <= 7) score += 3;
+    else if (daysSinceContact <= 30) score += 1;
+  }
+
+  return Math.min(score, 20); // Cap at 20
+}
+
+async function scoreAllLeads() {
+  let page = 1;
+  const scoredLeads = [];
+
+  while (true) {
+    const response = await fetch(
+      `https://api.buena.ai/api/v2/leads?page=${page}&limit=100`,
+      {
+        headers: { "x-api-key": process.env.BUENA_API_KEY },
+      }
+    );
+
+    const data = await response.json();
+    const leads = data.data.leads;
+
+    if (leads.length === 0) break;
+
+    leads.forEach((lead) => {
+      const score = calculateLeadScore(lead);
+      scoredLeads.push({ ...lead, score });
+    });
+
+    page++;
+  }
+
+  // Sort by score descending
+  scoredLeads.sort((a, b) => b.score - a.score);
+
+  console.log("Top 10 highest scoring leads:");
+  scoredLeads.slice(0, 10).forEach((lead, index) => {
+    console.log(
+      `${index + 1}. ${lead.firstName} ${lead.lastName} (${
+        lead.company
+      }) - Score: ${lead.score}`
+    );
+  });
+
+  return scoredLeads;
+}
+```
+
+## Error Responses
+
+### Unauthorized (401)
+
+```json
+{
+  "error": true,
+  "code": "UNAUTHORIZED",
+  "message": "Invalid API key",
+  "version": "2.0",
+  "timestamp": "2024-01-20T15:30:00Z"
+}
+```
+
+### Permission Denied (403)
+
+```json
+{
+  "error": true,
+  "code": "PERMISSION_DENIED",
+  "message": "Insufficient permissions for reading leads",
+  "version": "2.0",
+  "timestamp": "2024-01-20T15:30:00Z",
+  "permissionHelp": {
+    "required": "leads:read",
+    "available": ["linkedin:read"],
+    "documentation": "https://docs.buena.ai/authentication"
+  }
+}
+```
+
+### Invalid Parameters (400)
+
+```json
+{
+  "error": true,
+  "code": "VALIDATION_ERROR",
+  "message": "Invalid query parameters",
+  "version": "2.0",
+  "timestamp": "2024-01-20T15:30:00Z",
+  "details": {
+    "invalidParams": {
+      "limit": "Must be between 1 and 100",
+      "status": "Must be one of: new, contacted, replied, converted, cold"
+    }
+  }
+}
+```
+
+## Performance Tips
+
+<AccordionGroup>
+  <Accordion title="Pagination Strategy">
+    Use appropriate page sizes for your use case:
+    
+    ```javascript
+    // For UI display
+    const uiResponse = await fetch('https://api.buena.ai/api/v2/leads?limit=25');
+    
+    // For bulk processing
+    const bulkResponse = await fetch('https://api.buena.ai/api/v2/leads?limit=100');
+    
+    // For counting only
+    const countResponse = await fetch('https://api.buena.ai/api/v2/leads?limit=1');
+    const total = countResponse.data.pagination.total;
+    ```
+  </Accordion>
+  
+  <Accordion title="Efficient Filtering">
+    Use specific filters to reduce response size:
+    
+    ```javascript
+    // Instead of fetching all and filtering client-side
+    const allLeads = await fetch('https://api.buena.ai/api/v2/leads?limit=100');
+    const filtered = allLeads.filter(lead => lead.status === 'new');
+    
+    // Use server-side filtering
+    const newLeads = await fetch('https://api.buena.ai/api/v2/leads?status=new&limit=100');
+    ```
+  </Accordion>
+  
+  <Accordion title="Caching Strategy">
+    Cache frequently accessed data:
+    
+    ```javascript
+    class LeadCache {
+      constructor() {
+        this.cache = new Map();
+        this.ttl = 5 * 60 * 1000; // 5 minutes
+      }
+      
+      async getLeads(params) {
+        const key = JSON.stringify(params);
+        const cached = this.cache.get(key);
+        
+        if (cached && Date.now() - cached.timestamp < this.ttl) {
+          return cached.data;
+        }
+        
+        const response = await fetch(`https://api.buena.ai/api/v2/leads?${new URLSearchParams(params)}`);
+        const data = await response.json();
+        
+        this.cache.set(key, { data, timestamp: Date.now() });
+        return data;
+      }
+    }
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Create Lead" icon="plus" href="/api-reference/leads/create">
+    Add new leads to your database
+  </Card>
+  <Card title="Update Lead" icon="edit" href="/api-reference/leads/update">
+    Modify existing lead information
+  </Card>
+  <Card title="Enrich Leads" icon="sparkles" href="/api-reference/enrich/leads">
+    Enhance leads with additional data
+  </Card>
+  <Card
+    title="Find Prospects"
+    icon="search"
+    href="/api-reference/prospecting/search"
+  >
+    Discover new potential leads
+  </Card>
+</CardGroup>{" "}
