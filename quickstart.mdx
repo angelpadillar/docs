@@ -147,25 +147,18 @@ print(response.json())
 
 ## Step 3: Schedule Your First LinkedIn Action
 
-Now let's schedule a LinkedIn connection request:
+Now let's schedule a LinkedIn connection request using the simplified API:
 
 <CodeGroup>
 
 ```bash cURL
 curl -X POST "https://api.buena.ai/api/v2/linkedin/scheduleLinkedInAction" \
-  -H "x-api-key: YOUR_API_KEY" \
+  -H "x-api-key: bna_b481beefb342812b07807aaa2414c99bb93f9ea8702ee029d1e8bb73e2a2d52a" \
   -H "Content-Type: application/json" \
   -d '{
     "actionType": "sendConnectionRequest",
     "profileUrl": "https://linkedin.com/in/johndoe",
-    "message": "Hi John, I'd love to connect and discuss opportunities!",
-    "linkedInIntegration": {
-      "enabled": true,
-      "timezone": {
-        "value": "America/New_York",
-        "offset": -5
-      }
-    }
+    "message": "Hi John, I'd love to connect and discuss opportunities!"
   }'
 ```
 
@@ -175,20 +168,14 @@ const response = await fetch(
   {
     method: "POST",
     headers: {
-      "x-api-key": "YOUR_API_KEY",
+      "x-api-key":
+        "bna_b481beefb342812b07807aaa2414c99bb93f9ea8702ee029d1e8bb73e2a2d52a",
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
       actionType: "sendConnectionRequest",
       profileUrl: "https://linkedin.com/in/johndoe",
       message: "Hi John, I'd love to connect and discuss opportunities!",
-      linkedInIntegration: {
-        enabled: true,
-        timezone: {
-          value: "America/New_York",
-          offset: -5,
-        },
-      },
     }),
   }
 );
@@ -203,20 +190,13 @@ import requests
 response = requests.post(
     'https://api.buena.ai/api/v2/linkedin/scheduleLinkedInAction',
     headers={
-        'x-api-key': 'YOUR_API_KEY',
+        'x-api-key': 'bna_b481beefb342812b07807aaa2414c99bb93f9ea8702ee029d1e8bb73e2a2d52a',
         'Content-Type': 'application/json'
     },
     json={
         'actionType': 'sendConnectionRequest',
         'profileUrl': 'https://linkedin.com/in/johndoe',
-        'message': "Hi John, I'd love to connect and discuss opportunities!",
-        'linkedInIntegration': {
-            'enabled': True,
-            'timezone': {
-                'value': 'America/New_York',
-                'offset': -5
-            }
-        }
+        'message': "Hi John, I'd love to connect and discuss opportunities!"
     }
 )
 
@@ -224,6 +204,13 @@ print(response.json())
 ```
 
 </CodeGroup>
+
+<Note>
+  **Notice the simplification!** With user-specific API keys (format:
+  `bna_hexstring`), you no longer need to specify `linkedInIntegration`
+  settings. The API automatically detects your LinkedIn account details and
+  timezone from the API key.
+</Note>
 
 ### Expected Response
 

@@ -101,19 +101,23 @@
     },
     {
       "group": "Enrichment & Prospecting",
+      "icon": "magnifying-glass",
       "pages": [
         "api-reference/enrich/leads",
         "api-reference/prospecting/search"
       ]
     },
     {
-      "group": "Campaigns & Users",
+      "group": "User Management",
       "pages": [
-        "api-reference/campaigns/csv",
-        "api-reference/users/active",
         "api-reference/users/jobs",
-        "api-reference/users/linkedin"
+        "api-reference/users/linkedin",
+        "api-reference/users/integrations"
       ]
+    },
+    {
+      "group": "Campaigns",
+      "pages": ["api-reference/campaigns/csv"]
     },
     {
       "group": "SDKs & Tools",

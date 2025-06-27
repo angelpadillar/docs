@@ -1,19 +1,23 @@
 ---
 title: "LinkedIn Integration Status"
 api: "GET https://api.buena.ai/api/v2/users/linkedin"
-description: "Check LinkedIn integration status and account details"
+description: "Check LinkedIn integration status and account details for the authenticated user"
 ---
 
 # LinkedIn Integration Status
 
-Verify your LinkedIn integration status, connection details, and account information. Useful for checking if LinkedIn automation is properly configured.
+Verify your LinkedIn integration status, connection details, and account information. This simplified endpoint automatically detects the user from the API key, eliminating the need for user IDs in the URL.
 
-<Note>Requires the `linkedin:read` permission.</Note>
+<Note>
+  Requires a **user-specific API key** with `users:read` permission. Global API
+  keys should use the legacy routes.
+</Note>
 
 ## Request
 
 <ParamField header="x-api-key" type="string" required>
-  Your API key with `linkedin:read` permission
+  Your user-specific API key with `users:read` permission (format:
+  `bna_hexstring`)
 </ParamField>
 
 ## Examples
@@ -24,14 +28,15 @@ Verify your LinkedIn integration status, connection details, and account informa
 
 ```bash cURL
 curl -X GET "https://api.buena.ai/api/v2/users/linkedin" \
-  -H "x-api-key: YOUR_API_KEY"
+  -H "x-api-key: bna_b481beefb342812b07807aaa2414c99bb93f9ea8702ee029d1e8bb73e2a2d52a"
 ```
 
 ```javascript JavaScript
 const response = await fetch("https://api.buena.ai/api/v2/users/linkedin", {
   method: "GET",
   headers: {
-    "x-api-key": "YOUR_API_KEY",
+    "x-api-key":
+      "bna_b481beefb342812b07807aaa2414c99bb93f9ea8702ee029d1e8bb73e2a2d52a",
   },
 });
 
@@ -45,7 +50,7 @@ import requests
 response = requests.get(
     'https://api.buena.ai/api/v2/users/linkedin',
     headers={
-        'x-api-key': 'YOUR_API_KEY'
+        'x-api-key': 'bna_b481beefb342812b07807aaa2414c99bb93f9ea8702ee029d1e8bb73e2a2d52a'
     }
 )
 
@@ -56,6 +61,10 @@ print(response.json())
 
 ## Response
 
+<ResponseField name="userId" type="string">
+  The authenticated user's ID
+</ResponseField>
+
 <ResponseField name="success" type="boolean">
   Always `true` for successful requests
 </ResponseField>
@@ -63,29 +72,37 @@ print(response.json())
 <ResponseField name="data" type="object">
   LinkedIn integration information
   <Expandable title="LinkedIn Status Object">
-    <ResponseField name="connected" type="boolean">
-      Whether LinkedIn account is connected
+    <ResponseField name="linkedInIntegration" type="object">
+      LinkedIn integration details
+      <Expandable title="LinkedIn Integration Object">
+        <ResponseField name="connected" type="boolean">
+          Whether LinkedIn account is connected
+        </ResponseField>
+        <ResponseField name="profileUrl" type="string">
+          Connected LinkedIn profile URL
+        </ResponseField>
+        <ResponseField name="name" type="string">
+          LinkedIn account name
+        </ResponseField>
+        <ResponseField name="connectionCount" type="number">
+          Number of LinkedIn connections
+        </ResponseField>
+        <ResponseField name="actionsToday" type="number">
+          LinkedIn actions performed today
+        </ResponseField>
+        <ResponseField name="dailyLimit" type="number">
+          Daily action limit
+        </ResponseField>
+        <ResponseField name="lastActivity" type="string">
+          ISO 8601 timestamp of last LinkedIn activity
+        </ResponseField>
+      </Expandable>
     </ResponseField>
-    <ResponseField name="profileUrl" type="string">
-      Connected LinkedIn profile URL
-    </ResponseField>
-    <ResponseField name="name" type="string">
-      LinkedIn account name
+    <ResponseField name="hasProxy" type="boolean">
+      Whether user has proxy configured
     </ResponseField>
     <ResponseField name="timezone" type="string">
-      Account timezone
-    </ResponseField>
-    <ResponseField name="connectionCount" type="number">
-      Number of LinkedIn connections
-    </ResponseField>
-    <ResponseField name="actionsToday" type="number">
-      LinkedIn actions performed today
-    </ResponseField>
-    <ResponseField name="dailyLimit" type="number">
-      Daily action limit
-    </ResponseField>
-    <ResponseField name="lastActivity" type="string">
-      ISO 8601 timestamp of last LinkedIn activity
+      User's account timezone
     </ResponseField>
   </Expandable>
 </ResponseField>
@@ -94,21 +111,244 @@ print(response.json())
 
 ```json Response
 {
+  "userId": "65e0a32640a597f6a7f897ea",
   "success": true,
   "data": {
-    "connected": true,
-    "profileUrl": "https://linkedin.com/in/yourprofile",
-    "name": "Your Name",
-    "timezone": "America/New_York",
-    "connectionCount": 1247,
-    "actionsToday": 12,
-    "dailyLimit": 100,
-    "lastActivity": "2024-01-20T14:30:00Z"
+    "linkedInIntegration": {
+      "connected": true,
+      "profileUrl": "https://linkedin.com/in/yourprofile",
+      "name": "Your Name",
+      "connectionCount": 1247,
+      "actionsToday": 12,
+      "dailyLimit": 100,
+      "lastActivity": "2024-01-20T14:30:00Z"
+    },
+    "hasProxy": true,
+    "timezone": "America/New_York"
   }
 }
 ```
 
 </ResponseExample>
+
+## Advanced Use Cases
+
+### 1. Integration Health Check
+
+```javascript
+async function checkLinkedInHealth() {
+  try {
+    const response = await fetch("https://api.buena.ai/api/v2/users/linkedin", {
+      headers: {
+        "x-api-key": process.env.BUENA_USER_API_KEY,
+      },
+    });
+
+    const data = await response.json();
+    const integration = data.data.linkedInIntegration;
+
+    if (!integration.connected) {
+      console.log("❌ LinkedIn not connected - setup required");
+      return false;
+    }
+
+    // Check daily usage
+    const usagePercentage =
+      (integration.actionsToday / integration.dailyLimit) * 100;
+
+    if (usagePercentage > 90) {
+      console.log(
+        "⚠️ High usage warning:",
+        `${usagePercentage.toFixed(1)}% of daily limit used`
+      );
+    } else if (usagePercentage > 50) {
+      console.log(
+        "⚡ Moderate usage:",
+        `${usagePercentage.toFixed(1)}% of daily limit used`
+      );
+    } else {
+      console.log(
+        "✅ Low usage:",
+        `${usagePercentage.toFixed(1)}% of daily limit used`
+      );
+    }
+
+    // Check for recent activity
+    const lastActivity = new Date(integration.lastActivity);
+    const hoursSinceActivity =
+      (Date.now() - lastActivity.getTime()) / (1000 * 60 * 60);
+
+    if (hoursSinceActivity > 24) {
+      console.log("💤 No activity in 24+ hours - consider scheduling actions");
+    } else {
+      console.log("🟢 Recent activity detected");
+    }
+
+    return true;
+  } catch (error) {
+    console.error("Failed to check LinkedIn health:", error);
+    return false;
+  }
+}
+
+// Run health check
+checkLinkedInHealth();
+```
+
+### 2. Usage Monitoring
+
+```python
+import requests
+import json
+from datetime import datetime, timedelta
+
+class LinkedInMonitor:
+    def __init__(self, api_key):
+        self.api_key = api_key
+        self.base_url = 'https://api.buena.ai/api/v2'
+
+    def get_status(self):
+        """Get current LinkedIn integration status"""
+        response = requests.get(
+            f'{self.base_url}/users/linkedin',
+            headers={'x-api-key': self.api_key}
+        )
+        return response.json()
+
+    def get_usage_summary(self):
+        """Get usage summary and recommendations"""
+        status_data = self.get_status()
+        integration = status_data['data']['linkedInIntegration']
+
+        if not integration['connected']:
+            return {
+                'status': 'disconnected',
+                'message': 'LinkedIn account not connected',
+                'action': 'setup_required'
+            }
+
+        actions_today = integration['actionsToday']
+        daily_limit = integration['dailyLimit']
+        usage_percent = (actions_today / daily_limit) * 100
+
+        # Calculate remaining capacity
+        remaining_actions = daily_limit - actions_today
+
+        summary = {
+            'status': 'connected',
+            'actions_today': actions_today,
+            'daily_limit': daily_limit,
+            'usage_percent': round(usage_percent, 1),
+            'remaining_actions': remaining_actions,
+            'connection_count': integration['connectionCount'],
+            'last_activity': integration['lastActivity']
+        }
+
+        # Add recommendations
+        if usage_percent >= 95:
+            summary['recommendation'] = 'Daily limit nearly reached - pause automation'
+            summary['priority'] = 'high'
+        elif usage_percent >= 80:
+            summary['recommendation'] = 'High usage - monitor closely'
+            summary['priority'] = 'medium'
+        elif usage_percent <= 20:
+            summary['recommendation'] = 'Low usage - consider increasing automation'
+            summary['priority'] = 'low'
+        else:
+            summary['recommendation'] = 'Usage within normal range'
+            summary['priority'] = 'normal'
+
+        return summary
+
+    def check_inactivity(self, hours_threshold=12):
+        """Check for extended periods of inactivity"""
+        status_data = self.get_status()
+        integration = status_data['data']['linkedInIntegration']
+
+        if not integration['lastActivity']:
+            return {
+                'inactive': True,
+                'message': 'No activity recorded',
+                'hours_since': None
+            }
+
+        last_activity = datetime.fromisoformat(integration['lastActivity'].replace('Z', '+00:00'))
+        hours_since = (datetime.now(last_activity.tzinfo) - last_activity).total_seconds() / 3600
+
+        return {
+            'inactive': hours_since > hours_threshold,
+            'hours_since': round(hours_since, 1),
+            'message': f'Last activity: {hours_since:.1f} hours ago'
+        }
+
+# Usage
+monitor = LinkedInMonitor(os.getenv('BUENA_USER_API_KEY'))
+
+# Get current usage summary
+summary = monitor.get_usage_summary()
+print(f"LinkedIn Usage: {summary['usage_percent']}%")
+print(f"Recommendation: {summary['recommendation']}")
+
+# Check for inactivity
+inactivity = monitor.check_inactivity()
+if inactivity['inactive']:
+    print(f"⚠️ Inactive for {inactivity['hours_since']} hours")
+```
+
+## Legacy Routes
+
+<Info>
+  For backward compatibility, these legacy routes are still supported but
+  require explicit user IDs:
+</Info>
+
+- `GET /api/v2/users/linkedin/user-linkedin-integration/:userId` - Get LinkedIn integration for specific user
+- `POST /api/v2/users/integrations/setup-linkedin-integration` - Setup LinkedIn integration (legacy)
+
+## Error Responses
+
+### Global API Key Used (400)
+
+```json
+{
+  "error": "When using global API key, please use the specific route: /api/v2/users/linkedin/user-linkedin-integration/:userId",
+  "availableRoute": "/api/v2/users/linkedin/user-linkedin-integration/:userId"
+}
+```
+
+### LinkedIn Not Connected (200)
+
+```json
+{
+  "userId": "65e0a32640a597f6a7f897ea",
+  "success": true,
+  "data": {
+    "linkedInIntegration": {
+      "connected": false,
+      "setupUrl": "https://app.buena.ai/integrations/linkedin"
+    },
+    "hasProxy": false,
+    "timezone": "America/New_York"
+  }
+}
+```
+
+### Invalid Permission (403)
+
+```json
+{
+  "error": true,
+  "code": "PERMISSION_DENIED",
+  "message": "Insufficient permissions for user data access",
+  "version": "2.0",
+  "timestamp": "2024-01-20T15:30:00Z",
+  "permissionHelp": {
+    "required": "users:read",
+    "available": ["linkedin:schedule"],
+    "documentation": "https://docs.buena.ai/authentication"
+  }
+}
+```
 
 ## Next Steps
 
@@ -130,7 +370,11 @@ print(response.json())
   >
     Upload prospect lists
   </Card>
-  <Card title="LinkedIn Guide" icon="book" href="/guides/linkedin-automation">
-    Learn LinkedIn automation
+  <Card
+    title="User Integrations"
+    icon="plug"
+    href="/api-reference/users/integrations"
+  >
+    Manage all integrations
   </Card>
-</CardGroup>{" "}
+</CardGroup>
