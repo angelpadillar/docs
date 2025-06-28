@@ -1,0 +1,124 @@
+---
+title: "Upload Prospects"
+api: "POST https://api.buena.ai/api/v2/linkedin/upload-prospects"
+description: "Upload a list of prospects for LinkedIn automation"
+---
+
+Upload a list of prospects to be used in LinkedIn automation campaigns.
+
+## Request Body
+
+<ParamField body="prospects" type="array" required>
+  Array of prospect objects to upload
+</ParamField>
+
+<ParamField body="prospects[].name" type="string" required>
+  Full name of the prospect
+</ParamField>
+
+<ParamField body="prospects[].linkedin_url" type="string" required>
+  LinkedIn profile URL of the prospect
+</ParamField>
+
+<ParamField body="prospects[].email" type="string">
+  Email address of the prospect
+</ParamField>
+
+<ParamField body="prospects[].company" type="string">
+  Company name where the prospect works
+</ParamField>
+
+<ParamField body="prospects[].title" type="string">
+  Job title of the prospect
+</ParamField>
+
+<ParamField body="prospects[].notes" type="string">
+  Additional notes about the prospect
+</ParamField>
+
+<ParamField body="campaign_id" type="string">
+  ID of the campaign to associate these prospects with
+</ParamField>
+
+<ParamField body="tags" type="array">
+  Array of tags to apply to all uploaded prospects
+</ParamField>
+
+## Response
+
+<ResponseField name="uploaded_count" type="number">
+  Number of prospects successfully uploaded
+</ResponseField>
+
+<ResponseField name="skipped_count" type="number">
+  Number of prospects that were skipped (duplicates, invalid data, etc.)
+</ResponseField>
+
+<ResponseField name="errors" type="array">
+  Array of error messages for prospects that couldn't be uploaded
+</ResponseField>
+
+<ResponseField name="prospect_ids" type="array">
+  Array of IDs for the successfully uploaded prospects
+</ResponseField>
+
+<RequestExample>
+
+```bash cURL
+curl -X POST \
+  https://api.buena.ai/api/v2/linkedin/upload-prospects \
+  -H "x-api-key: YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "prospects": [
+      {
+        "name": "John Doe",
+        "linkedin_url": "https://linkedin.com/in/johndoe",
+        "email": "john@example.com",
+        "company": "Example Corp",
+        "title": "CEO"
+      }
+    ],
+    "campaign_id": "camp_123",
+    "tags": ["enterprise", "q1-2024"]
+  }'
+```
+
+```javascript JavaScript
+const response = await fetch('https://api.buena.ai/api/v2/linkedin/upload-prospects', {
+  method: 'POST',
+  headers: {
+    'x-api-key': 'YOUR_API_KEY',
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    prospects: [
+      {
+        name: "John Doe",
+        linkedin_url: "https://linkedin.com/in/johndoe",
+        email: "john@example.com",
+        company: "Example Corp",
+        title: "CEO"
+      }
+    ],
+    campaign_id: "camp_123",
+    tags: ["enterprise", "q1-2024"]
+  })
+});
+const result = await response.json();
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```json Response
+{
+  "uploaded_count": 1,
+  "skipped_count": 0,
+  "errors": [],
+  "prospect_ids": ["prospect_456"]
+}
+```
+
+</ResponseExample>
