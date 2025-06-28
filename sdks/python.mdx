@@ -1,0 +1,206 @@
+---
+title: "Python SDK"
+description: "Official Python SDK for Buena.ai API"
+---
+
+# Python SDK
+
+The official Python SDK for the Buena.ai API provides a convenient way to integrate Buena.ai's lead generation and LinkedIn automation features into your Python applications.
+
+## Installation
+
+Install the SDK using pip:
+
+```bash
+pip install buena-sdk
+```
+
+## Quick Start
+
+```python
+from buena import BuenaClient
+
+# Initialize the client
+client = BuenaClient(api_key='your-api-key')
+
+# List leads
+leads = client.leads.list()
+print(leads)
+
+# Create a new lead
+new_lead = client.leads.create({
+    'name': 'John Doe',
+    'email': 'john@example.com',
+    'company': 'Example Corp'
+})
+```
+
+## Configuration
+
+```python
+from buena import BuenaClient
+
+client = BuenaClient(
+    api_key='your-api-key',
+    base_url='https://api.buena.ai/api/v2',  # Optional
+    timeout=30,  # Optional, default 30 seconds
+    max_retries=3  # Optional, default 3 retries
+)
+```
+
+## Available Methods
+
+### Leads Management
+
+```python
+# List all leads
+leads = client.leads.list(
+    limit=50,
+    offset=0,
+    status='active'
+)
+
+# Create a lead
+lead = client.leads.create({
+    'name': 'Jane Smith',
+    'email': 'jane@company.com',
+    'company': 'Company Inc',
+    'title': 'CEO'
+})
+
+# Update a lead
+updated_lead = client.leads.update('lead_id', {
+    'status': 'contacted'
+})
+
+# Delete a lead
+client.leads.delete('lead_id')
+```
+
+### LinkedIn Automation
+
+```python
+# Schedule LinkedIn action
+action = client.linkedin.schedule_action({
+    'prospect_id': 'prospect_123',
+    'action_type': 'connect',
+    'message': 'Hi {name}, I\'d love to connect!'
+})
+
+# Upload prospects
+result = client.linkedin.upload_prospects({
+    'prospects': [
+        {
+            'name': 'John Doe',
+            'linkedin_url': 'https://linkedin.com/in/johndoe',
+            'email': 'john@example.com'
+        }
+    ],
+    'campaign_id': 'camp_123'
+})
+```
+
+### Enrichment
+
+```python
+# Enrich leads with additional data
+enriched_leads = client.enrich.leads({
+    'leads': ['lead_123', 'lead_456']
+})
+```
+
+### Prospecting
+
+```python
+# Search for prospects
+prospects = client.prospecting.search({
+    'query': 'CEO software startup',
+    'location': 'San Francisco',
+    'company_size': '1-50'
+})
+```
+
+## Error Handling
+
+```python
+from buena import BuenaClient, BuenaError, RateLimitError, AuthenticationError
+
+client = BuenaClient(api_key='your-api-key')
+
+try:
+    leads = client.leads.list()
+except AuthenticationError:
+    print('Invalid API key')
+except RateLimitError:
+    print('Rate limit exceeded')
+except BuenaError as e:
+    print(f'API error: {e.message}')
+```
+
+## Async Support
+
+The SDK also supports async/await:
+
+```python
+import asyncio
+from buena import AsyncBuenaClient
+
+async def main():
+    client = AsyncBuenaClient(api_key='your-api-key')
+    
+    # List leads asynchronously
+    leads = await client.leads.list()
+    print(leads)
+    
+    # Create multiple leads concurrently
+    tasks = [
+        client.leads.create({'name': f'Lead {i}', 'email': f'lead{i}@example.com'})
+        for i in range(5)
+    ]
+    results = await asyncio.gather(*tasks)
+    
+    await client.close()
+
+asyncio.run(main())
+```
+
+## Pagination
+
+```python
+# Manual pagination
+leads = client.leads.list(limit=50, offset=0)
+while leads:
+    for lead in leads:
+        print(lead['name'])
+    
+    # Get next page
+    leads = client.leads.list(limit=50, offset=len(leads))
+
+# Using iterator (recommended)
+for lead in client.leads.list_all():
+    print(lead['name'])
+```
+
+## Data Classes
+
+The SDK provides convenient data classes for type hints:
+
+```python
+from buena import BuenaClient
+from buena.types import Lead, CreateLeadRequest
+
+client = BuenaClient(api_key='your-api-key')
+
+def create_lead(lead_data: CreateLeadRequest) -> Lead:
+    return client.leads.create(lead_data)
+
+lead = create_lead({
+    'name': 'John Doe',
+    'email': 'john@example.com',
+    'company': 'Example Corp'
+})
+```
+
+<Info>
+The Python SDK is currently under development. Full documentation and examples will be available soon.
+</Info>

@@ -1,0 +1,184 @@
+---
+title: "Postman Collection"
+description: "Import and use the Buena.ai API Postman collection"
+---
+
+# Postman Collection
+
+Get started quickly with the Buena.ai API using our comprehensive Postman collection. This collection includes all available endpoints with example requests and responses.
+
+## Download Collection
+
+<Card title="Download Postman Collection" icon="download" href="https://api.buena.ai/postman/collection.json">
+  Download the latest Postman collection for Buena.ai API
+</Card>
+
+## Import Instructions
+
+1. **Open Postman** and click the "Import" button in the top left
+2. **Choose "Link"** tab and paste the collection URL:
+   ```
+   https://api.buena.ai/postman/collection.json
+   ```
+3. **Click "Continue"** and then "Import"
+4. The collection will appear in your Postman workspace
+
+### Alternative: Manual Import
+
+1. Download the collection file from the link above
+2. In Postman, click "Import" → "Upload Files"
+3. Select the downloaded JSON file
+4. Click "Import"
+
+## Environment Setup
+
+After importing the collection, set up your environment variables:
+
+1. **Create a new environment** in Postman
+2. **Add the following variables:**
+
+| Variable | Value | Description |
+|----------|-------|-------------|
+| `base_url` | `https://api.buena.ai/api/v2` | API base URL |
+| `api_key` | `your-api-key-here` | Your Buena.ai API key |
+
+3. **Select the environment** from the dropdown in the top right
+
+## Collection Structure
+
+The Postman collection is organized into the following folders:
+
+### 🔐 Authentication
+- API Key Management
+- Key Statistics
+- Key Regeneration
+
+### 👥 Lead Management
+- List Leads
+- Create Lead
+- Update Lead
+- Delete Lead
+
+### 🔗 LinkedIn Automation
+- Schedule Actions
+- Upload Prospects
+- Campaign Management
+
+### 📊 Enrichment & Prospecting
+- Enrich Leads
+- Prospect Search
+- Data Enhancement
+
+### 👤 User Management
+- User Jobs
+- LinkedIn Integration
+- User Settings
+
+### 📈 Analytics & Export
+- Campaign CSV Export
+- Usage Statistics
+- Performance Metrics
+
+## Pre-request Scripts
+
+The collection includes pre-request scripts that automatically:
+- Set authentication headers
+- Add timestamps to requests
+- Generate request IDs for tracking
+
+## Response Examples
+
+Each request includes multiple response examples:
+- ✅ **Success responses** (200, 201, etc.)
+- ❌ **Error responses** (400, 401, 403, 404, 429, 500)
+- 📝 **Different data scenarios**
+
+## Testing
+
+The collection includes automated tests for:
+- Response status codes
+- Response schema validation
+- Required fields presence
+- Data type validation
+
+## Environment Variables
+
+Here are all the environment variables used in the collection:
+
+```json
+{
+  "base_url": "https://api.buena.ai/api/v2",
+  "api_key": "your-api-key-here",
+  "user_id": "user_123",
+  "campaign_id": "camp_456",
+  "lead_id": "lead_789"
+}
+```
+
+## Usage Examples
+
+### 1. Authentication Test
+```bash
+# Test your API key
+GET {{base_url}}/health
+Headers:
+  x-api-key: {{api_key}}
+```
+
+### 2. Create a Lead
+```bash
+# Create a new lead
+POST {{base_url}}/leads
+Headers:
+  x-api-key: {{api_key}}
+  Content-Type: application/json
+Body:
+{
+  "name": "John Doe",
+  "email": "john@example.com",
+  "company": "Example Corp",
+  "title": "CEO"
+}
+```
+
+### 3. LinkedIn Automation
+```bash
+# Schedule a LinkedIn action
+POST {{base_url}}/linkedin/schedule-action
+Headers:
+  x-api-key: {{api_key}}
+  Content-Type: application/json
+Body:
+{
+  "prospect_id": "prospect_123",
+  "action_type": "connect",
+  "message": "Hi {{name}}, I'd love to connect!"
+}
+```
+
+## Troubleshooting
+
+### Common Issues
+
+**401 Unauthorized**
+- Check that your API key is set correctly in environment variables
+- Ensure the API key is active and not expired
+
+**404 Not Found**
+- Verify the endpoint URL is correct
+- Check that resource IDs exist
+
+**429 Rate Limited**
+- Reduce request frequency
+- Implement exponential backoff
+
+### Support
+
+If you encounter issues with the Postman collection:
+1. Check our [API documentation](/api-reference)
+2. Join our [Discord community](https://discord.gg/buena)
+3. Contact support at support@buena.ai
+
+<Info>
+The Postman collection is automatically updated when new API endpoints are released. Re-import the collection periodically to get the latest updates.
+</Info>

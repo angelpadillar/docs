@@ -1,0 +1,156 @@
+---
+title: "JavaScript SDK"
+description: "Official JavaScript/TypeScript SDK for Buena.ai API"
+---
+
+# JavaScript SDK
+
+The official JavaScript/TypeScript SDK for the Buena.ai API makes it easy to integrate Buena.ai's lead generation and LinkedIn automation features into your applications.
+
+## Installation
+
+Install the SDK using npm or yarn:
+
+<CodeGroup>
+
+```bash npm
+npm install @buena/sdk
+```
+
+```bash yarn
+yarn add @buena/sdk
+```
+
+```bash pnpm
+pnpm add @buena/sdk
+```
+
+</CodeGroup>
+
+## Quick Start
+
+```javascript
+import { BuenaClient } from '@buena/sdk';
+
+// Initialize the client
+const buena = new BuenaClient({
+  apiKey: 'your-api-key'
+});
+
+// List leads
+const leads = await buena.leads.list();
+console.log(leads);
+
+// Create a new lead
+const newLead = await buena.leads.create({
+  name: 'John Doe',
+  email: 'john@example.com',
+  company: 'Example Corp'
+});
+```
+
+## Configuration
+
+```javascript
+const buena = new BuenaClient({
+  apiKey: 'your-api-key',
+  baseUrl: 'https://api.buena.ai/api/v2', // Optional
+  timeout: 30000, // Optional, default 30 seconds
+  retries: 3 // Optional, default 3 retries
+});
+```
+
+## Available Methods
+
+### Leads Management
+
+```javascript
+// List all leads
+const leads = await buena.leads.list({
+  limit: 50,
+  offset: 0,
+  status: 'active'
+});
+
+// Create a lead
+const lead = await buena.leads.create({
+  name: 'Jane Smith',
+  email: 'jane@company.com',
+  company: 'Company Inc',
+  title: 'CEO'
+});
+
+// Update a lead
+const updatedLead = await buena.leads.update('lead_id', {
+  status: 'contacted'
+});
+
+// Delete a lead
+await buena.leads.delete('lead_id');
+```
+
+### LinkedIn Automation
+
+```javascript
+// Schedule LinkedIn action
+const action = await buena.linkedin.scheduleAction({
+  prospect_id: 'prospect_123',
+  action_type: 'connect',
+  message: 'Hi {name}, I'd love to connect!'
+});
+
+// Upload prospects
+const result = await buena.linkedin.uploadProspects({
+  prospects: [
+    {
+      name: 'John Doe',
+      linkedin_url: 'https://linkedin.com/in/johndoe',
+      email: 'john@example.com'
+    }
+  ],
+  campaign_id: 'camp_123'
+});
+```
+
+### Enrichment
+
+```javascript
+// Enrich leads with additional data
+const enrichedLeads = await buena.enrich.leads({
+  leads: ['lead_123', 'lead_456']
+});
+```
+
+## Error Handling
+
+```javascript
+try {
+  const leads = await buena.leads.list();
+} catch (error) {
+  if (error.status === 401) {
+    console.error('Invalid API key');
+  } else if (error.status === 429) {
+    console.error('Rate limit exceeded');
+  } else {
+    console.error('API error:', error.message);
+  }
+}
+```
+
+## TypeScript Support
+
+The SDK is written in TypeScript and includes full type definitions:
+
+```typescript
+import { BuenaClient, Lead, CreateLeadRequest } from '@buena/sdk';
+
+const buena = new BuenaClient({ apiKey: 'your-api-key' });
+
+const createLead = async (leadData: CreateLeadRequest): Promise<Lead> => {
+  return await buena.leads.create(leadData);
+};
+```
+
+<Info>
+The JavaScript SDK is currently under development. Full documentation and examples will be available soon.
+</Info>
