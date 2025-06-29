@@ -4,8 +4,6 @@ api: "GET https://api.buena.ai/api/v2/keys"
 description: "Retrieve all your API keys with their permissions and usage statistics"
 ---
 
-# List API Keys
-
 Get a list of all API keys associated with your account. This endpoint returns key metadata without exposing the actual key secrets for security purposes.
 
 <Note>
@@ -367,7 +365,6 @@ const prodKeys = filterKeys(allKeys, {
     ```javascript console.log(`Request made with key: ${apiKey.substring(0, 8)}
     ***`); ```
   </Accordion>
-
 
 <Accordion title="Regular Audits">
   Regularly review your API keys: - Remove unused keys - Rotate keys approaching

@@ -3,8 +3,6 @@ title: "JavaScript/TypeScript SDK"
 description: "Official JavaScript/TypeScript SDK for Buena.ai API"
 ---
 
-# JavaScript/TypeScript SDK
-
 The official JavaScript/TypeScript SDK for the Buena.ai API provides a premium developer experience with automatic updates and enterprise-grade features.
 
 <Info>**🚀 SDK**:</Info>
@@ -86,6 +84,18 @@ const buena = new BuenaSdk({
 - `buena.default.createLead()` - Create a new lead
 - `buena.default.updateLead()` - Update an existing lead
 - `buena.default.deleteLead()` - Delete a lead
+
+### Voice Cloning
+
+- `buena.default.listVoiceClones()` - List all voice clones
+- `buena.default.createVoiceClone()` - Create voice clone with audio files
+- `buena.default.updateVoiceClone()` - Update voice clone settings
+- `buena.default.deleteVoiceClone()` - Delete a voice clone
+- `buena.default.generateVoicePreview()` - Generate voice preview audio
+
+### LinkedIn Voice Messaging
+
+- `buena.default.scheduleLinkedInAction()` - Schedule LinkedIn actions including voice messages
 
 ### API Keys Management
 

@@ -1,0 +1,599 @@
+---
+title: "Voice Cloning Guide"
+description: "Master voice cloning with Buena.ai for personalized LinkedIn outreach"
+---
+
+Learn how to create high-quality AI voice clones and use them effectively for LinkedIn voice messages, creating more personal and engaging outreach campaigns.
+
+## 🎤 What is Voice Cloning?
+
+Voice cloning is the process of creating an AI-generated version of your voice that can synthesize speech from text. With Buena.ai's voice cloning system, you can:
+
+- **Create personalized voice messages** for LinkedIn outreach
+- **Scale your personal touch** across hundreds of prospects
+- **Maintain consistency** in your voice messaging campaigns
+- **Stand out** from text-only messages
+
+## 🚀 Getting Started
+
+### Step 1: Prepare High-Quality Audio Samples
+
+The quality of your voice clone depends heavily on your source audio. Follow these guidelines:
+
+<AccordionGroup>
+  <Accordion title="Recording Equipment">
+    **Recommended Setup:**
+    - **Microphone**: USB condenser microphone or higher quality
+    - **Environment**: Quiet room with minimal echo
+    - **Position**: 6-8 inches from microphone
+    - **Avoid**: Phone recordings, built-in laptop mics
+    
+    **Budget Options:**
+    - Audio-Technica ATR2100x-USB (~$79)
+    - Blue Yeti Nano (~$100)
+    - Samson Q2U (~$70)
+  </Accordion>
+
+{" "}
+
+<Accordion title="Recording Environment">
+  **Ideal Conditions:** - Quiet room away from traffic/noise - Soft furnishings
+  to reduce echo - Consistent background (no AC/fan noise) - Record at same time
+  of day for consistency **Quick Setup:** - Record in a closet full of clothes -
+  Use blankets to create a "recording booth" - Avoid rooms with hard surfaces
+  (bathrooms, kitchens)
+</Accordion>
+
+  <Accordion title="Content Guidelines">
+    **What to Record:**
+    - Natural, conversational tone
+    - Variety of sentence lengths
+    - Different emotions (professional, friendly, excited)
+    - Common business phrases and greetings
+    - Total: 2-5 minutes of clear audio
+    
+    **Sample Script:**
+    ```
+    "Hi there! I hope you're having a fantastic day. I wanted to reach out because I came across your profile and was really impressed by your experience in the industry. I'd love to connect and share some insights that could be valuable for your work. Looking forward to hearing from you!"
+    
+    "Good morning! Thank you so much for connecting with me. I noticed your background in technology and thought you might be interested in what we're building. It's been an exciting journey, and I believe there could be some great synergies between our work. Would you be open to a quick chat this week?"
+    ```
+  </Accordion>
+</AccordionGroup>
+
+### Step 2: Create Your Voice Clone
+
+<CodeGroup>
+
+```bash cURL
+curl -X POST "https://api.buena.ai/api/v2/voice-clones" \
+  -H "x-api-key: YOUR_API_KEY" \
+  -F "name=Professional Voice" \
+  -F "description=Professional outreach voice for LinkedIn" \
+  -F "files=@recording1.wav" \
+  -F "files=@recording2.wav" \
+  -F "files=@recording3.wav"
+```
+
+```javascript JavaScript
+const formData = new FormData();
+formData.append("name", "Professional Voice");
+formData.append("description", "Professional outreach voice for LinkedIn");
+formData.append("files", audioFile1);
+formData.append("files", audioFile2);
+formData.append("files", audioFile3);
+
+const response = await fetch("https://api.buena.ai/api/v2/voice-clones", {
+  method: "POST",
+  headers: {
+    "x-api-key": "YOUR_API_KEY",
+  },
+  body: formData,
+});
+
+const voiceClone = await response.json();
+console.log("Voice clone created:", voiceClone.data.id);
+```
+
+```python Python
+import requests
+
+files = [
+    ('files', ('recording1.wav', open('recording1.wav', 'rb'), 'audio/wav')),
+    ('files', ('recording2.wav', open('recording2.wav', 'rb'), 'audio/wav')),
+    ('files', ('recording3.wav', open('recording3.wav', 'rb'), 'audio/wav'))
+]
+
+data = {
+    'name': 'Professional Voice',
+    'description': 'Professional outreach voice for LinkedIn'
+}
+
+response = requests.post(
+    'https://api.buena.ai/api/v2/voice-clones',
+    headers={'x-api-key': 'YOUR_API_KEY'},
+    files=files,
+    data=data
+)
+
+voice_clone = response.json()
+print(f"Voice clone created: {voice_clone['data']['id']}")
+```
+
+</CodeGroup>
+
+### Step 3: Test with Voice Previews
+
+Always test your voice clone before using it in campaigns:
+
+```javascript
+// Generate preview to test quality
+const preview = await fetch(
+  "https://api.buena.ai/api/v2/voice-clones/preview",
+  {
+    method: "POST",
+    headers: {
+      "x-api-key": "YOUR_API_KEY",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      voice_id: "voice_abc123",
+      text: "Hi there! This is a test of my voice clone quality. How does it sound?",
+    }),
+  }
+);
+
+const previewData = await preview.json();
+console.log("Preview audio:", previewData.data.audio_url);
+```
+
+## 🎯 Voice Settings Optimization
+
+### Understanding Voice Parameters
+
+| Parameter         | Low (0.0-0.3)             | Medium (0.4-0.7)    | High (0.8-1.0)     | Best For            |
+| ----------------- | ------------------------- | ------------------- | ------------------ | ------------------- |
+| **Stability**     | More expressive, variable | Balanced expression | Very consistent    | Professional/formal |
+| **Clarity**       | More natural variation    | Good balance        | Maximum similarity | Recognizable voice  |
+| **Speaker Boost** | Disabled                  | -                   | Enabled            | Better voice match  |
+
+### Recommended Settings by Use Case
+
+<AccordionGroup>
+  <Accordion title="Professional LinkedIn Outreach">
+    ```json
+    {
+      "stability": 0.6,
+      "clarity": 0.8,
+      "use_speaker_boost": true
+    }
+    ```
+    **Best for**: B2B outreach, professional networking, formal introductions
+  </Accordion>
+
+  <Accordion title="Sales & Marketing">
+    ```json
+    {
+      "stability": 0.4,
+      "clarity": 0.7,
+      "use_speaker_boost": true
+    }
+    ```
+    **Best for**: Sales pitches, product introductions, energetic outreach
+  </Accordion>
+
+  <Accordion title="Casual Networking">
+    ```json
+    {
+      "stability": 0.5,
+      "clarity": 0.6,
+      "use_speaker_boost": false
+    }
+    ```
+    **Best for**: Informal connections, follow-ups, friendly conversations
+  </Accordion>
+</AccordionGroup>
+
+## 📝 Crafting Effective Voice Messages
+
+### Message Structure
+
+**The Perfect Voice Message Formula:**
+
+1. **Personal Greeting** (3-5 seconds)
+
+   - Use their name
+   - Warm, friendly tone
+
+2. **Connection Point** (5-8 seconds)
+
+   - Why you're reaching out
+   - Common ground or shared interest
+
+3. **Value Proposition** (8-12 seconds)
+
+   - What you can offer
+   - How it benefits them
+
+4. **Call to Action** (3-5 seconds)
+   - Clear next step
+   - Low-pressure ask
+
+### Example Messages
+
+<AccordionGroup>
+  <Accordion title="Cold Outreach">
+    ```
+    "Hi [Name]! I hope you're having a great week. I came across your profile and was really impressed by your work at [Company]. I've been helping [similar role/industry] professionals with [specific benefit], and I thought you might find it valuable. Would you be open to a quick 15-minute conversation this week? Looking forward to connecting!"
+    ```
+    **Length**: ~20 seconds | **Tone**: Professional, respectful
+  </Accordion>
+
+{" "}
+
+<Accordion title="Follow-up Message">
+  ``` "Hey [Name]! Thanks so much for connecting with me. I really enjoyed
+  reading about your experience with [specific project/role]. I've been working
+  on something that I think could be really relevant to what you're doing at
+  [Company]. Would love to share a quick insight that might be helpful. Hope to
+  hear from you soon!" ``` **Length**: ~18 seconds | **Tone**: Appreciative,
+  helpful
+</Accordion>
+
+  <Accordion title="Partnership Outreach">
+    ```
+    "Hi [Name]! I'm reaching out because I've been following [Company]'s work in [industry/area], and I'm really impressed with what you're building. We're working on something complementary that I think could create some interesting synergies. Would you be interested in exploring a potential collaboration? I'd love to set up a brief call to discuss!"
+    ```
+    **Length**: ~22 seconds | **Tone**: Collaborative, enthusiastic
+  </Accordion>
+</AccordionGroup>
+
+## 🚀 Advanced Voice Messaging Strategies
+
+### 1. Multi-Touch Voice Campaigns
+
+Create a sequence of voice messages for maximum impact:
+
+```javascript
+const voiceCampaign = {
+  sequences: [
+    {
+      day: 0,
+      message: "Initial connection request with voice introduction",
+      voiceText:
+        "Hi [Name]! I'd love to connect and share something that could be valuable for your work at [Company].",
+    },
+    {
+      day: 3,
+      message: "Follow-up with specific value",
+      voiceText:
+        "Hi again [Name]! I wanted to follow up on my connection request. I have some insights about [specific topic] that I think could really help with what you're doing.",
+    },
+    {
+      day: 7,
+      message: "Final value-driven outreach",
+      voiceText:
+        "Hi [Name]! I don't want to be pushy, but I genuinely believe what we're working on could be a game-changer for [specific use case]. Would love just 10 minutes of your time.",
+    },
+  ],
+};
+```
+
+### 2. Personalization at Scale
+
+Use dynamic content to personalize voice messages:
+
+```javascript
+function generatePersonalizedVoiceMessage(prospect) {
+  const templates = {
+    tech: "Hi {firstName}! I saw your work on {recentProject} and was blown away by the {specificTech} implementation.",
+    sales:
+      "Hi {firstName}! I noticed you're crushing it at {company} in the {industry} space.",
+    marketing:
+      "Hi {firstName}! Your recent post about {marketingTopic} really resonated with me.",
+  };
+
+  const template = templates[prospect.industry] || templates.tech;
+
+  return template
+    .replace("{firstName}", prospect.firstName)
+    .replace("{company}", prospect.company)
+    .replace("{recentProject}", prospect.recentProject)
+    .replace("{specificTech}", prospect.specificTech)
+    .replace("{industry}", prospect.industry)
+    .replace("{marketingTopic}", prospect.marketingTopic);
+}
+```
+
+### 3. A/B Testing Voice Settings
+
+Test different voice settings to optimize engagement:
+
+```javascript
+const voiceTests = [
+  {
+    name: "professional",
+    settings: { stability: 0.6, clarity: 0.8, use_speaker_boost: true },
+  },
+  {
+    name: "friendly",
+    settings: { stability: 0.4, clarity: 0.7, use_speaker_boost: true },
+  },
+  {
+    name: "energetic",
+    settings: { stability: 0.3, clarity: 0.6, use_speaker_boost: false },
+  },
+];
+
+async function testVoiceSettings(prospects, voiceId) {
+  const results = {};
+
+  for (const test of voiceTests) {
+    results[test.name] = {
+      sent: 0,
+      responses: 0,
+      responseRate: 0,
+    };
+
+    // Send to subset of prospects
+    const testGroup = prospects.slice(0, 50);
+
+    for (const prospect of testGroup) {
+      await sendVoiceMessage({
+        voiceId: voiceId,
+        voiceSettings: test.settings,
+        prospect: prospect,
+      });
+
+      results[test.name].sent++;
+    }
+  }
+
+  return results;
+}
+```
+
+## 📊 Performance Optimization
+
+### Measuring Voice Message Success
+
+Track these key metrics to optimize your voice messaging:
+
+1. **Response Rate** - % of voice messages that get replies
+2. **Listen Rate** - % of recipients who play the voice message
+3. **Connection Acceptance** - % who accept after voice message
+4. **Meeting Booking** - % who schedule calls/meetings
+5. **Sentiment Score** - Positive vs negative responses
+
+### Voice Quality Checklist
+
+Before deploying your voice clone:
+
+- [ ] **Clarity Test**: Can you understand every word clearly?
+- [ ] **Naturalness Test**: Does it sound conversational and human?
+- [ ] **Consistency Test**: Is the voice stable across different texts?
+- [ ] **Emotion Test**: Can it convey different emotions appropriately?
+- [ ] **Length Test**: Does it maintain quality for 30+ second messages?
+
+### Troubleshooting Common Issues
+
+<AccordionGroup>
+  <Accordion title="Voice Sounds Robotic">
+    **Solutions:**
+    - Lower stability setting (0.3-0.5)
+    - Use more varied training audio
+    - Include emotional range in training
+    - Add natural pauses with punctuation
+  </Accordion>
+
+{" "}
+
+<Accordion title="Inconsistent Quality">
+  **Solutions:** - Use consistent recording environment - Same microphone for
+  all training audio - Record when your voice is similar (same time of day) -
+  Ensure sufficient training audio (3+ minutes)
+</Accordion>
+
+  <Accordion title="Pronunciation Issues">
+    **Solutions:**
+    - Include problem words in training audio
+    - Use phonetic spelling in voice text
+    - Break complex words into syllables
+    - Test with voice previews before campaigns
+  </Accordion>
+</AccordionGroup>
+
+## 🔒 Compliance & Best Practices
+
+### LinkedIn Voice Message Guidelines
+
+- **Respect daily limits**: LinkedIn has daily message limits
+- **Genuine personalization**: Avoid obviously templated messages
+- **Professional tone**: Maintain business-appropriate communication
+- **Clear intent**: Be transparent about why you're reaching out
+- **Easy opt-out**: Respect when people don't respond
+
+### Voice Cloning Ethics
+
+- **Use your own voice**: Only clone voices you have permission to use
+- **Transparency**: Consider mentioning voice technology if asked
+- **Professional use**: Focus on business communication
+- **Respect boundaries**: Stop if recipients express discomfort
+- **Quality standards**: Ensure voice messages are clear and professional
+
+## 🔧 Technical Implementation
+
+### Error Handling for Voice Messages
+
+```javascript
+async function sendVoiceMessageWithRetry(messageData, maxRetries = 3) {
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      const response = await fetch(
+        "https://api.buena.ai/api/v2/linkedin/scheduleLinkedInAction",
+        {
+          method: "POST",
+          headers: {
+            "x-api-key": "YOUR_API_KEY",
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            actionType: "sendVoiceMessage",
+            profileUrl: messageData.profileUrl,
+            message: messageData.message,
+            voiceSettings: messageData.voiceSettings,
+          }),
+        }
+      );
+
+      if (response.ok) {
+        return await response.json();
+      }
+
+      // Handle specific errors
+      if (response.status === 400) {
+        const error = await response.json();
+
+        if (error.code === "VOICE_CLONE_NOT_READY") {
+          console.log("Voice clone still processing, waiting...");
+          await new Promise((resolve) => setTimeout(resolve, 30000));
+          continue;
+        }
+
+        if (error.code === "TEXT_TOO_LONG") {
+          // Truncate message and retry
+          messageData.voiceSettings.voiceText =
+            messageData.voiceSettings.voiceText.substring(0, 450);
+          continue;
+        }
+      }
+    } catch (error) {
+      console.error(`Attempt ${attempt} failed:`, error.message);
+
+      if (attempt === maxRetries) {
+        throw error;
+      }
+
+      // Exponential backoff
+      await new Promise((resolve) =>
+        setTimeout(resolve, Math.pow(2, attempt) * 1000)
+      );
+    }
+  }
+}
+```
+
+### Batch Voice Message Processing
+
+```javascript
+async function processVoiceCampaign(prospects, voiceSettings) {
+  const results = {
+    sent: 0,
+    failed: 0,
+    errors: [],
+  };
+
+  // Process in batches to respect rate limits
+  const batchSize = 10;
+
+  for (let i = 0; i < prospects.length; i += batchSize) {
+    const batch = prospects.slice(i, i + batchSize);
+
+    const batchPromises = batch.map(async (prospect) => {
+      try {
+        const personalizedMessage = generatePersonalizedVoiceMessage(prospect);
+
+        await sendVoiceMessage({
+          profileUrl: prospect.linkedinUrl,
+          message: prospect.textMessage,
+          voiceSettings: {
+            ...voiceSettings,
+            voiceText: personalizedMessage,
+          },
+        });
+
+        results.sent++;
+        console.log(`✅ Voice message sent to ${prospect.name}`);
+      } catch (error) {
+        results.failed++;
+        results.errors.push({
+          prospect: prospect.name,
+          error: error.message,
+        });
+        console.error(`❌ Failed to send to ${prospect.name}:`, error.message);
+      }
+    });
+
+    await Promise.all(batchPromises);
+
+    // Rate limiting delay between batches
+    if (i + batchSize < prospects.length) {
+      console.log("Waiting 60 seconds before next batch...");
+      await new Promise((resolve) => setTimeout(resolve, 60000));
+    }
+  }
+
+  return results;
+}
+```
+
+## 📈 Advanced Analytics
+
+### Voice Message Performance Tracking
+
+```javascript
+class VoiceMessageAnalytics {
+  constructor(apiKey) {
+    this.apiKey = apiKey;
+    this.metrics = {
+      sent: 0,
+      delivered: 0,
+      played: 0,
+      responses: 0,
+      meetings: 0,
+    };
+  }
+
+  async trackCampaignPerformance(campaignId) {
+    // Get campaign data
+    const campaign = await this.getCampaignData(campaignId);
+
+    // Calculate metrics
+    const metrics = {
+      responseRate: (campaign.responses / campaign.sent) * 100,
+      listenRate: (campaign.played / campaign.delivered) * 100,
+      conversionRate: (campaign.meetings / campaign.sent) * 100,
+      avgResponseTime: campaign.avgResponseTime,
+      sentimentScore: campaign.sentimentScore,
+    };
+
+    return {
+      campaign: campaignId,
+      metrics: metrics,
+      recommendations: this.generateRecommendations(metrics),
+    };
+  }
+
+  generateRecommendations(metrics) {
+    const recommendations = [];
+
+    if (metrics.responseRate < 15) {
+      recommendations.push("Consider more personalized messaging");
+    }
+
+    if (metrics.listenRate < 60) {
+      recommendations.push(
+        "Test different voice settings for better engagement"
+      );
+    }
+
+    if (metrics.conversionRate < 5) {
+      recommendations.push("Refine your call-to-action and value proposition");
+    }
+
+    return recommendations;
+  }
+}
+```
+
+This comprehensive voice cloning guide will help you master the art of AI voice messaging for LinkedIn outreach, creating more personal and effective campaigns at scale! 🚀

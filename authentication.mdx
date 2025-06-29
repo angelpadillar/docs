@@ -3,8 +3,6 @@ title: "Authentication"
 description: "Learn how to authenticate with the Buena.ai API using API keys"
 ---
 
-# Authentication
-
 All Buena.ai API requests require authentication using user-specific API keys. Each key has granular permissions and tracks usage for security and billing purposes.
 
 ## API Key Format
@@ -67,11 +65,17 @@ Each API key has specific permissions that control access to different endpoints
   </Card>
   <Card title="LinkedIn Permissions" icon="linkedin">
     - `linkedin:schedule` - Schedule LinkedIn actions - `linkedin:upload` -
-    Upload prospect lists - `linkedin:read` - Read LinkedIn data
+    Upload prospect lists - `linkedin:read` - Read LinkedIn data -
+    `linkedin:voice` - Send LinkedIn voice messages
   </Card>
   <Card title="Lead Permissions" icon="users">
     - `leads:read` - Read lead data - `leads:write` - Create/update leads -
     `leads:enrich` - Enrich lead data
+  </Card>
+  <Card title="Voice Permissions" icon="microphone">
+    - `voice:create` - Create voice clones - `voice:read` - List voice clones -
+    `voice:update` - Update voice settings - `voice:delete` - Delete voice
+    clones - `voice:preview` - Generate voice previews
   </Card>
   <Card title="Job Permissions" icon="clock">
     - `jobs:read` - Read job data and status - `jobs:update` - Modify job

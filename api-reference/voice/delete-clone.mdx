@@ -1,0 +1,178 @@
+---
+title: "Delete Voice Clone"
+api: "DELETE https://api.buena.ai/api/v2/voice-clones/{voiceId}"
+description: "Permanently delete a voice clone"
+---
+
+Permanently delete a voice clone from your account. This action cannot be undone and will immediately make the voice clone unavailable for use in campaigns.
+
+<Warning>
+  This action is irreversible. Make sure you're not using this voice clone in
+  any active campaigns before deleting it.
+</Warning>
+
+<Note>Requires the `voice:delete` permission.</Note>
+
+## Request
+
+<ParamField path="voiceId" type="string" required>
+  The unique identifier of the voice clone to delete
+</ParamField>
+
+<ParamField header="x-api-key" type="string" required>
+  Your API key with `voice:delete` permission
+</ParamField>
+
+## Examples
+
+<CodeGroup>
+
+```bash cURL
+curl -X DELETE "https://api.buena.ai/api/v2/voice-clones/voice_abc123" \
+  -H "x-api-key: YOUR_API_KEY"
+```
+
+```javascript JavaScript
+const response = await fetch(
+  "https://api.buena.ai/api/v2/voice-clones/voice_abc123",
+  {
+    method: "DELETE",
+    headers: {
+      "x-api-key": "YOUR_API_KEY",
+    },
+  }
+);
+
+const data = await response.json();
+console.log(data);
+```
+
+```python Python
+import requests
+
+response = requests.delete(
+    'https://api.buena.ai/api/v2/voice-clones/voice_abc123',
+    headers={'x-api-key': 'YOUR_API_KEY'}
+)
+
+print(response.json())
+```
+
+</CodeGroup>
+
+## Response
+
+<ResponseField name="success" type="boolean">
+  Always `true` for successful requests
+</ResponseField>
+
+<ResponseField name="message" type="string">
+  Confirmation message about the deletion
+</ResponseField>
+
+<ResponseField name="deleted_id" type="string">
+  The ID of the voice clone that was deleted
+</ResponseField>
+
+<ResponseExample>
+
+```json Response
+{
+  "success": true,
+  "message": "Voice clone 'Professional Voice' has been successfully deleted",
+  "deleted_id": "voice_abc123"
+}
+```
+
+</ResponseExample>
+
+## Error Responses
+
+### Voice Clone Not Found (404)
+
+```json
+{
+  "error": true,
+  "code": "VOICE_CLONE_NOT_FOUND",
+  "message": "Voice clone not found",
+  "version": "2.0",
+  "timestamp": "2024-01-20T15:30:00Z",
+  "details": {
+    "voice_id": "voice_abc123"
+  }
+}
+```
+
+### Voice Clone In Use (409)
+
+```json
+{
+  "error": true,
+  "code": "VOICE_CLONE_IN_USE",
+  "message": "Cannot delete voice clone as it is currently being used in active campaigns",
+  "version": "2.0",
+  "timestamp": "2024-01-20T15:30:00Z",
+  "details": {
+    "active_campaigns": 3,
+    "last_used": "2024-01-20T14:30:00Z"
+  }
+}
+```
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion title="Before Deletion">
+    **Check for active usage:**
+    - Review any scheduled LinkedIn campaigns
+    - Check if voice clone is referenced in automation workflows
+    - Ensure no pending voice message generations
+    - Consider updating campaigns to use alternative voice clones
+  </Accordion>
+
+  <Accordion title="Backup Considerations">
+    **Voice clone recovery:**
+    - Voice clones cannot be recovered after deletion
+    - Consider exporting voice settings before deletion
+    - Keep original training audio files for recreation if needed
+    - Document voice clone configurations for future reference
+  </Accordion>
+</AccordionGroup>
+
+## Alternative Actions
+
+Instead of deleting, consider:
+
+- **Updating settings** to improve voice quality
+- **Renaming** to better organize your voice clones
+- **Creating a new voice clone** with improved training data
+- **Temporarily disabling** in campaigns while keeping the clone
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card
+    title="Create New Voice Clone"
+    icon="plus"
+    href="/api-reference/voice/create-clone"
+  >
+    Create a replacement voice clone
+  </Card>
+  <Card
+    title="List Voice Clones"
+    icon="list"
+    href="/api-reference/voice/list-clones"
+  >
+    View remaining voice clones
+  </Card>
+  <Card title="Voice Clone Guide" icon="book" href="/guides/voice-cloning">
+    Learn voice clone best practices
+  </Card>
+  <Card
+    title="LinkedIn Campaigns"
+    icon="linkedin"
+    href="/api-reference/linkedin/schedule-action"
+  >
+    Update campaigns with new voice clones
+  </Card>
+</CardGroup>{" "}

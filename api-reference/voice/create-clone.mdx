@@ -1,0 +1,418 @@
+---
+title: "Create Voice Clone"
+api: "POST https://api.buena.ai/api/v2/voice-clones"
+description: "Create a new voice clone using audio file uploads"
+---
+
+Create a new AI voice clone from audio samples. Upload high-quality audio files to train a custom voice model that can be used for LinkedIn voice messages and other voice synthesis applications.
+
+<Note>
+  Requires the `voice:create` permission. Maximum 5 voice clones per user.
+</Note>
+
+## Request
+
+<ParamField header="x-api-key" type="string" required>
+  Your API key with `voice:create` permission
+</ParamField>
+
+<ParamField header="Content-Type" type="string" required>
+  Must be `multipart/form-data` for file uploads
+</ParamField>
+
+### Body Parameters
+
+<ParamField body="name" type="string" required>
+  Descriptive name for the voice clone (e.g., "Professional Voice", "Sales
+  Persona")
+</ParamField>
+
+<ParamField body="description" type="string">
+  Optional description of the voice clone and its intended use
+</ParamField>
+
+<ParamField body="files" type="file[]" required>
+  Audio files for voice training. Upload 1-10 high-quality audio files (WAV,
+  MP3, M4A, FLAC). Each file must be under 50MB.
+</ParamField>
+
+<ParamField body="settings" type="object">
+  Voice generation settings
+  <Expandable title="Voice Settings">
+    <ParamField body="stability" type="number" default="0.5">
+      Voice stability (0.0-1.0). Higher values = more consistent but less
+      expressive
+    </ParamField>
+    <ParamField body="clarity" type="number" default="0.75">
+      Voice clarity and similarity boost (0.0-1.0)
+    </ParamField>
+    <ParamField body="use_speaker_boost" type="boolean" default="true">
+      Enhance speaker similarity using ElevenLabs speaker boost
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+## Examples
+
+### Basic Voice Clone Creation
+
+<CodeGroup>
+
+```bash cURL
+curl -X POST "https://api.buena.ai/api/v2/voice-clones" \
+  -H "x-api-key: YOUR_API_KEY" \
+  -F "name=Professional Voice" \
+  -F "description=Professional outreach voice for LinkedIn" \
+  -F "files=@sample1.wav" \
+  -F "files=@sample2.wav" \
+  -F "files=@sample3.wav"
+```
+
+```javascript JavaScript
+const formData = new FormData();
+formData.append("name", "Professional Voice");
+formData.append("description", "Professional outreach voice for LinkedIn");
+formData.append("files", audioFile1);
+formData.append("files", audioFile2);
+formData.append("files", audioFile3);
+
+const response = await fetch("https://api.buena.ai/api/v2/voice-clones", {
+  method: "POST",
+  headers: {
+    "x-api-key": "YOUR_API_KEY",
+  },
+  body: formData,
+});
+
+const data = await response.json();
+console.log(data);
+```
+
+```python Python
+import requests
+
+files = [
+    ('files', ('sample1.wav', open('sample1.wav', 'rb'), 'audio/wav')),
+    ('files', ('sample2.wav', open('sample2.wav', 'rb'), 'audio/wav')),
+    ('files', ('sample3.wav', open('sample3.wav', 'rb'), 'audio/wav'))
+]
+
+data = {
+    'name': 'Professional Voice',
+    'description': 'Professional outreach voice for LinkedIn'
+}
+
+response = requests.post(
+    'https://api.buena.ai/api/v2/voice-clones',
+    headers={'x-api-key': 'YOUR_API_KEY'},
+    files=files,
+    data=data
+)
+
+print(response.json())
+```
+
+```php PHP
+<?php
+$files = [
+    'files' => [
+        new CURLFile('sample1.wav', 'audio/wav', 'sample1.wav'),
+        new CURLFile('sample2.wav', 'audio/wav', 'sample2.wav'),
+        new CURLFile('sample3.wav', 'audio/wav', 'sample3.wav')
+    ]
+];
+
+$data = [
+    'name' => 'Professional Voice',
+    'description' => 'Professional outreach voice for LinkedIn'
+];
+
+$ch = curl_init();
+curl_setopt($ch, CURLOPT_URL, 'https://api.buena.ai/api/v2/voice-clones');
+curl_setopt($ch, CURLOPT_POST, true);
+curl_setopt($ch, CURLOPT_POSTFIELDS, array_merge($files, $data));
+curl_setopt($ch, CURLOPT_HTTPHEADER, ['x-api-key: YOUR_API_KEY']);
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+$response = curl_exec($ch);
+curl_close($ch);
+
+echo $response;
+?>
+```
+
+</CodeGroup>
+
+### Advanced Voice Clone with Custom Settings
+
+<CodeGroup>
+
+```bash cURL
+curl -X POST "https://api.buena.ai/api/v2/voice-clones" \
+  -H "x-api-key: YOUR_API_KEY" \
+  -F "name=Sales Voice" \
+  -F "description=Energetic sales voice for cold outreach" \
+  -F "files=@recording1.wav" \
+  -F "files=@recording2.wav" \
+  -F "settings={\"stability\":0.7,\"clarity\":0.8,\"use_speaker_boost\":true}"
+```
+
+```javascript JavaScript
+const formData = new FormData();
+formData.append("name", "Sales Voice");
+formData.append("description", "Energetic sales voice for cold outreach");
+formData.append("files", audioFile1);
+formData.append("files", audioFile2);
+formData.append(
+  "settings",
+  JSON.stringify({
+    stability: 0.7,
+    clarity: 0.8,
+    use_speaker_boost: true,
+  })
+);
+
+const response = await fetch("https://api.buena.ai/api/v2/voice-clones", {
+  method: "POST",
+  headers: {
+    "x-api-key": "YOUR_API_KEY",
+  },
+  body: formData,
+});
+```
+
+</CodeGroup>
+
+## Response
+
+<ResponseField name="success" type="boolean">
+  Always `true` for successful requests
+</ResponseField>
+
+<ResponseField name="data" type="object">
+  The created voice clone information
+  <Expandable title="Voice Clone Object">
+    <ResponseField name="id" type="string">
+      Unique voice clone identifier (e.g., "voice_abc123")
+    </ResponseField>
+    <ResponseField name="name" type="string">
+      User-defined name for the voice clone
+    </ResponseField>
+    <ResponseField name="description" type="string">
+      Description of the voice clone
+    </ResponseField>
+    <ResponseField name="status" type="string">
+      Training status: "processing", "ready", "failed"
+    </ResponseField>
+    <ResponseField name="elevenlabs_voice_id" type="string">
+      Voice ID for API calls
+    </ResponseField>
+    <ResponseField name="settings" type="object">
+      Voice generation settings
+      <Expandable title="Voice Settings">
+        <ResponseField name="stability" type="number">
+          Voice stability setting (0.0-1.0)
+        </ResponseField>
+        <ResponseField name="clarity" type="number">
+          Voice clarity/similarity boost (0.0-1.0)
+        </ResponseField>
+        <ResponseField name="use_speaker_boost" type="boolean">
+          Whether speaker boost is enabled
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+    <ResponseField name="training_progress" type="number">
+      Training completion percentage (0-100)
+    </ResponseField>
+    <ResponseField name="created_at" type="string">
+      ISO 8601 timestamp when the voice clone was created
+    </ResponseField>
+    <ResponseField name="updated_at" type="string">
+      ISO 8601 timestamp when the voice clone was last updated
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseExample>
+
+```json Response
+{
+  "success": true,
+  "data": {
+    "id": "voice_abc123",
+    "name": "Professional Voice",
+    "description": "Professional outreach voice for LinkedIn",
+    "status": "processing",
+    "elevenlabs_voice_id": "pNInz6obpgDQGcFmaJgB",
+    "settings": {
+      "stability": 0.5,
+      "clarity": 0.75,
+      "use_speaker_boost": true
+    },
+    "training_progress": 15,
+    "created_at": "2024-01-20T15:30:00Z",
+    "updated_at": "2024-01-20T15:30:00Z"
+  }
+}
+```
+
+</ResponseExample>
+
+## Voice Training Requirements
+
+### Audio Quality Guidelines
+
+<AccordionGroup>
+  <Accordion title="Audio Format Requirements">
+    - **Supported formats**: WAV, MP3, M4A, FLAC
+    - **Sample rate**: 22,050 Hz or higher recommended
+    - **Bit depth**: 16-bit minimum, 24-bit preferred
+    - **File size**: Maximum 50MB per file
+    - **Duration**: 30 seconds to 5 minutes per file optimal
+  </Accordion>
+
+{" "}
+
+<Accordion title="Recording Best Practices">
+  - **Environment**: Record in a quiet room with minimal echo - **Microphone**:
+  Use a quality microphone, avoid phone recordings - **Speaking style**:
+  Natural, conversational tone - **Content variety**: Include different emotions
+  and sentence structures - **Consistency**: Same speaker, similar recording
+  conditions
+</Accordion>
+
+  <Accordion title="Content Guidelines">
+    - **Language**: Clear pronunciation and articulation
+    - **Variety**: Mix of short and long sentences
+    - **Emotions**: Include various emotional tones if desired
+    - **Avoid**: Background noise, music, multiple speakers
+    - **Minimum**: At least 1 minute of total audio recommended
+  </Accordion>
+</AccordionGroup>
+
+## Voice Clone Limits
+
+| Limit Type                | Value       | Notes                               |
+| ------------------------- | ----------- | ----------------------------------- |
+| Max voice clones per user | 5           | Contact support for higher limits   |
+| Max files per upload      | 10          | Multiple uploads allowed            |
+| Max file size             | 50MB        | Per individual file                 |
+| Training time             | 2-5 minutes | Depends on audio length and quality |
+| Supported languages       | 29+         | ElevenLabs supported languages      |
+
+## Error Responses
+
+### Invalid File Format (400)
+
+```json
+{
+  "error": true,
+  "code": "INVALID_FILE_FORMAT",
+  "message": "Unsupported audio format. Please use WAV, MP3, M4A, or FLAC files.",
+  "version": "2.0",
+  "timestamp": "2024-01-20T15:30:00Z",
+  "details": {
+    "supported_formats": ["wav", "mp3", "m4a", "flac"],
+    "rejected_files": ["recording.txt"]
+  }
+}
+```
+
+### Voice Clone Limit Exceeded (429)
+
+```json
+{
+  "error": true,
+  "code": "VOICE_CLONE_LIMIT_EXCEEDED",
+  "message": "Maximum voice clones reached (5). Delete existing clones or upgrade your plan.",
+  "version": "2.0",
+  "timestamp": "2024-01-20T15:30:00Z",
+  "details": {
+    "current_count": 5,
+    "max_allowed": 5,
+    "upgrade_url": "https://app.buena.ai/billing"
+  }
+}
+```
+
+### File Size Too Large (413)
+
+```json
+{
+  "error": true,
+  "code": "FILE_TOO_LARGE",
+  "message": "File size exceeds maximum limit of 50MB",
+  "version": "2.0",
+  "timestamp": "2024-01-20T15:30:00Z",
+  "details": {
+    "max_size_mb": 50,
+    "rejected_files": [
+      {
+        "filename": "large_recording.wav",
+        "size_mb": 75
+      }
+    ]
+  }
+}
+```
+
+## Training Status Updates
+
+Voice clone training is asynchronous. Monitor progress using:
+
+```javascript
+// Poll for status updates
+async function checkTrainingStatus(voiceId) {
+  const response = await fetch(
+    `https://api.buena.ai/api/v2/voice-clones/${voiceId}`,
+    {
+      headers: { "x-api-key": "YOUR_API_KEY" },
+    }
+  );
+
+  const { data } = await response.json();
+
+  switch (data.status) {
+    case "processing":
+      console.log(`Training progress: ${data.training_progress}%`);
+      break;
+    case "ready":
+      console.log("Voice clone ready for use!");
+      break;
+    case "failed":
+      console.log("Training failed:", data.error_message);
+      break;
+  }
+
+  return data;
+}
+```
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card
+    title="List Voice Clones"
+    icon="list"
+    href="/api-reference/voice/list-clones"
+  >
+    View all your voice clones
+  </Card>
+  <Card
+    title="Generate Preview"
+    icon="play"
+    href="/api-reference/voice/generate-preview"
+  >
+    Test your voice clone with preview audio
+  </Card>
+  <Card
+    title="LinkedIn Voice Messages"
+    icon="linkedin"
+    href="/api-reference/linkedin/voice-message"
+  >
+    Send voice messages via LinkedIn
+  </Card>
+  <Card title="Voice Clone Management" icon="cog" href="/guides/voice-cloning">
+    Learn voice cloning best practices
+  </Card>
+</CardGroup>{" "}

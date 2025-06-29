@@ -48,6 +48,32 @@ Schedule various LinkedIn actions including connection requests, messages, and d
   LinkedIn thread identifier. Required for thread-specific actions.
 </ParamField>
 
+<ParamField body="voiceSettings" type="object" conditional>
+  Voice message configuration. Required for `sendVoiceMessage` action type.
+  <Expandable title="Voice Settings">
+    <ParamField body="voiceId" type="string" required>
+      ID of the voice clone to use for generating voice message
+    </ParamField>
+    <ParamField body="voiceText" type="string" required>
+      Text to convert to voice message (1-500 characters)
+    </ParamField>
+    <ParamField body="voiceParams" type="object">
+      Optional voice generation parameters
+      <Expandable title="Voice Parameters">
+        <ParamField body="stability" type="number" default="0.5">
+          Voice stability (0.0-1.0)
+        </ParamField>
+        <ParamField body="clarity" type="number" default="0.75">
+          Voice clarity and similarity boost (0.0-1.0)
+        </ParamField>
+        <ParamField body="use_speaker_boost" type="boolean" default="true">
+          Enhance speaker similarity
+        </ParamField>
+      </Expandable>
+    </ParamField>
+  </Expandable>
+</ParamField>
+
 <Info>
   LinkedIn integration settings (timezone, account details) are automatically
   detected from your connected LinkedIn account. No additional configuration
@@ -64,11 +90,11 @@ Schedule various LinkedIn actions including connection requests, messages, and d
     parameters required
   </Accordion>
 
-
 <Accordion title="Messaging Actions">
   **`sendMessageToFirst`** - Send first message to a connection - Requires:
   `profileUrl`, `message` **`sendFirstMessage`** - Send initial message -
-  Requires: `profileUrl`, `message`
+  Requires: `profileUrl`, `message` **`sendVoiceMessage`** - Send message with
+  voice attachment - Requires: `profileUrl`, `message`, `voiceSettings`
 </Accordion>
 
   <Accordion title="Data Retrieval">
@@ -178,6 +204,92 @@ console.log(data);
 
 </CodeGroup>
 
+### Send Voice Message
+
+<CodeGroup>
+
+```bash cURL
+curl -X POST "https://api.buena.ai/api/v2/linkedin/scheduleLinkedInAction" \
+  -H "x-api-key: YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "actionType": "sendVoiceMessage",
+    "profileUrl": "https://linkedin.com/in/johndoe",
+    "message": "Hi John! I wanted to reach out personally about an exciting opportunity.",
+    "voiceSettings": {
+      "voiceId": "voice_abc123",
+      "voiceText": "Hi John! I hope you're having a great week. I came across your profile and was really impressed by your experience in AI. I wanted to reach out personally about an exciting opportunity that I think could be a perfect fit for your background. Would love to chat more about it!",
+      "voiceParams": {
+        "stability": 0.6,
+        "clarity": 0.8,
+        "use_speaker_boost": true
+      }
+    }
+  }'
+```
+
+```javascript JavaScript
+const response = await fetch(
+  "https://api.buena.ai/api/v2/linkedin/scheduleLinkedInAction",
+  {
+    method: "POST",
+    headers: {
+      "x-api-key": "YOUR_API_KEY",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      actionType: "sendVoiceMessage",
+      profileUrl: "https://linkedin.com/in/johndoe",
+      message:
+        "Hi John! I wanted to reach out personally about an exciting opportunity.",
+      voiceSettings: {
+        voiceId: "voice_abc123",
+        voiceText:
+          "Hi John! I hope you're having a great week. I came across your profile and was really impressed by your experience in AI. I wanted to reach out personally about an exciting opportunity that I think could be a perfect fit for your background. Would love to chat more about it!",
+        voiceParams: {
+          stability: 0.6,
+          clarity: 0.8,
+          use_speaker_boost: true,
+        },
+      },
+    }),
+  }
+);
+
+const data = await response.json();
+console.log(data);
+```
+
+```python Python
+import requests
+
+response = requests.post(
+    'https://api.buena.ai/api/v2/linkedin/scheduleLinkedInAction',
+    headers={
+        'x-api-key': 'YOUR_API_KEY',
+        'Content-Type': 'application/json'
+    },
+    json={
+        'actionType': 'sendVoiceMessage',
+        'profileUrl': 'https://linkedin.com/in/johndoe',
+        'message': 'Hi John! I wanted to reach out personally about an exciting opportunity.',
+        'voiceSettings': {
+            'voiceId': 'voice_abc123',
+            'voiceText': 'Hi John! I hope you\'re having a great week. I came across your profile and was really impressed by your experience in AI. I wanted to reach out personally about an exciting opportunity that I think could be a perfect fit for your background. Would love to chat more about it!',
+            'voiceParams': {
+                'stability': 0.6,
+                'clarity': 0.8,
+                'use_speaker_boost': True
+            }
+        }
+    }
+)
+
+print(response.json())
+```
+
+</CodeGroup>
+
 ### Get Accepted Connections
 
 <CodeGroup>
@@ -244,7 +356,6 @@ The system automatically applies intelligent delays to ensure safe automation:
     rate limits - Time of day and timezone (from your LinkedIn account) -
     Account safety guidelines - Previous action history
   </Accordion>
-
 
 <Accordion title="Timezone Considerations">
   Actions are scheduled considering: - Business hours in your LinkedIn account

@@ -1,0 +1,424 @@
+---
+title: "Generate Voice Preview"
+api: "POST https://api.buena.ai/api/v2/voice-clones/preview"
+description: "Generate a voice preview using a voice clone to test quality before use"
+---
+
+Generate a preview audio sample using one of your voice clones. This allows you to test voice quality and settings before using the voice clone in LinkedIn messages or other applications.
+
+<Note>Requires the `voice:preview` permission.</Note>
+
+## Request
+
+<ParamField header="x-api-key" type="string" required>
+  Your API key with `voice:preview` permission
+</ParamField>
+
+<ParamField header="Content-Type" type="string" required>
+  Must be `application/json`
+</ParamField>
+
+### Body Parameters
+
+<ParamField body="voice_id" type="string" required>
+  The ID of the voice clone to use for preview generation
+</ParamField>
+
+<ParamField body="text" type="string" required>
+  Text to synthesize into speech (1-500 characters)
+</ParamField>
+
+<ParamField body="voice_settings" type="object">
+  Optional voice generation settings to override defaults
+  <Expandable title="Voice Settings">
+    <ParamField body="stability" type="number">
+      Voice stability (0.0-1.0). Higher values = more consistent but less
+      expressive
+    </ParamField>
+    <ParamField body="clarity" type="number">
+      Voice clarity and similarity boost (0.0-1.0)
+    </ParamField>
+    <ParamField body="use_speaker_boost" type="boolean">
+      Enhance speaker similarity using ElevenLabs speaker boost
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="output_format" type="string" default="mp3">
+  Audio output format: `mp3`, `wav`, `ogg_vorbis`, `pcm`
+</ParamField>
+
+## Examples
+
+### Basic Voice Preview
+
+<CodeGroup>
+
+```bash cURL
+curl -X POST "https://api.buena.ai/api/v2/voice-clones/preview" \
+  -H "x-api-key: YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "voice_id": "voice_abc123",
+    "text": "Hello! This is a test of my voice clone. How does it sound?"
+  }'
+```
+
+```javascript JavaScript
+const response = await fetch(
+  "https://api.buena.ai/api/v2/voice-clones/preview",
+  {
+    method: "POST",
+    headers: {
+      "x-api-key": "YOUR_API_KEY",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      voice_id: "voice_abc123",
+      text: "Hello! This is a test of my voice clone. How does it sound?",
+    }),
+  }
+);
+
+const data = await response.json();
+console.log("Preview URL:", data.data.audio_url);
+```
+
+```python Python
+import requests
+
+response = requests.post(
+    'https://api.buena.ai/api/v2/voice-clones/preview',
+    headers={
+        'x-api-key': 'YOUR_API_KEY',
+        'Content-Type': 'application/json'
+    },
+    json={
+        'voice_id': 'voice_abc123',
+        'text': 'Hello! This is a test of my voice clone. How does it sound?'
+    }
+)
+
+data = response.json()
+print(f"Preview URL: {data['data']['audio_url']}")
+```
+
+</CodeGroup>
+
+### Advanced Preview with Custom Settings
+
+<CodeGroup>
+
+```bash cURL
+curl -X POST "https://api.buena.ai/api/v2/voice-clones/preview" \
+  -H "x-api-key: YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "voice_id": "voice_abc123",
+    "text": "This is a test with custom voice settings for maximum clarity and stability.",
+    "voice_settings": {
+      "stability": 0.8,
+      "clarity": 0.9,
+      "use_speaker_boost": true
+    },
+    "output_format": "wav"
+  }'
+```
+
+```javascript JavaScript
+const response = await fetch(
+  "https://api.buena.ai/api/v2/voice-clones/preview",
+  {
+    method: "POST",
+    headers: {
+      "x-api-key": "YOUR_API_KEY",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      voice_id: "voice_abc123",
+      text: "This is a test with custom voice settings for maximum clarity and stability.",
+      voice_settings: {
+        stability: 0.8,
+        clarity: 0.9,
+        use_speaker_boost: true,
+      },
+      output_format: "wav",
+    }),
+  }
+);
+
+const data = await response.json();
+
+// Download the audio file
+const audioResponse = await fetch(data.data.audio_url);
+const audioBlob = await audioResponse.blob();
+const audioUrl = URL.createObjectURL(audioBlob);
+
+// Play or save the audio
+const audio = new Audio(audioUrl);
+audio.play();
+```
+
+</CodeGroup>
+
+## Response
+
+<ResponseField name="success" type="boolean">
+  Always `true` for successful requests
+</ResponseField>
+
+<ResponseField name="data" type="object">
+  Voice preview generation result
+  <Expandable title="Preview Data Object">
+    <ResponseField name="preview_id" type="string">
+      Unique identifier for this preview generation
+    </ResponseField>
+    <ResponseField name="audio_url" type="string">
+      Temporary URL to download the generated audio (expires in 1 hour)
+    </ResponseField>
+    <ResponseField name="audio_format" type="string">
+      Format of the generated audio file
+    </ResponseField>
+    <ResponseField name="duration_seconds" type="number">
+      Duration of the generated audio in seconds
+    </ResponseField>
+    <ResponseField name="file_size_bytes" type="number">
+      Size of the audio file in bytes
+    </ResponseField>
+    <ResponseField name="voice_settings_used" type="object">
+      The actual voice settings applied for generation
+    </ResponseField>
+    <ResponseField name="text_processed" type="string">
+      The text that was processed (may be truncated if too long)
+    </ResponseField>
+    <ResponseField name="generated_at" type="string">
+      ISO 8601 timestamp when the preview was generated
+    </ResponseField>
+    <ResponseField name="expires_at" type="string">
+      ISO 8601 timestamp when the audio URL expires
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseExample>
+
+```json Response
+{
+  "success": true,
+  "data": {
+    "preview_id": "preview_xyz789",
+    "audio_url": "https://storage.buena.ai/voice-previews/preview_xyz789.mp3?expires=1705757400",
+    "audio_format": "mp3",
+    "duration_seconds": 6.2,
+    "file_size_bytes": 99328,
+    "voice_settings_used": {
+      "stability": 0.5,
+      "clarity": 0.75,
+      "use_speaker_boost": true
+    },
+    "text_processed": "Hello! This is a test of my voice clone. How does it sound?",
+    "generated_at": "2024-01-20T15:30:00Z",
+    "expires_at": "2024-01-20T16:30:00Z"
+  }
+}
+```
+
+</ResponseExample>
+
+## Preview Guidelines
+
+### Text Recommendations
+
+<AccordionGroup>
+  <Accordion title="Optimal Text Length">
+    - **Short test**: 10-30 words for quick quality check
+    - **Medium test**: 50-100 words for comprehensive evaluation
+    - **Full test**: 100-500 words for complete voice assessment
+    - **Avoid**: Very short texts (under 5 words) may not showcase voice quality
+  </Accordion>
+
+  <Accordion title="Content Suggestions">
+    **For LinkedIn Outreach:**
+    ```
+    "Hi [Name], I hope you're having a great week! I came across your profile and was impressed by your experience in [industry]. I'd love to connect and share some insights that might be valuable for your work."
+    ```
+
+    **For General Testing:**
+    ```
+    "This is a test of my voice clone quality. I'm checking for naturalness, clarity, and overall sound. The voice should sound smooth and professional."
+    ```
+
+    **For Emotional Range:**
+    ```
+    "I'm excited to share this opportunity with you! It's been an amazing journey, and I believe this could be incredibly valuable. What do you think?"
+    ```
+
+  </Accordion>
+
+  <Accordion title="Quality Assessment">
+    Listen for:
+    - **Naturalness**: Does it sound human and conversational?
+    - **Clarity**: Are words pronounced clearly?
+    - **Consistency**: Is the voice stable throughout?
+    - **Emotion**: Does it convey the intended tone?
+    - **Similarity**: Does it match your original voice?
+  </Accordion>
+</AccordionGroup>
+
+## Voice Settings Optimization
+
+| Setting           | Low (0.0-0.3)             | Medium (0.4-0.7)    | High (0.8-1.0)            |
+| ----------------- | ------------------------- | ------------------- | ------------------------- |
+| **Stability**     | More expressive, variable | Balanced expression | Very consistent, robotic  |
+| **Clarity**       | More natural, may vary    | Good balance        | Maximum similarity, clear |
+| **Speaker Boost** | Disabled                  | -                   | Enabled                   |
+
+### Recommended Settings by Use Case
+
+```json
+{
+  "linkedin_professional": {
+    "stability": 0.6,
+    "clarity": 0.8,
+    "use_speaker_boost": true
+  },
+  "sales_energetic": {
+    "stability": 0.4,
+    "clarity": 0.7,
+    "use_speaker_boost": true
+  },
+  "casual_friendly": {
+    "stability": 0.5,
+    "clarity": 0.6,
+    "use_speaker_boost": false
+  }
+}
+```
+
+## Error Responses
+
+### Voice Clone Not Ready (400)
+
+```json
+{
+  "error": true,
+  "code": "VOICE_CLONE_NOT_READY",
+  "message": "Voice clone is still processing. Please wait for training to complete.",
+  "version": "2.0",
+  "timestamp": "2024-01-20T15:30:00Z",
+  "details": {
+    "voice_id": "voice_abc123",
+    "status": "processing",
+    "training_progress": 75
+  }
+}
+```
+
+### Text Too Long (400)
+
+```json
+{
+  "error": true,
+  "code": "TEXT_TOO_LONG",
+  "message": "Text exceeds maximum length of 500 characters",
+  "version": "2.0",
+  "timestamp": "2024-01-20T15:30:00Z",
+  "details": {
+    "max_length": 500,
+    "provided_length": 750
+  }
+}
+```
+
+### Voice Generation Failed (500)
+
+```json
+{
+  "error": true,
+  "code": "VOICE_GENERATION_FAILED",
+  "message": "Failed to generate voice preview. Please try again.",
+  "version": "2.0",
+  "timestamp": "2024-01-20T15:30:00Z",
+  "details": {
+    "retry_after_seconds": 30,
+    "support_contact": "support@buena.ai"
+  }
+}
+```
+
+## Integration Examples
+
+### Voice Quality Testing Workflow
+
+```javascript
+async function testVoiceQuality(voiceId) {
+  const testTexts = [
+    "Hello, this is a quick test.",
+    "Hi there! I hope you're having a fantastic day. I wanted to reach out because I saw your impressive work at your company.",
+    "I'm excited about this opportunity and would love to discuss it further. When might be a good time to chat?",
+  ];
+
+  const results = [];
+
+  for (const text of testTexts) {
+    try {
+      const response = await fetch(
+        "https://api.buena.ai/api/v2/voice-clones/preview",
+        {
+          method: "POST",
+          headers: {
+            "x-api-key": "YOUR_API_KEY",
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            voice_id: voiceId,
+            text: text,
+          }),
+        }
+      );
+
+      const data = await response.json();
+      results.push({
+        text: text,
+        audio_url: data.data.audio_url,
+        duration: data.data.duration_seconds,
+      });
+
+      console.log(`✅ Generated preview for: "${text.substring(0, 30)}..."`);
+    } catch (error) {
+      console.error(`❌ Failed to generate preview: ${error.message}`);
+    }
+  }
+
+  return results;
+}
+```
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card
+    title="LinkedIn Voice Messages"
+    icon="linkedin"
+    href="/api-reference/linkedin/voice-message"
+  >
+    Send voice messages via LinkedIn
+  </Card>
+  <Card
+    title="Voice Clone Settings"
+    icon="cog"
+    href="/api-reference/voice/update-clone"
+  >
+    Adjust voice generation settings
+  </Card>
+  <Card
+    title="List Voice Clones"
+    icon="list"
+    href="/api-reference/voice/list-clones"
+  >
+    View all your voice clones
+  </Card>
+  <Card title="Voice Best Practices" icon="book" href="/guides/voice-cloning">
+    Learn voice optimization tips
+  </Card>
+</CardGroup>{" "}

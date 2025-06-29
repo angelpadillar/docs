@@ -64,6 +64,7 @@
         "guides/linkedin-automation",
         "guides/lead-management",
         "guides/prospecting",
+        "guides/voice-cloning",
         "guides/webhooks",
         "guides/best-practices"
       ]
@@ -88,6 +89,16 @@
       "pages": [
         "api-reference/linkedin/schedule-action",
         "api-reference/linkedin/upload-prospects"
+      ]
+    },
+    {
+      "group": "Voice Cloning",
+      "pages": [
+        "api-reference/voice/create-clone",
+        "api-reference/voice/list-clones",
+        "api-reference/voice/update-clone",
+        "api-reference/voice/delete-clone",
+        "api-reference/voice/generate-preview"
       ]
     },
     {

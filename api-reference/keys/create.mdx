@@ -4,8 +4,6 @@ api: "POST https://api.buena.ai/api/v2/keys"
 description: "Create a new API key with specific permissions and expiration"
 ---
 
-# Create API Key
-
 Create a new API key for your account with granular permissions and optional expiration. This endpoint allows you to generate API keys programmatically for different use cases and team members.
 
 <Warning>
@@ -201,15 +199,11 @@ echo "New API key: " . $result['data']['key'];
     campaigns - `linkedin:read` - Read LinkedIn data and integration status
   </Accordion>
 
-
-
 <Accordion title="Lead Permissions">
   - `leads:read` - Read lead data and search leads - `leads:write` - Create,
   update, and delete leads - `leads:enrich` - Enrich lead data with external
   sources
 </Accordion>
-
-
 
 <Accordion title="User Permissions">
   - `users:read` - Read user data and team information - `admin` - Full

@@ -3,8 +3,6 @@ title: "MCP Integration"
 description: "Model Context Protocol server for AI assistant integration"
 ---
 
-# MCP (Model Context Protocol) Integration
-
 The Buena.ai TypeScript SDK includes a built-in MCP server that enables AI assistants to directly interact with your leads and API data. This allows AI tools like Claude Desktop, Cline, and other MCP-compatible clients to manage your Buena.ai data seamlessly.
 
 <Info>
@@ -153,6 +151,68 @@ Create a new API key with specific permissions.
 - `description` (optional): Key description
 - `expires_at` (optional): Expiration date (ISO 8601 format)
 
+### Voice Cloning Tools
+
+#### `buena_list_voice_clones`
+
+List all voice clones for the authenticated user.
+
+**Parameters:** None
+
+#### `buena_create_voice_clone`
+
+Create a new voice clone using audio file uploads.
+
+**Parameters:**
+
+- `name` (required): Descriptive name for the voice clone
+- `description` (optional): Description of the voice clone
+- `audio_files` (required): Array of audio file paths or URLs for voice training
+
+#### `buena_update_voice_clone`
+
+Update an existing voice clone's settings.
+
+**Parameters:**
+
+- `voice_id` (required): Unique voice clone identifier
+- `name` (optional): Updated name for the voice clone
+- `description` (optional): Updated description
+- `settings` (optional): Voice generation settings (stability, clarity, etc.)
+
+#### `buena_delete_voice_clone`
+
+Delete a voice clone from the user's account.
+
+**Parameters:**
+
+- `voice_id` (required): Unique voice clone identifier
+
+#### `buena_generate_voice_preview`
+
+Generate a voice preview using a voice clone.
+
+**Parameters:**
+
+- `voice_id` (required): Voice clone identifier to use
+- `text` (required): Text to synthesize into speech
+- `voice_settings` (optional): Voice generation parameters
+
+### LinkedIn Voice Messaging Tools
+
+#### `buena_send_linkedin_voice_message`
+
+Send a LinkedIn message with optional voice message attachment.
+
+**Parameters:**
+
+- `profile_url` (required): LinkedIn profile URL of the recipient
+- `message` (required): Text message content
+- `voice_settings` (optional): Voice message configuration
+  - `voice_id` (required): Voice clone ID to use
+  - `voice_text` (required): Text to convert to voice message
+  - `voice_params` (optional): Voice generation parameters
+
 ### System Health Tools
 
 #### `buena_health_check`
@@ -203,6 +263,38 @@ AI Assistant uses: buena_list_leads(
 )
 
 Result: Returns uncontacted leads from startup companies
+```
+
+**Example 4: Voice Clone Management**
+
+```
+You: "Create a voice clone called 'Professional Voice' and send a voice message to John Smith on LinkedIn"
+
+AI Assistant:
+1. Uses buena_create_voice_clone(name="Professional Voice", audio_files=[...])
+2. Uses buena_send_linkedin_voice_message(
+     profile_url="https://linkedin.com/in/johnsmith",
+     message="Hi John, hope you're well!",
+     voice_settings={
+       "voice_id": "new-voice-id",
+       "voice_text": "Hi John, hope you're having a great week!"
+     }
+   )
+
+Result: Creates voice clone and sends personalized voice message
+```
+
+**Example 5: Voice Preview Generation**
+
+```
+You: "Generate a preview of my voice clone saying 'Hello, this is a test message'"
+
+AI Assistant uses: buena_generate_voice_preview(
+  voice_id="user-voice-id",
+  text="Hello, this is a test message"
+)
+
+Result: Returns audio preview URL for testing voice quality
 ```
 
 ### Advanced Workflow Examples
@@ -266,6 +358,12 @@ Create a `buena-mcp.config.json` file:
       "buena_delete_lead",
       "buena_list_api_keys",
       "buena_create_api_key",
+      "buena_list_voice_clones",
+      "buena_create_voice_clone",
+      "buena_update_voice_clone",
+      "buena_delete_voice_clone",
+      "buena_generate_voice_preview",
+      "buena_send_linkedin_voice_message",
       "buena_health_check"
     ],
     "limits": {
@@ -289,6 +387,12 @@ Ensure your API key has the necessary permissions for MCP operations:
 - `leads:delete` - For deleting leads (optional)
 - `api_keys:read` - For listing API keys
 - `api_keys:write` - For creating API keys (optional)
+- `voice:create` - For creating voice clones
+- `voice:read` - For listing and retrieving voice clones
+- `voice:update` - For updating voice clone settings
+- `voice:delete` - For deleting voice clones (optional)
+- `voice:preview` - For generating voice previews
+- `linkedin:voice` - For sending LinkedIn voice messages
 
 ### Safe Usage Guidelines
 
