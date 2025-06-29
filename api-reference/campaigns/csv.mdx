@@ -1,0 +1,92 @@
+---
+title: "Export Campaign CSV"
+api: "GET https://api.buena.ai/api/v2/campaigns/{campaign_id}/csv"
+description: "Export campaign data as CSV"
+---
+
+Export campaign data including prospects, messages, and responses as a CSV file.
+
+## Path Parameters
+
+<ParamField path="campaign_id" type="string" required>
+  The unique identifier of the campaign to export
+</ParamField>
+
+## Query Parameters
+
+<ParamField query="include_responses" type="boolean" default="true">
+  Whether to include prospect responses in the export
+</ParamField>
+
+<ParamField query="date_from" type="string">
+  Start date for the export (ISO 8601 format)
+</ParamField>
+
+<ParamField query="date_to" type="string">
+  End date for the export (ISO 8601 format)
+</ParamField>
+
+<ParamField query="status" type="string">
+  Filter by prospect status: `all`, `contacted`, `responded`, `converted`
+</ParamField>
+
+## Response
+
+The response will be a CSV file with the following columns:
+
+- `prospect_id` - Unique identifier of the prospect
+- `name` - Prospect's full name
+- `email` - Prospect's email address
+- `company` - Prospect's company
+- `title` - Prospect's job title
+- `linkedin_url` - LinkedIn profile URL
+- `status` - Current prospect status
+- `contacted_at` - When the prospect was first contacted
+- `last_message_at` - When the last message was sent
+- `responded_at` - When the prospect responded (if applicable)
+- `response_text` - The prospect's response text (if applicable)
+- `tags` - Tags associated with the prospect
+
+<RequestExample>
+
+```bash cURL
+curl -X GET \
+  "https://api.buena.ai/api/v2/campaigns/camp_123/csv?include_responses=true&status=all" \
+  -H "x-api-key: YOUR_API_KEY" \
+  -o campaign_export.csv
+```
+
+```javascript JavaScript
+const response = await fetch('https://api.buena.ai/api/v2/campaigns/camp_123/csv?include_responses=true&status=all', {
+  headers: {
+    'x-api-key': 'YOUR_API_KEY'
+  }
+});
+const csvData = await response.text();
+```
+
+```python Python
+import requests
+
+response = requests.get(
+    'https://api.buena.ai/api/v2/campaigns/camp_123/csv',
+    headers={'x-api-key': 'YOUR_API_KEY'},
+    params={
+        'include_responses': True,
+        'status': 'all'
+    }
+)
+with open('campaign_export.csv', 'w') as f:
+    f.write(response.text)
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```csv Response
+prospect_id,name,email,company,title,linkedin_url,status,contacted_at,last_message_at,responded_at,response_text,tags
+prospect_123,John Doe,john@example.com,Example Corp,CEO,https://linkedin.com/in/johndoe,responded,2024-01-01T10:00:00Z,2024-01-01T10:00:00Z,2024-01-02T14:30:00Z,"Thanks for reaching out!",enterprise;q1-2024
+```
+
+</ResponseExample>

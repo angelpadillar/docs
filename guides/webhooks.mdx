@@ -1,0 +1,49 @@
+---
+title: "Webhooks"
+description: "Set up webhooks to receive real-time notifications from Buena.ai"
+---
+
+# Webhooks
+
+Learn how to set up webhooks to receive real-time notifications about events in your Buena.ai account.
+
+## Overview
+
+Webhooks allow you to:
+- Receive real-time notifications
+- Integrate with external systems
+- Automate workflows based on events
+- Keep your data synchronized
+
+## Supported Events
+
+- Lead status changes
+- Campaign completions
+- Message responses
+- Connection requests accepted
+- Profile visits
+
+## Setting Up Webhooks
+
+1. Configure your webhook endpoint
+2. Select the events you want to monitor
+3. Test your webhook configuration
+4. Deploy to production
+
+## Webhook Format
+
+```json
+{
+  "event": "lead_status_changed",
+  "timestamp": "2024-01-01T00:00:00Z",
+  "data": {
+    "lead_id": "123",
+    "old_status": "new",
+    "new_status": "contacted"
+  }
+}
+```
+
+<Info>
+This guide is currently being developed. More detailed information will be added soon.
+</Info>
