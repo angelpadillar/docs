@@ -20,46 +20,62 @@ Voice cloning is the process of creating an AI-generated version of your voice t
 
 The quality of your voice clone depends heavily on your source audio. Follow these guidelines:
 
-<AccordionGroup>
-  <Accordion title="Recording Equipment">
-    **Recommended Setup:**
-    - **Microphone**: USB condenser microphone or higher quality
-    - **Environment**: Quiet room with minimal echo
-    - **Position**: 6-8 inches from microphone
-    - **Avoid**: Phone recordings, built-in laptop mics
-    
-    **Budget Options:**
-    - Audio-Technica ATR2100x-USB (~$79)
-    - Blue Yeti Nano (~$100)
-    - Samson Q2U (~$70)
-  </Accordion>
+<details>
+<summary>Recording Equipment</summary>
 
-{" "}
+**Recommended Setup:**
 
-<Accordion title="Recording Environment">
-  **Ideal Conditions:** - Quiet room away from traffic/noise - Soft furnishings
-  to reduce echo - Consistent background (no AC/fan noise) - Record at same time
-  of day for consistency **Quick Setup:** - Record in a closet full of clothes -
-  Use blankets to create a "recording booth" - Avoid rooms with hard surfaces
-  (bathrooms, kitchens)
-</Accordion>
+- **Microphone**: USB condenser microphone or higher quality
+- **Environment**: Quiet room with minimal echo
+- **Position**: 6-8 inches from microphone
+- **Avoid**: Phone recordings, built-in laptop mics
 
-  <Accordion title="Content Guidelines">
-    **What to Record:**
-    - Natural, conversational tone
-    - Variety of sentence lengths
-    - Different emotions (professional, friendly, excited)
-    - Common business phrases and greetings
-    - Total: 2-5 minutes of clear audio
-    
-    **Sample Script:**
-    ```
-    "Hi there! I hope you're having a fantastic day. I wanted to reach out because I came across your profile and was really impressed by your experience in the industry. I'd love to connect and share some insights that could be valuable for your work. Looking forward to hearing from you!"
-    
-    "Good morning! Thank you so much for connecting with me. I noticed your background in technology and thought you might be interested in what we're building. It's been an exciting journey, and I believe there could be some great synergies between our work. Would you be open to a quick chat this week?"
-    ```
-  </Accordion>
-</AccordionGroup>
+**Budget Options:**
+
+- Audio-Technica ATR2100x-USB (~$79)
+- Blue Yeti Nano (~$100)
+- Samson Q2U (~$70)
+
+</details>
+
+<details>
+<summary>Recording Environment</summary>
+
+**Ideal Conditions:**
+
+- Quiet room away from traffic/noise
+- Soft furnishings to reduce echo
+- Consistent background (no AC/fan noise)
+- Record at same time of day for consistency
+
+**Quick Setup:**
+
+- Record in a closet full of clothes
+- Use blankets to create a "recording booth"
+- Avoid rooms with hard surfaces (bathrooms, kitchens)
+
+</details>
+
+<details>
+<summary>Content Guidelines</summary>
+
+**What to Record:**
+
+- Natural, conversational tone
+- Variety of sentence lengths
+- Different emotions (professional, friendly, excited)
+- Common business phrases and greetings
+- Total: 2-5 minutes of clear audio
+
+**Sample Script:**
+
+```
+"Hi there! I hope you're having a fantastic day. I wanted to reach out because I came across your profile and was really impressed by your experience in the industry. I'd love to connect and share some insights that could be valuable for your work. Looking forward to hearing from you!"
+
+"Good morning! Thank you so much for connecting with me. I noticed your background in technology and thought you might be interested in what we're building. It's been an exciting journey, and I believe there could be some great synergies between our work. Would you be open to a quick chat this week?"
+```
+
+</details>
 
 ### Step 2: Create Your Voice Clone
 
@@ -159,40 +175,50 @@ console.log("Preview audio:", previewData.data.audio_url);
 
 ### Recommended Settings by Use Case
 
-<AccordionGroup>
-  <Accordion title="Professional LinkedIn Outreach">
-    ```json
-    {
-      "stability": 0.6,
-      "clarity": 0.8,
-      "use_speaker_boost": true
-    }
-    ```
-    **Best for**: B2B outreach, professional networking, formal introductions
-  </Accordion>
+<details>
+<summary>Professional LinkedIn Outreach</summary>
 
-  <Accordion title="Sales & Marketing">
-    ```json
-    {
-      "stability": 0.4,
-      "clarity": 0.7,
-      "use_speaker_boost": true
-    }
-    ```
-    **Best for**: Sales pitches, product introductions, energetic outreach
-  </Accordion>
+```json
+{
+  "stability": 0.6,
+  "clarity": 0.8,
+  "use_speaker_boost": true
+}
+```
 
-  <Accordion title="Casual Networking">
-    ```json
-    {
-      "stability": 0.5,
-      "clarity": 0.6,
-      "use_speaker_boost": false
-    }
-    ```
-    **Best for**: Informal connections, follow-ups, friendly conversations
-  </Accordion>
-</AccordionGroup>
+**Best for**: B2B outreach, professional networking, formal introductions
+
+</details>
+
+<details>
+<summary>Sales & Marketing</summary>
+
+```json
+{
+  "stability": 0.4,
+  "clarity": 0.7,
+  "use_speaker_boost": true
+}
+```
+
+**Best for**: Sales pitches, product introductions, energetic outreach
+
+</details>
+
+<details>
+<summary>Casual Networking</summary>
+
+```json
+{
+  "stability": 0.5,
+  "clarity": 0.6,
+  "use_speaker_boost": false
+}
+```
+
+**Best for**: Informal connections, follow-ups, friendly conversations
+
+</details>
 
 ## 📝 Crafting Effective Voice Messages
 
@@ -221,32 +247,38 @@ console.log("Preview audio:", previewData.data.audio_url);
 
 ### Example Messages
 
-<AccordionGroup>
-  <Accordion title="Cold Outreach">
-    ```
-    "Hi [Name]! I hope you're having a great week. I came across your profile and was really impressed by your work at [Company]. I've been helping [similar role/industry] professionals with [specific benefit], and I thought you might find it valuable. Would you be open to a quick 15-minute conversation this week? Looking forward to connecting!"
-    ```
-    **Length**: ~20 seconds | **Tone**: Professional, respectful
-  </Accordion>
+<details>
+<summary>Cold Outreach</summary>
 
-{" "}
+```
+"Hi [Name]! I hope you're having a great week. I came across your profile and was really impressed by your work at [Company]. I've been helping [similar role/industry] professionals with [specific benefit], and I thought you might find it valuable. Would you be open to a quick 15-minute conversation this week? Looking forward to connecting!"
+```
 
-<Accordion title="Follow-up Message">
-  ``` "Hey [Name]! Thanks so much for connecting with me. I really enjoyed
-  reading about your experience with [specific project/role]. I've been working
-  on something that I think could be really relevant to what you're doing at
-  [Company]. Would love to share a quick insight that might be helpful. Hope to
-  hear from you soon!" ``` **Length**: ~18 seconds | **Tone**: Appreciative,
-  helpful
-</Accordion>
+**Length**: ~20 seconds | **Tone**: Professional, respectful
 
-  <Accordion title="Partnership Outreach">
-    ```
-    "Hi [Name]! I'm reaching out because I've been following [Company]'s work in [industry/area], and I'm really impressed with what you're building. We're working on something complementary that I think could create some interesting synergies. Would you be interested in exploring a potential collaboration? I'd love to set up a brief call to discuss!"
-    ```
-    **Length**: ~22 seconds | **Tone**: Collaborative, enthusiastic
-  </Accordion>
-</AccordionGroup>
+</details>
+
+<details>
+<summary>Follow-up Message</summary>
+
+```
+"Hey [Name]! Thanks so much for connecting with me. I really enjoyed reading about your experience with [specific project/role]. I've been working on something that I think could be really relevant to what you're doing at [Company]. Would love to share a quick insight that might be helpful. Hope to hear from you soon!"
+```
+
+**Length**: ~18 seconds | **Tone**: Appreciative, helpful
+
+</details>
+
+<details>
+<summary>Partnership Outreach</summary>
+
+```
+"Hi [Name]! I'm reaching out because I've been following [Company]'s work in [industry/area], and I'm really impressed with what you're building. We're working on something complementary that I think could create some interesting synergies. Would you be interested in exploring a potential collaboration? I'd love to set up a brief call to discuss!"
+```
+
+**Length**: ~22 seconds | **Tone**: Collaborative, enthusiastic
+
+</details>
 
 ## 🚀 Advanced Voice Messaging Strategies
 
@@ -305,54 +337,6 @@ function generatePersonalizedVoiceMessage(prospect) {
 }
 ```
 
-### 3. A/B Testing Voice Settings
-
-Test different voice settings to optimize engagement:
-
-```javascript
-const voiceTests = [
-  {
-    name: "professional",
-    settings: { stability: 0.6, clarity: 0.8, use_speaker_boost: true },
-  },
-  {
-    name: "friendly",
-    settings: { stability: 0.4, clarity: 0.7, use_speaker_boost: true },
-  },
-  {
-    name: "energetic",
-    settings: { stability: 0.3, clarity: 0.6, use_speaker_boost: false },
-  },
-];
-
-async function testVoiceSettings(prospects, voiceId) {
-  const results = {};
-
-  for (const test of voiceTests) {
-    results[test.name] = {
-      sent: 0,
-      responses: 0,
-      responseRate: 0,
-    };
-
-    // Send to subset of prospects
-    const testGroup = prospects.slice(0, 50);
-
-    for (const prospect of testGroup) {
-      await sendVoiceMessage({
-        voiceId: voiceId,
-        voiceSettings: test.settings,
-        prospect: prospect,
-      });
-
-      results[test.name].sent++;
-    }
-  }
-
-  return results;
-}
-```
-
 ## 📊 Performance Optimization
 
 ### Measuring Voice Message Success
@@ -377,31 +361,41 @@ Before deploying your voice clone:
 
 ### Troubleshooting Common Issues
 
-<AccordionGroup>
-  <Accordion title="Voice Sounds Robotic">
-    **Solutions:**
-    - Lower stability setting (0.3-0.5)
-    - Use more varied training audio
-    - Include emotional range in training
-    - Add natural pauses with punctuation
-  </Accordion>
+<details>
+<summary>Voice Sounds Robotic</summary>
 
-{" "}
+**Solutions:**
 
-<Accordion title="Inconsistent Quality">
-  **Solutions:** - Use consistent recording environment - Same microphone for
-  all training audio - Record when your voice is similar (same time of day) -
-  Ensure sufficient training audio (3+ minutes)
-</Accordion>
+- Lower stability setting (0.3-0.5)
+- Use more varied training audio
+- Include emotional range in training
+- Add natural pauses with punctuation
 
-  <Accordion title="Pronunciation Issues">
-    **Solutions:**
-    - Include problem words in training audio
-    - Use phonetic spelling in voice text
-    - Break complex words into syllables
-    - Test with voice previews before campaigns
-  </Accordion>
-</AccordionGroup>
+</details>
+
+<details>
+<summary>Inconsistent Quality</summary>
+
+**Solutions:**
+
+- Use consistent recording environment
+- Same microphone for all training audio
+- Record when your voice is similar (same time of day)
+- Ensure sufficient training audio (3+ minutes)
+
+</details>
+
+<details>
+<summary>Pronunciation Issues</summary>
+
+**Solutions:**
+
+- Include problem words in training audio
+- Use phonetic spelling in voice text
+- Break complex words into syllables
+- Test with voice previews before campaigns
+
+</details>
 
 ## 🔒 Compliance & Best Practices
 
@@ -480,60 +474,6 @@ async function sendVoiceMessageWithRetry(messageData, maxRetries = 3) {
       );
     }
   }
-}
-```
-
-### Batch Voice Message Processing
-
-```javascript
-async function processVoiceCampaign(prospects, voiceSettings) {
-  const results = {
-    sent: 0,
-    failed: 0,
-    errors: [],
-  };
-
-  // Process in batches to respect rate limits
-  const batchSize = 10;
-
-  for (let i = 0; i < prospects.length; i += batchSize) {
-    const batch = prospects.slice(i, i + batchSize);
-
-    const batchPromises = batch.map(async (prospect) => {
-      try {
-        const personalizedMessage = generatePersonalizedVoiceMessage(prospect);
-
-        await sendVoiceMessage({
-          profileUrl: prospect.linkedinUrl,
-          message: prospect.textMessage,
-          voiceSettings: {
-            ...voiceSettings,
-            voiceText: personalizedMessage,
-          },
-        });
-
-        results.sent++;
-        console.log(`✅ Voice message sent to ${prospect.name}`);
-      } catch (error) {
-        results.failed++;
-        results.errors.push({
-          prospect: prospect.name,
-          error: error.message,
-        });
-        console.error(`❌ Failed to send to ${prospect.name}:`, error.message);
-      }
-    });
-
-    await Promise.all(batchPromises);
-
-    // Rate limiting delay between batches
-    if (i + batchSize < prospects.length) {
-      console.log("Waiting 60 seconds before next batch...");
-      await new Promise((resolve) => setTimeout(resolve, 60000));
-    }
-  }
-
-  return results;
 }
 ```
 
