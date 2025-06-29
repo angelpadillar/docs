@@ -124,6 +124,15 @@
         "sdks/php",
         "tools/postman"
       ]
+    },
+    {
+      "group": "SDK API Reference",
+      "pages": [
+        "api-reference/sdks/javascript-api",
+        "api-reference/sdks/python-api",
+        "api-reference/sdks/go-api",
+        "api-reference/sdks/php-api"
+      ]
     }
   ],
   "footerSocials": {

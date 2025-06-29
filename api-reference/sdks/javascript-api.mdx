@@ -1,0 +1,574 @@
+---
+title: "JavaScript/TypeScript SDK API Reference"
+description: "Complete API reference for all functions in the JavaScript/TypeScript SDK"
+---
+
+# JavaScript/TypeScript SDK API Reference
+
+Complete reference for all methods available in the `@buena/sdk` package.
+
+## Installation & Setup
+
+```bash
+npm install @buena/sdk
+```
+
+```typescript
+import { BuenaSdk } from "@buena/sdk";
+
+const buena = new BuenaSdk({
+  security: {
+    apiKey: "your-api-key",
+  },
+  serverURL: "https://api.buena.ai/api/v2",
+});
+```
+
+## Core API Methods
+
+All API methods are accessed through `buena.default.*` and return promises.
+
+### Lead Management
+
+#### `listLeads(options?)`
+
+List all leads with optional filtering and pagination.
+
+**Parameters:**
+
+```typescript
+interface ListLeadsOptions {
+  limit?: number; // Number of leads to return (default: 50, max: 100)
+  offset?: number; // Offset for pagination (default: 0)
+  sort?: string; // Sort field (created_at, updated_at, first_name, last_name)
+  order?: "asc" | "desc"; // Sort order (default: desc)
+  search?: string; // Search term for name/email
+  company?: string; // Filter by company
+  status?: "active" | "inactive" | "contacted"; // Filter by status
+}
+```
+
+**Returns:**
+
+```typescript
+interface ListLeadsResponse {
+  data: Lead[];
+  total: number;
+  limit: number;
+  offset: number;
+}
+
+interface Lead {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  company?: string;
+  phone?: string;
+  linkedinUrl?: string;
+  status: "active" | "inactive" | "contacted";
+  createdAt: Date;
+  updatedAt: Date;
+}
+```
+
+**Example:**
+
+```typescript
+// List first 25 leads
+const leads = await buena.default.listLeads({
+  limit: 25,
+  sort: "created_at",
+  order: "desc",
+});
+
+console.log(`Found ${leads.total} leads`);
+leads.data.forEach((lead) => {
+  console.log(`${lead.firstName} ${lead.lastName} - ${lead.email}`);
+});
+
+// Search for leads
+const searchResults = await buena.default.listLeads({
+  search: "john",
+  company: "example",
+});
+```
+
+**Errors:**
+
+- `401` - Invalid API key
+- `403` - Insufficient permissions
+- `429` - Rate limit exceeded
+- `500` - Server error
+
+---
+
+#### `createLead(leadData)`
+
+Create a new lead in your database.
+
+**Parameters:**
+
+```typescript
+interface CreateLeadRequest {
+  firstName: string; // Required: Lead's first name
+  lastName: string; // Required: Lead's last name
+  email: string; // Required: Valid email address
+  company?: string; // Optional: Company name
+  phone?: string; // Optional: Phone number
+  linkedinUrl?: string; // Optional: LinkedIn profile URL
+  jobTitle?: string; // Optional: Job title
+  location?: string; // Optional: Location/city
+  notes?: string; // Optional: Additional notes
+  tags?: string[]; // Optional: Array of tags
+  customFields?: Record<string, any>; // Optional: Custom field data
+}
+```
+
+**Returns:**
+
+```typescript
+interface Lead {
+  id: string; // Unique lead identifier
+  firstName: string;
+  lastName: string;
+  email: string;
+  company?: string;
+  phone?: string;
+  linkedinUrl?: string;
+  jobTitle?: string;
+  location?: string;
+  notes?: string;
+  tags?: string[];
+  customFields?: Record<string, any>;
+  status: "active"; // New leads are always active
+  createdAt: Date;
+  updatedAt: Date;
+}
+```
+
+**Example:**
+
+```typescript
+const newLead = await buena.default.createLead({
+  firstName: "John",
+  lastName: "Doe",
+  email: "john.doe@example.com",
+  company: "Example Corp",
+  phone: "+1-555-123-4567",
+  linkedinUrl: "https://linkedin.com/in/johndoe",
+  jobTitle: "Software Engineer",
+  location: "San Francisco, CA",
+  notes: "Met at tech conference 2024",
+  tags: ["conference", "engineer", "potential"],
+});
+
+console.log(`Created lead with ID: ${newLead.id}`);
+```
+
+**Errors:**
+
+- `400` - Invalid lead data (missing required fields, invalid email format)
+- `401` - Invalid API key
+- `409` - Lead with email already exists
+- `422` - Validation error (invalid phone format, invalid LinkedIn URL)
+- `429` - Rate limit exceeded
+- `500` - Server error
+
+---
+
+#### `getLead(leadId)`
+
+Retrieve a specific lead by ID.
+
+**Parameters:**
+
+```typescript
+leadId: string; // Required: Unique lead identifier
+```
+
+**Returns:**
+
+```typescript
+interface Lead {
+  // Same as createLead response
+}
+```
+
+**Example:**
+
+```typescript
+const lead = await buena.default.getLead("lead_123456789");
+console.log(`Lead: ${lead.firstName} ${lead.lastName}`);
+console.log(`Company: ${lead.company}`);
+console.log(`Created: ${lead.createdAt.toLocaleDateString()}`);
+```
+
+**Errors:**
+
+- `401` - Invalid API key
+- `404` - Lead not found
+- `500` - Server error
+
+---
+
+#### `updateLead(leadId, updateData)`
+
+Update an existing lead's information.
+
+**Parameters:**
+
+```typescript
+leadId: string; // Required: Unique lead identifier
+
+interface UpdateLeadRequest {
+  firstName?: string; // Optional: Update first name
+  lastName?: string; // Optional: Update last name
+  email?: string; // Optional: Update email (must be unique)
+  company?: string; // Optional: Update company
+  phone?: string; // Optional: Update phone
+  linkedinUrl?: string; // Optional: Update LinkedIn URL
+  jobTitle?: string; // Optional: Update job title
+  location?: string; // Optional: Update location
+  notes?: string; // Optional: Update notes
+  tags?: string[]; // Optional: Replace tags array
+  customFields?: Record<string, any>; // Optional: Update custom fields
+  status?: "active" | "inactive" | "contacted"; // Optional: Update status
+}
+```
+
+**Returns:**
+
+```typescript
+interface Lead {
+  // Updated lead object with new data
+}
+```
+
+**Example:**
+
+```typescript
+const updatedLead = await buena.default.updateLead("lead_123456789", {
+  company: "New Company Inc",
+  jobTitle: "Senior Software Engineer",
+  status: "contacted",
+  tags: ["contacted", "promoted", "hot-lead"],
+  notes: "Promoted to senior role, very interested in our product",
+});
+
+console.log(`Updated lead: ${updatedLead.firstName} ${updatedLead.lastName}`);
+```
+
+**Errors:**
+
+- `400` - Invalid update data
+- `401` - Invalid API key
+- `404` - Lead not found
+- `409` - Email already exists (if updating email)
+- `422` - Validation error
+- `500` - Server error
+
+---
+
+#### `deleteLead(leadId)`
+
+Permanently delete a lead from your database.
+
+**Parameters:**
+
+```typescript
+leadId: string; // Required: Unique lead identifier
+```
+
+**Returns:**
+
+```typescript
+interface DeleteResponse {
+  success: boolean;
+  message: string;
+  deletedId: string;
+}
+```
+
+**Example:**
+
+```typescript
+const result = await buena.default.deleteLead("lead_123456789");
+if (result.success) {
+  console.log(`Successfully deleted lead: ${result.deletedId}`);
+} else {
+  console.error(`Failed to delete lead: ${result.message}`);
+}
+```
+
+**Errors:**
+
+- `401` - Invalid API key
+- `404` - Lead not found
+- `500` - Server error
+
+---
+
+### API Key Management
+
+#### `listApiKeys()`
+
+List all API keys for your account.
+
+**Parameters:** None
+
+**Returns:**
+
+```typescript
+interface ListApiKeysResponse {
+  data: ApiKey[];
+  total: number;
+}
+
+interface ApiKey {
+  id: string;
+  name: string;
+  keyPreview: string; // First 8 chars + "..."
+  permissions: string[]; // Array of permissions
+  lastUsed?: Date; // Last usage timestamp
+  isActive: boolean;
+  createdAt: Date;
+  expiresAt?: Date; // Optional expiration date
+}
+```
+
+**Example:**
+
+```typescript
+const apiKeys = await buena.default.listApiKeys();
+console.log(`You have ${apiKeys.total} API keys:`);
+
+apiKeys.data.forEach((key) => {
+  console.log(
+    `${key.name}: ${key.keyPreview} (${key.isActive ? "Active" : "Inactive"})`
+  );
+  console.log(`Permissions: ${key.permissions.join(", ")}`);
+  if (key.lastUsed) {
+    console.log(`Last used: ${key.lastUsed.toLocaleDateString()}`);
+  }
+});
+```
+
+**Errors:**
+
+- `401` - Invalid API key
+- `403` - Insufficient permissions
+- `500` - Server error
+
+---
+
+#### `createApiKey(keyData)`
+
+Create a new API key for your account.
+
+**Parameters:**
+
+```typescript
+interface CreateApiKeyRequest {
+  name: string; // Required: Descriptive name for the key
+  permissions: string[]; // Required: Array of permissions
+  expiresAt?: Date; // Optional: Expiration date
+  description?: string; // Optional: Key description
+}
+
+// Available permissions:
+// - "leads:read" - Read leads
+// - "leads:write" - Create/update leads
+// - "leads:delete" - Delete leads
+// - "api_keys:read" - Read API keys
+// - "api_keys:write" - Create API keys
+// - "webhooks:read" - Read webhooks
+// - "webhooks:write" - Create/update webhooks
+```
+
+**Returns:**
+
+```typescript
+interface ApiKey {
+  id: string;
+  name: string;
+  key: string; // Full API key (only returned on creation!)
+  keyPreview: string;
+  permissions: string[];
+  isActive: boolean;
+  createdAt: Date;
+  expiresAt?: Date;
+}
+```
+
+**Example:**
+
+```typescript
+const newApiKey = await buena.default.createApiKey({
+  name: "Integration API Key",
+  permissions: ["leads:read", "leads:write"],
+  description: "For CRM integration",
+  expiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000), // 1 year
+});
+
+console.log(`Created API key: ${newApiKey.name}`);
+console.log(`Key: ${newApiKey.key}`); // SAVE THIS! Won't be shown again
+console.log(`Permissions: ${newApiKey.permissions.join(", ")}`);
+```
+
+**Errors:**
+
+- `400` - Invalid key data (missing name, invalid permissions)
+- `401` - Invalid API key
+- `403` - Insufficient permissions
+- `422` - Validation error
+- `500` - Server error
+
+---
+
+### System Health
+
+#### `healthCheck()`
+
+Check the API system status and your connection.
+
+**Parameters:** None
+
+**Returns:**
+
+```typescript
+interface HealthCheckResponse {
+  status: "healthy" | "degraded" | "down";
+  timestamp: Date;
+  version: string;
+  services: {
+    database: "healthy" | "degraded" | "down";
+    redis: "healthy" | "degraded" | "down";
+    api: "healthy" | "degraded" | "down";
+  };
+  responseTime: number; // Response time in milliseconds
+}
+```
+
+**Example:**
+
+```typescript
+const health = await buena.default.healthCheck();
+console.log(`API Status: ${health.status}`);
+console.log(`Version: ${health.version}`);
+console.log(`Response Time: ${health.responseTime}ms`);
+
+if (health.status === "healthy") {
+  console.log("✅ All systems operational");
+} else {
+  console.log("⚠️ Some services may be experiencing issues");
+  console.log("Service status:", health.services);
+}
+```
+
+**Errors:**
+
+- `500` - Server error
+- `503` - Service unavailable
+
+---
+
+## Error Handling
+
+All methods can throw `SDKError` exceptions:
+
+```typescript
+import { SDKError } from "@buena/sdk/models/errors";
+
+try {
+  const leads = await buena.default.listLeads();
+} catch (error) {
+  if (error instanceof SDKError) {
+    console.error(`API Error ${error.statusCode}: ${error.message}`);
+
+    // Handle specific error codes
+    switch (error.statusCode) {
+      case 401:
+        console.error("Check your API key");
+        break;
+      case 429:
+        console.error("Rate limit exceeded - wait before retrying");
+        break;
+      case 500:
+        console.error("Server error - contact support if this persists");
+        break;
+      default:
+        console.error("Unexpected error:", error.message);
+    }
+  } else {
+    console.error("Network or other error:", error);
+  }
+}
+```
+
+## Rate Limiting
+
+The API enforces rate limits:
+
+- **100 requests per minute** for most endpoints
+- **20 requests per minute** for resource creation (createLead, createApiKey)
+
+Rate limit headers are included in responses:
+
+- `X-RateLimit-Limit` - Total requests allowed
+- `X-RateLimit-Remaining` - Requests remaining
+- `X-RateLimit-Reset` - Unix timestamp when limit resets
+
+```typescript
+// Handle rate limiting gracefully
+async function createLeadWithRetry(
+  leadData: CreateLeadRequest,
+  maxRetries = 3
+) {
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      return await buena.default.createLead(leadData);
+    } catch (error) {
+      if (error instanceof SDKError && error.statusCode === 429) {
+        if (attempt === maxRetries) throw error;
+
+        const resetTime = error.headers?.["x-ratelimit-reset"];
+        const waitTime = resetTime
+          ? parseInt(resetTime) * 1000 - Date.now()
+          : 60000;
+
+        console.log(
+          `Rate limited. Waiting ${waitTime}ms before retry ${attempt + 1}...`
+        );
+        await new Promise((resolve) => setTimeout(resolve, waitTime));
+      } else {
+        throw error;
+      }
+    }
+  }
+}
+```
+
+## TypeScript Support
+
+The SDK includes full TypeScript definitions:
+
+```typescript
+import {
+  BuenaSdk,
+  Lead,
+  CreateLeadRequest,
+  ListLeadsResponse,
+  ApiKey,
+  HealthCheckResponse,
+} from "@buena/sdk";
+
+// Type-safe lead creation
+const leadData: CreateLeadRequest = {
+  firstName: "Jane",
+  lastName: "Smith",
+  email: "jane@example.com",
+};
+
+const lead: Lead = await buena.default.createLead(leadData);
+```

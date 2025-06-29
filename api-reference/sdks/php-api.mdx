@@ -1,0 +1,256 @@
+---
+title: "PHP SDK API Reference"
+description: "Complete API reference for all functions in the PHP SDK"
+---
+
+# PHP SDK API Reference
+
+Complete reference for all methods available in the `buena/sdk` package.
+
+## Installation & Setup
+
+```bash
+composer require buena/sdk
+```
+
+```php
+<?php
+require_once 'vendor/autoload.php';
+
+use Buena\SDK\Configuration;
+use Buena\SDK\Api\DefaultApi;
+use Buena\SDK\ApiException;
+
+// Initialize configuration
+$config = Configuration::getDefaultConfiguration()
+    ->setHost('https://api.buena.ai/api/v2')
+    ->setApiKey('ApiKeyAuth', 'your-api-key');
+
+// Create API instance
+$apiInstance = new DefaultApi(new GuzzleHttp\Client(), $config);
+```
+
+## Core API Methods
+
+All API methods are accessed through the `DefaultApi` instance.
+
+### Lead Management Functions
+
+#### `listLeads($limit, $offset, $sort, $order, $search, $company, $status)`
+- **Purpose**: List all leads with optional filtering and pagination
+- **Parameters**: 
+  - `$limit` (int, optional): Number of leads (default: 50, max: 100)
+  - `$offset` (int, optional): Pagination offset (default: 0)
+  - `$sort` (string, optional): Sort field (created_at, updated_at, first_name, last_name)
+  - `$order` (string, optional): Sort order (asc, desc, default: desc)
+  - `$search` (string, optional): Search term for name/email
+  - `$company` (string, optional): Filter by company name
+  - `$status` (string, optional): Filter by status (active, inactive, contacted)
+- **Returns**: Array of Lead objects with pagination info
+- **Throws**: ApiException on error
+
+#### `createLead($createLeadRequest)`
+- **Purpose**: Create a new lead in database
+- **Parameters**: 
+  - `$createLeadRequest` (CreateLeadRequest): Lead data object
+    - `first_name` (string, required): Lead's first name
+    - `last_name` (string, required): Lead's last name
+    - `email` (string, required): Valid email address
+    - `company` (string, optional): Company name
+    - `phone` (string, optional): Phone number
+    - `linkedin_url` (string, optional): LinkedIn profile URL
+    - `job_title` (string, optional): Job title
+    - `location` (string, optional): Location/city
+    - `notes` (string, optional): Additional notes
+    - `tags` (array, optional): Array of tags
+    - `custom_fields` (array, optional): Custom field data
+- **Returns**: Lead object with generated ID and timestamps
+- **Throws**: ApiException on validation error, duplicate email
+
+#### `getLead($leadId)`
+- **Purpose**: Retrieve specific lead by ID
+- **Parameters**: 
+  - `$leadId` (string, required): Unique lead identifier
+- **Returns**: Lead object
+- **Throws**: ApiException if lead not found
+
+#### `updateLead($leadId, $updateLeadRequest)`
+- **Purpose**: Update existing lead information
+- **Parameters**: 
+  - `$leadId` (string, required): Unique lead identifier
+  - `$updateLeadRequest` (UpdateLeadRequest): Update data object
+    - All fields optional, same as CreateLeadRequest
+    - `status` (string, optional): Update status (active, inactive, contacted)
+- **Returns**: Updated Lead object
+- **Throws**: ApiException on validation error, lead not found
+
+#### `deleteLead($leadId)`
+- **Purpose**: Permanently delete lead from database
+- **Parameters**: 
+  - `$leadId` (string, required): Unique lead identifier
+- **Returns**: Success confirmation array
+- **Throws**: ApiException if lead not found
+
+### API Key Management Functions
+
+#### `listApiKeys()`
+- **Purpose**: List all API keys for account
+- **Parameters**: None
+- **Returns**: Array of ApiKey objects
+- **Throws**: ApiException on insufficient permissions
+
+#### `createApiKey($createApiKeyRequest)`
+- **Purpose**: Create new API key for account
+- **Parameters**: 
+  - `$createApiKeyRequest` (CreateApiKeyRequest): API key data
+    - `name` (string, required): Descriptive name for key
+    - `permissions` (array, required): Array of permission strings
+    - `expires_at` (DateTime, optional): Expiration date
+    - `description` (string, optional): Key description
+- **Returns**: ApiKey object with full key (only returned on creation)
+- **Throws**: ApiException on validation error
+
+### System Health Functions
+
+#### `healthCheck()`
+- **Purpose**: Check API system status and connection
+- **Parameters**: None
+- **Returns**: HealthCheck200Response with system status
+- **Throws**: ApiException on server error
+
+## Data Models
+
+### Lead Object
+```php
+class Lead {
+    public $id;                    // string: Unique identifier
+    public $first_name;            // string: First name
+    public $last_name;             // string: Last name
+    public $email;                 // string: Email address
+    public $company;               // string|null: Company name
+    public $phone;                 // string|null: Phone number
+    public $linkedin_url;          // string|null: LinkedIn URL
+    public $job_title;             // string|null: Job title
+    public $location;              // string|null: Location
+    public $notes;                 // string|null: Notes
+    public $tags;                  // array|null: Tags array
+    public $custom_fields;         // array|null: Custom fields
+    public $status;                // string: Lead status
+    public $created_at;            // DateTime: Creation time
+    public $updated_at;            // DateTime: Update time
+}
+```
+
+### ApiKey Object
+```php
+class ApiKey {
+    public $id;                    // string: Unique identifier
+    public $name;                  // string: Key name
+    public $key;                   // string: Full key (creation only)
+    public $key_preview;           // string: Preview (first 8 chars + "...")
+    public $permissions;           // array: Permission strings
+    public $last_used;             // DateTime|null: Last usage
+    public $is_active;             // bool: Active status
+    public $created_at;            // DateTime: Creation time
+    public $expires_at;            // DateTime|null: Expiration
+}
+```
+
+## Available Permissions
+
+```php
+const PERMISSIONS = [
+    'leads:read',        // Read leads
+    'leads:write',       // Create/update leads
+    'leads:delete',      // Delete leads
+    'api_keys:read',     // Read API keys
+    'api_keys:write',    // Create API keys
+    'webhooks:read',     // Read webhooks
+    'webhooks:write'     // Create/update webhooks
+];
+```
+
+## Error Handling
+
+All methods throw `ApiException` with these properties:
+- `getCode()` - HTTP status code
+- `getMessage()` - Error message
+- `getResponseBody()` - Raw response body
+- `getResponseHeaders()` - Response headers
+
+### Common Error Codes
+- `400` - Bad Request (validation errors)
+- `401` - Unauthorized (invalid API key)
+- `403` - Forbidden (insufficient permissions)
+- `404` - Not Found (resource doesn't exist)
+- `409` - Conflict (duplicate email)
+- `422` - Unprocessable Entity (validation error)
+- `429` - Too Many Requests (rate limited)
+- `500` - Internal Server Error
+- `503` - Service Unavailable
+
+## Usage Examples
+
+### Basic Lead Operations
+```php
+try {
+    // List leads
+    $leads = $apiInstance->listLeads(25, 0, 'created_at', 'desc');
+    
+    // Create lead
+    $createRequest = new CreateLeadRequest([
+        'first_name' => 'John',
+        'last_name' => 'Doe',
+        'email' => 'john@example.com'
+    ]);
+    $newLead = $apiInstance->createLead($createRequest);
+    
+    // Update lead
+    $updateRequest = new UpdateLeadRequest([
+        'status' => 'contacted'
+    ]);
+    $updatedLead = $apiInstance->updateLead($newLead->getId(), $updateRequest);
+    
+} catch (ApiException $e) {
+    echo "Error: " . $e->getMessage();
+}
+```
+
+### Error Handling Pattern
+```php
+try {
+    $result = $apiInstance->someMethod();
+} catch (ApiException $e) {
+    switch ($e->getCode()) {
+        case 401:
+            echo "Invalid API key";
+            break;
+        case 404:
+            echo "Resource not found";
+            break;
+        case 429:
+            echo "Rate limited - retry later";
+            break;
+        default:
+            echo "Error " . $e->getCode() . ": " . $e->getMessage();
+    }
+}
+```
+
+### Pagination Helper
+```php
+function getAllLeads($apiInstance, $pageSize = 50) {
+    $allLeads = [];
+    $offset = 0;
+    
+    do {
+        $response = $apiInstance->listLeads($pageSize, $offset);
+        $leads = $response->getData();
+        $allLeads = array_merge($allLeads, $leads);
+        $offset += $pageSize;
+    } while (count($leads) === $pageSize);
+    
+    return $allLeads;
+}
+```
+
