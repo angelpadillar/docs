@@ -1,1 +1,19 @@
 .DS_Store
+
+# SDK directories (moved to separate repo)
+/sdks-final/
+/generated-sdks/
+/speakeasy-sdks/
+/*-sdk/
+
+# OpenAPI Generator
+openapitools.json
+
+# Build files
+dist/
+build/
+node_modules/
+
+# IDE files
+.vscode/
+.idea/

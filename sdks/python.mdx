@@ -7,7 +7,13 @@ description: "Official Python SDK for Buena.ai API"
 
 The official Python SDK for the Buena.ai API provides a convenient way to integrate Buena.ai's lead generation and LinkedIn automation features into your Python applications.
 
-## Installation
+<Info>
+  **🔄 Auto-Generated**: Generated with [OpenAPI
+  Generator](https://openapi-generator.tech) and automatically updated via
+  GitHub Actions.
+</Info>
+
+## 📦 Installation
 
 Install the SDK using pip:
 
@@ -15,192 +21,126 @@ Install the SDK using pip:
 pip install buena-sdk
 ```
 
-## Quick Start
+## 🚀 Quick Start
 
 ```python
-from buena import BuenaClient
+from buena_sdk import DefaultApi, Configuration
 
 # Initialize the client
-client = BuenaClient(api_key='your-api-key')
+config = Configuration(
+    host="https://api.buena.ai/api/v2",
+    api_key="your-api-key"
+)
+client = DefaultApi(config)
 
 # List leads
-leads = client.leads.list()
+leads = client.list_leads()
 print(leads)
 
 # Create a new lead
-new_lead = client.leads.create({
-    'name': 'John Doe',
+new_lead = client.create_lead({
+    'first_name': 'John',
+    'last_name': 'Doe',
     'email': 'john@example.com',
     'company': 'Example Corp'
 })
 ```
 
-## Configuration
+## 🔧 Configuration
 
 ```python
-from buena import BuenaClient
+from buena_sdk import Configuration
 
-client = BuenaClient(
+config = Configuration(
+    host='https://api.buena.ai/api/v2',  # Optional
     api_key='your-api-key',
-    base_url='https://api.buena.ai/api/v2',  # Optional
     timeout=30,  # Optional, default 30 seconds
     max_retries=3  # Optional, default 3 retries
 )
 ```
 
-## Available Methods
+## 📋 Available Operations
 
 ### Leads Management
 
-```python
-# List all leads
-leads = client.leads.list(
-    limit=50,
-    offset=0,
-    status='active'
-)
+- `client.list_leads()` - List all leads with optional filtering
+- `client.create_lead()` - Create a new lead
+- `client.update_lead()` - Update an existing lead
+- `client.delete_lead()` - Delete a lead
 
-# Create a lead
-lead = client.leads.create({
-    'name': 'Jane Smith',
-    'email': 'jane@company.com',
-    'company': 'Company Inc',
-    'title': 'CEO'
-})
+### API Keys Management
 
-# Update a lead
-updated_lead = client.leads.update('lead_id', {
-    'status': 'contacted'
-})
+- `client.list_api_keys()` - List all API keys
+- `client.create_api_key()` - Create a new API key
 
-# Delete a lead
-client.leads.delete('lead_id')
-```
+### Health Check
 
-### LinkedIn Automation
+- `client.health_check()` - Check API status
 
-```python
-# Schedule LinkedIn action
-action = client.linkedin.schedule_action({
-    'prospect_id': 'prospect_123',
-    'action_type': 'connect',
-    'message': 'Hi {name}, I\'d love to connect!'
-})
+## 🔗 Repository & Advanced Usage
 
-# Upload prospects
-result = client.linkedin.upload_prospects({
-    'prospects': [
-        {
-            'name': 'John Doe',
-            'linkedin_url': 'https://linkedin.com/in/johndoe',
-            'email': 'john@example.com'
-        }
-    ],
-    'campaign_id': 'camp_123'
-})
-```
+For complete documentation, examples, and source code:
 
-### Enrichment
+<Card
+  title="📁 Python SDK Repository"
+  icon="github"
+  href="https://github.com/buena-ai/sdks/tree/main/python"
+>
+  Access the full SDK source code, advanced examples, and detailed
+  documentation.
+</Card>
 
-```python
-# Enrich leads with additional data
-enriched_leads = client.enrich.leads({
-    'leads': ['lead_123', 'lead_456']
-})
-```
+## 💡 Features
 
-### Prospecting
+✅ **Type Hints** - Full type annotations for better IDE support  
+✅ **Async Support** - Optional async/await patterns  
+✅ **Error Handling** - Comprehensive exception handling  
+✅ **Pagination** - Built-in pagination support  
+✅ **Auto Updates** - Automatically updated from OpenAPI spec  
+✅ **Production Ready** - Battle-tested OpenAPI Generator
 
-```python
-# Search for prospects
-prospects = client.prospecting.search({
-    'query': 'CEO software startup',
-    'location': 'San Francisco',
-    'company_size': '1-50'
-})
-```
+## 🔄 Async Support
 
-## Error Handling
-
-```python
-from buena import BuenaClient, BuenaError, RateLimitError, AuthenticationError
-
-client = BuenaClient(api_key='your-api-key')
-
-try:
-    leads = client.leads.list()
-except AuthenticationError:
-    print('Invalid API key')
-except RateLimitError:
-    print('Rate limit exceeded')
-except BuenaError as e:
-    print(f'API error: {e.message}')
-```
-
-## Async Support
-
-The SDK also supports async/await:
+The SDK also supports async/await patterns:
 
 ```python
 import asyncio
-from buena import AsyncBuenaClient
+from buena_sdk import AsyncDefaultApi, Configuration
 
 async def main():
-    client = AsyncBuenaClient(api_key='your-api-key')
-    
+    config = Configuration(
+        host="https://api.buena.ai/api/v2",
+        api_key="your-api-key"
+    )
+    client = AsyncDefaultApi(config)
+
     # List leads asynchronously
-    leads = await client.leads.list()
+    leads = await client.list_leads()
     print(leads)
-    
-    # Create multiple leads concurrently
-    tasks = [
-        client.leads.create({'name': f'Lead {i}', 'email': f'lead{i}@example.com'})
-        for i in range(5)
-    ]
-    results = await asyncio.gather(*tasks)
-    
+
     await client.close()
 
 asyncio.run(main())
 ```
 
-## Pagination
+## 🛠️ Error Handling
 
 ```python
-# Manual pagination
-leads = client.leads.list(limit=50, offset=0)
-while leads:
-    for lead in leads:
-        print(lead['name'])
-    
-    # Get next page
-    leads = client.leads.list(limit=50, offset=len(leads))
+from buena_sdk import ApiException
 
-# Using iterator (recommended)
-for lead in client.leads.list_all():
-    print(lead['name'])
+try:
+    leads = client.list_leads()
+except ApiException as e:
+    if e.status == 401:
+        print('Invalid API key')
+    elif e.status == 429:
+        print('Rate limit exceeded')
+    else:
+        print(f'API error: {e.reason}')
 ```
 
-## Data Classes
+## 🆘 Support
 
-The SDK provides convenient data classes for type hints:
-
-```python
-from buena import BuenaClient
-from buena.types import Lead, CreateLeadRequest
-
-client = BuenaClient(api_key='your-api-key')
-
-def create_lead(lead_data: CreateLeadRequest) -> Lead:
-    return client.leads.create(lead_data)
-
-lead = create_lead({
-    'name': 'John Doe',
-    'email': 'john@example.com',
-    'company': 'Example Corp'
-})
-```
-
-<Info>
-The Python SDK is currently under development. Full documentation and examples will be available soon.
-</Info>
+- **📖 Full Documentation**: [SDK Repository](https://github.com/buena-ai/sdks)
+- **💬 Discord**: [Join our community](https://discord.gg/Hb4Y9Rgh6E)
+- **📧 Email**: [support@buena.ai](mailto:support@buena.ai)
