@@ -20,7 +20,7 @@ import (
     "context"
     "fmt"
     "log"
-    
+
     buena "github.com/buena-ai/sdk"
 )
 
@@ -30,10 +30,10 @@ func main() {
     cfg.Servers = []buena.ServerConfiguration{
         {URL: "https://api.buena.ai/api/v2"},
     }
-    
+
     // Create client
     client := buena.NewAPIClient(cfg)
-    
+
     // Set API key in context
     ctx := context.WithValue(context.Background(), buena.ContextAPIKeys, map[string]buena.APIKey{
         "ApiKeyAuth": {Key: "your-api-key"},
@@ -48,26 +48,31 @@ All API methods are accessed through `client.DefaultAPI.*` and require a context
 ### Lead Management Functions
 
 #### `ListLeads(ctx).Execute()`
+
 - **Purpose**: List all leads with filtering and pagination
 - **Parameters**: limit, offset, sort, order, search, company, status
 - **Returns**: ListLeads200Response with data array and pagination info
 
 #### `CreateLead(ctx).CreateLeadRequest(request).Execute()`
+
 - **Purpose**: Create a new lead
 - **Parameters**: CreateLeadRequest with first_name, last_name, email (required)
 - **Returns**: Lead object with generated ID and timestamps
 
 #### `GetLead(ctx, leadId).Execute()`
+
 - **Purpose**: Retrieve specific lead by ID
 - **Parameters**: leadId string
 - **Returns**: Lead object
 
 #### `UpdateLead(ctx, leadId).UpdateLeadRequest(request).Execute()`
+
 - **Purpose**: Update existing lead information
 - **Parameters**: leadId string, UpdateLeadRequest with optional fields
 - **Returns**: Updated Lead object
 
 #### `DeleteLead(ctx, leadId).Execute()`
+
 - **Purpose**: Permanently delete a lead
 - **Parameters**: leadId string
 - **Returns**: Success confirmation map
@@ -75,11 +80,13 @@ All API methods are accessed through `client.DefaultAPI.*` and require a context
 ### API Key Management Functions
 
 #### `ListApiKeys(ctx).Execute()`
+
 - **Purpose**: List all API keys for account
 - **Parameters**: None
 - **Returns**: ListApiKeysResponse with ApiKey array
 
 #### `CreateApiKey(ctx).CreateApiKeyRequest(request).Execute()`
+
 - **Purpose**: Create new API key
 - **Parameters**: CreateApiKeyRequest with name, permissions
 - **Returns**: ApiKey object with full key (only on creation)
@@ -87,13 +94,14 @@ All API methods are accessed through `client.DefaultAPI.*` and require a context
 ### System Health Functions
 
 #### `HealthCheck(ctx).Execute()`
+
 - **Purpose**: Check API system status
 - **Parameters**: None
 - **Returns**: HealthCheck200Response with status and service info
 
 ## Error Handling
 
-All methods return (result, *http.Response, error). Check error and response.StatusCode:
+All methods return (result, \*http.Response, error). Check error and response.StatusCode:
 
 - `401` - Invalid API key
 - `403` - Insufficient permissions
@@ -106,9 +114,9 @@ All methods return (result, *http.Response, error). Check error and response.Sta
 ## Utility Functions
 
 Helper functions for working with pointers:
-- `buena.PtrString(s)` - Convert string to *string
-- `buena.PtrStringValue(ptr)` - Convert *string to string (safe)
-- `buena.PtrInt32(i)` - Convert int32 to *int32
-- `buena.PtrBool(b)` - Convert bool to *bool
-- `buena.PtrTime(t)` - Convert time.Time to *time.Time
 
+- `buena.PtrString(s)` - Convert string to \*string
+- `buena.PtrStringValue(ptr)` - Convert \*string to string (safe)
+- `buena.PtrInt32(i)` - Convert int32 to \*int32
+- `buena.PtrBool(b)` - Convert bool to \*bool
+- `buena.PtrTime(t)` - Convert time.Time to \*time.Time

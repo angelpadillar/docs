@@ -72,7 +72,7 @@ jobs:
           rm -rf php
           openapi-generator-cli generate \
             -i openapi.json \
-            -g php \
+            -g php \`
             -o php \
             --additional-properties=packageName=BuenaSDK,composerVendorName=buena,composerProjectName=sdk
 
@@ -89,7 +89,7 @@ jobs:
           git add .
           git commit -m "🤖 Auto-update SDKs from OpenAPI spec changes" || exit 0
           git push
-
+`
   notify-docs:
     runs-on: ubuntu-latest
     needs: update-openapi-sdks
