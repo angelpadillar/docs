@@ -1,0 +1,56 @@
+name: 🟣 Publish PHP SDK to Packagist
+
+on:
+  push:
+    paths:
+      - "php/**"
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.1"
+          extensions: curl, json, mbstring
+
+      - name: Validate composer.json
+        working-directory: ./php
+        run: composer validate --strict
+
+      - name: Install dependencies
+        working-directory: ./php
+        run: composer install --no-dev --optimize-autoloader
+
+      - name: Run tests (if any)
+        working-directory: ./php
+        run: |
+          if [ -d "test" ] || [ -d "tests" ]; then
+            composer test
+          else
+            echo "No tests found, skipping..."
+          fi
+
+      - name: Update version in composer.json
+        working-directory: ./php
+        run: |
+          VERSION="1.0.$(date +%Y%m%d%H%M%S)"
+          sed -i "s/\"version\": \".*\"/\"version\": \"$VERSION\"/" composer.json
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add composer.json
+          git commit -m "🤖 Bump PHP SDK version to $VERSION" || exit 0
+          git push
+
+      - name: Trigger Packagist update
+        run: |
+          curl -X POST -H "Content-Type: application/json" \
+            -d '{"repository":{"url":"https://github.com/buena-ai/sdks"}}' \
+            "https://packagist.org/api/update-package?username=${{ secrets.PACKAGIST_USERNAME }}&apiToken=${{ secrets.PACKAGIST_TOKEN }}"
