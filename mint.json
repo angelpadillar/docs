@@ -39,7 +39,7 @@
     {
       "name": "Discord Community",
       "icon": "discord",
-      "url": "https://discord.gg/buena"
+      "url": "https://discord.gg/Hb4Y9Rgh6E"
     },
     {
       "name": "GitHub",
@@ -101,23 +101,19 @@
     },
     {
       "group": "Enrichment & Prospecting",
-      "icon": "magnifying-glass",
       "pages": [
         "api-reference/enrich/leads",
         "api-reference/prospecting/search"
       ]
     },
     {
-      "group": "User Management",
+      "group": "Campaigns & Users",
       "pages": [
+        "api-reference/campaigns/csv",
+        "api-reference/users/active",
         "api-reference/users/jobs",
-        "api-reference/users/linkedin",
-        "api-reference/users/integrations"
+        "api-reference/users/linkedin"
       ]
-    },
-    {
-      "group": "Campaigns",
-      "pages": ["api-reference/campaigns/csv"]
     },
     {
       "group": "SDKs & Tools",
@@ -127,7 +123,7 @@
   "footerSocials": {
     "twitter": "https://twitter.com/buena_ai",
     "linkedin": "https://linkedin.com/company/buena-ai",
-    "discord": "https://discord.gg/buena"
+    "discord": "https://discord.gg/Hb4Y9Rgh6E"
   },
   "api": {
     "baseUrl": "https://api.buena.ai/api/v2",

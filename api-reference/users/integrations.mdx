@@ -32,7 +32,7 @@ Retrieve all integration statuses for the authenticated user.
 
 ```bash cURL
 curl -X GET "https://api.buena.ai/api/v2/users/integrations" \
-  -H "x-api-key: bna_b481beefb342812b07807aaa2414c99bb93f9ea8702ee029d1e8bb73e2a2d52a"
+  -H "x-api-key: bna_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 ```
 
 ```javascript JavaScript
@@ -40,7 +40,7 @@ const response = await fetch("https://api.buena.ai/api/v2/users/integrations", {
   method: "GET",
   headers: {
     "x-api-key":
-      "bna_b481beefb342812b07807aaa2414c99bb93f9ea8702ee029d1e8bb73e2a2d52a",
+      "bna_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
   },
 });
 
@@ -54,7 +54,7 @@ import requests
 response = requests.get(
     'https://api.buena.ai/api/v2/users/integrations',
     headers={
-        'x-api-key': 'bna_b481beefb342812b07807aaa2414c99bb93f9ea8702ee029d1e8bb73e2a2d52a'
+        'x-api-key': 'bna_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
     }
 )
 
@@ -189,7 +189,7 @@ Initialize or setup LinkedIn integration for the authenticated user.
 
 ```bash cURL
 curl -X POST "https://api.buena.ai/api/v2/users/integrations/linkedin" \
-  -H "x-api-key: bna_b481beefb342812b07807aaa2414c99bb93f9ea8702ee029d1e8bb73e2a2d52a" \
+  -H "x-api-key: bna_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
   -H "Content-Type: application/json" \
   -d '{
     "returnUrl": "https://yourapp.com/linkedin-success"
@@ -203,7 +203,7 @@ const response = await fetch(
     method: "POST",
     headers: {
       "x-api-key":
-        "bna_b481beefb342812b07807aaa2414c99bb93f9ea8702ee029d1e8bb73e2a2d52a",
+        "bna_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
@@ -222,7 +222,7 @@ import requests
 response = requests.post(
     'https://api.buena.ai/api/v2/users/integrations/linkedin',
     headers={
-        'x-api-key': 'bna_b481beefb342812b07807aaa2414c99bb93f9ea8702ee029d1e8bb73e2a2d52a',
+        'x-api-key': 'bna_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
         'Content-Type': 'application/json'
     },
     json={

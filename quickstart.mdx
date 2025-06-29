@@ -153,7 +153,7 @@ Now let's schedule a LinkedIn connection request using the simplified API:
 
 ```bash cURL
 curl -X POST "https://api.buena.ai/api/v2/linkedin/scheduleLinkedInAction" \
-  -H "x-api-key: bna_b481beefb342812b07807aaa2414c99bb93f9ea8702ee029d1e8bb73e2a2d52a" \
+  -H "x-api-key: bna_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
   -H "Content-Type: application/json" \
   -d '{
     "actionType": "sendConnectionRequest",
@@ -169,7 +169,7 @@ const response = await fetch(
     method: "POST",
     headers: {
       "x-api-key":
-        "bna_b481beefb342812b07807aaa2414c99bb93f9ea8702ee029d1e8bb73e2a2d52a",
+        "bna_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
@@ -190,7 +190,7 @@ import requests
 response = requests.post(
     'https://api.buena.ai/api/v2/linkedin/scheduleLinkedInAction',
     headers={
-        'x-api-key': 'bna_b481beefb342812b07807aaa2414c99bb93f9ea8702ee029d1e8bb73e2a2d52a',
+        'x-api-key': 'bna_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
         'Content-Type': 'application/json'
     },
     json={
@@ -369,6 +369,6 @@ Rate limit headers are included in all responses to help you monitor usage.
 
 ### Need Help?
 
-- Join our [Discord community](https://discord.gg/buena)
+- Join our [Discord community](https://discord.gg/Hb4Y9Rgh6E)
 - Email [support@buena.ai](mailto:support@buena.ai)
 - Check our [status page](https://status.buena.ai)
