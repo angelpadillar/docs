@@ -572,3 +572,427 @@ const leadData: CreateLeadRequest = {
 
 const lead: Lead = await buena.default.createLead(leadData);
 ```
+
+## MCP Integration
+
+The TypeScript SDK includes a built-in MCP (Model Context Protocol) server that enables AI assistants to directly interact with your Buena.ai data.
+
+### Starting the MCP Server
+
+```bash
+# Install the SDK globally or locally
+npm install @buena/sdk
+
+# Start the MCP server
+BUENA_API_KEY=your-api-key npx @buena/sdk mcp
+
+# Or with custom configuration
+npx @buena/sdk mcp --port 3001 --log-level debug
+```
+
+### AI Assistant Configuration
+
+**Claude Desktop Configuration:**
+
+```json
+{
+  "mcpServers": {
+    "buena": {
+      "command": "npx",
+      "args": ["@buena/sdk", "mcp"],
+      "env": {
+        "BUENA_API_KEY": "your-api-key-here"
+      }
+    }
+  }
+}
+```
+
+### Available MCP Tools
+
+The MCP server exposes these tools to AI assistants:
+
+#### Lead Management Tools
+
+- `buena_list_leads` - Search and filter leads
+- `buena_create_lead` - Create new leads
+- `buena_get_lead` - Retrieve lead details
+- `buena_update_lead` - Update lead information
+- `buena_delete_lead` - Delete leads
+
+#### API Management Tools
+
+- `buena_list_api_keys` - List API keys
+- `buena_create_api_key` - Create new API keys
+- `buena_health_check` - Check system status
+
+### MCP Usage Examples
+
+**Lead Search via AI Assistant:**
+
+```
+Human: "Show me all leads from technology companies created this week"
+
+AI Assistant executes:
+buena_list_leads({
+  search: "technology",
+  sort: "created_at",
+  order: "desc",
+  limit: 50
+})
+```
+
+**Batch Lead Creation:**
+
+```
+Human: "Create leads for these contacts: John Doe (john@acme.com, Acme Corp), Jane Smith (jane@techco.com, TechCo)"
+
+AI Assistant executes:
+buena_create_lead({
+  firstName: "John",
+  lastName: "Doe",
+  email: "john@acme.com",
+  company: "Acme Corp"
+})
+
+buena_create_lead({
+  firstName: "Jane",
+  lastName: "Smith",
+  email: "jane@techco.com",
+  company: "TechCo"
+})
+```
+
+**Lead Analysis Workflow:**
+
+```
+Human: "Analyze my leads from the past month and suggest which ones to prioritize"
+
+AI Assistant workflow:
+1. buena_list_leads({ sort: "created_at", limit: 100 }) - Get recent leads
+2. Analyze lead data (company size, job titles, engagement)
+3. buena_update_lead() - Update high-priority leads with tags
+4. Provide prioritization recommendations
+```
+
+### MCP Server Configuration
+
+**Environment Variables:**
+
+```bash
+BUENA_API_KEY=your-api-key          # Required: Your API key
+BUENA_API_URL=https://custom-url    # Optional: Custom API endpoint
+MCP_SERVER_PORT=3001               # Optional: Server port
+MCP_LOG_LEVEL=debug                # Optional: Logging level
+```
+
+**Configuration File (`buena-mcp.config.json`):**
+
+```json
+{
+  "server": {
+    "port": 3001,
+    "logLevel": "info",
+    "timeout": 30000
+  },
+  "api": {
+    "baseUrl": "https://api.buena.ai/api/v2",
+    "retries": 3,
+    "retryDelay": 1000
+  },
+  "tools": {
+    "enabled": [
+      "buena_list_leads",
+      "buena_create_lead",
+      "buena_get_lead",
+      "buena_update_lead",
+      "buena_health_check"
+    ],
+    "limits": {
+      "maxLeadsPerQuery": 100,
+      "batchSize": 25
+    }
+  },
+  "security": {
+    "allowedOrigins": ["*"],
+    "requireAuth": true
+  }
+}
+```
+
+### Testing MCP Integration
+
+**Manual Server Test:**
+
+```bash
+# Start server in test mode
+BUENA_API_KEY=test-key npx @buena/sdk mcp --test
+
+# Test tool availability
+curl -X POST http://localhost:3001/mcp \
+  -H "Content-Type: application/json" \
+  -d '{"method": "tools/list"}'
+```
+
+**Integration Test Script:**
+
+```typescript
+// test-mcp.ts
+import { McpClient } from "@modelcontextprotocol/sdk/client/index.js";
+import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
+
+async function testMcpIntegration() {
+  const transport = new StdioClientTransport({
+    command: "npx",
+    args: ["@buena/sdk", "mcp"],
+    env: { BUENA_API_KEY: process.env.BUENA_API_KEY },
+  });
+
+  const client = new McpClient(
+    { name: "test-client", version: "1.0.0" },
+    { capabilities: {} }
+  );
+
+  await client.connect(transport);
+
+  try {
+    // Test health check
+    const health = await client.callTool({
+      name: "buena_health_check",
+      arguments: {},
+    });
+    console.log("Health check:", health);
+
+    // Test lead listing
+    const leads = await client.callTool({
+      name: "buena_list_leads",
+      arguments: { limit: 5 },
+    });
+    console.log("Sample leads:", leads);
+
+    // Test lead creation
+    const newLead = await client.callTool({
+      name: "buena_create_lead",
+      arguments: {
+        firstName: "Test",
+        lastName: "User",
+        email: "test@example.com",
+        company: "Test Company",
+      },
+    });
+    console.log("Created lead:", newLead);
+  } finally {
+    await client.close();
+  }
+}
+
+// Run test
+testMcpIntegration().catch(console.error);
+```
+
+### Advanced MCP Features
+
+**Custom Tool Extensions:**
+
+```typescript
+// extend-mcp-server.ts
+import { Tool } from "@modelcontextprotocol/sdk/types.js";
+
+export const customBuenaTools: Tool[] = [
+  {
+    name: "buena_lead_analytics",
+    description: "Generate lead analytics and insights",
+    inputSchema: {
+      type: "object",
+      properties: {
+        dateRange: {
+          type: "string",
+          description:
+            "Date range for analysis (last_7_days, last_30_days, etc.)",
+          enum: ["last_7_days", "last_30_days", "last_90_days", "custom"],
+        },
+        groupBy: {
+          type: "string",
+          description: "Field to group analytics by",
+          enum: ["company", "status", "source", "created_date"],
+        },
+        metrics: {
+          type: "array",
+          items: { type: "string" },
+          description: "Metrics to calculate",
+          default: ["count", "conversion_rate", "avg_deal_size"],
+        },
+      },
+      required: ["dateRange"],
+    },
+  },
+  {
+    name: "buena_lead_scoring",
+    description: "Calculate lead scores based on various factors",
+    inputSchema: {
+      type: "object",
+      properties: {
+        leadIds: {
+          type: "array",
+          items: { type: "string" },
+          description: "Array of lead IDs to score",
+        },
+        scoringModel: {
+          type: "string",
+          description: "Scoring model to use",
+          enum: ["basic", "advanced", "custom"],
+          default: "basic",
+        },
+        factors: {
+          type: "object",
+          description: "Scoring factors and weights",
+          properties: {
+            companySize: { type: "number", default: 0.3 },
+            jobTitle: { type: "number", default: 0.25 },
+            industry: { type: "number", default: 0.2 },
+            engagement: { type: "number", default: 0.25 },
+          },
+        },
+      },
+      required: ["leadIds"],
+    },
+  },
+];
+```
+
+**Batch Processing with MCP:**
+
+```typescript
+// batch-mcp-operations.ts
+async function batchProcessLeads(
+  mcpClient: McpClient,
+  operations: Array<{
+    action: "create" | "update" | "delete";
+    data: any;
+  }>
+) {
+  const results = [];
+  const batchSize = 10;
+
+  for (let i = 0; i < operations.length; i += batchSize) {
+    const batch = operations.slice(i, i + batchSize);
+
+    const batchPromises = batch.map(async (op) => {
+      try {
+        let result;
+        switch (op.action) {
+          case "create":
+            result = await mcpClient.callTool({
+              name: "buena_create_lead",
+              arguments: op.data,
+            });
+            break;
+          case "update":
+            result = await mcpClient.callTool({
+              name: "buena_update_lead",
+              arguments: op.data,
+            });
+            break;
+          case "delete":
+            result = await mcpClient.callTool({
+              name: "buena_delete_lead",
+              arguments: { leadId: op.data.id },
+            });
+            break;
+        }
+        return { success: true, result, operation: op };
+      } catch (error) {
+        return { success: false, error: error.message, operation: op };
+      }
+    });
+
+    const batchResults = await Promise.all(batchPromises);
+    results.push(...batchResults);
+
+    // Add delay between batches to respect rate limits
+    if (i + batchSize < operations.length) {
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+    }
+  }
+
+  return results;
+}
+```
+
+### MCP Troubleshooting
+
+**Common Issues and Solutions:**
+
+1. **Server Won't Start**
+
+   ```bash
+   # Check API key
+   echo $BUENA_API_KEY
+
+   # Test API connectivity
+   curl -H "x-api-key: $BUENA_API_KEY" https://api.buena.ai/api/v2/health
+   ```
+
+2. **AI Assistant Connection Issues**
+
+   ```json
+   // Debug configuration
+   {
+     "mcpServers": {
+       "buena": {
+         "command": "npx",
+         "args": ["@buena/sdk", "mcp", "--debug"],
+         "env": {
+           "BUENA_API_KEY": "your-key",
+           "MCP_LOG_LEVEL": "debug"
+         }
+       }
+     }
+   }
+   ```
+
+3. **Tool Call Failures**
+
+   ```bash
+   # Check server logs
+   npx @buena/sdk mcp --log-level debug
+
+   # Test individual tools
+   curl -X POST http://localhost:3001/mcp/call \
+     -H "Content-Type: application/json" \
+     -d '{"method": "tools/call", "params": {"name": "buena_health_check", "arguments": {}}}'
+   ```
+
+**Performance Optimization:**
+
+```typescript
+// Optimized MCP client configuration
+const mcpClient = new McpClient(
+  { name: "buena-client", version: "1.0.0" },
+  {
+    capabilities: {
+      tools: {
+        list: true,
+        call: true,
+      },
+    },
+  }
+);
+
+// Connection with retry logic
+async function connectWithRetry(transport: Transport, maxRetries = 3) {
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      await mcpClient.connect(transport);
+      console.log("MCP connection established");
+      return;
+    } catch (error) {
+      console.log(`Connection attempt ${attempt} failed:`, error.message);
+      if (attempt === maxRetries) throw error;
+      await new Promise((resolve) => setTimeout(resolve, 1000 * attempt));
+    }
+  }
+}
+```
+
+For complete MCP integration documentation and examples, see the [MCP Integration Guide](/tools/mcp).

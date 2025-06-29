@@ -1,0 +1,540 @@
+---
+title: "MCP Integration"
+description: "Model Context Protocol server for AI assistant integration"
+---
+
+# MCP (Model Context Protocol) Integration
+
+The Buena.ai TypeScript SDK includes a built-in MCP server that enables AI assistants to directly interact with your leads and API data. This allows AI tools like Claude Desktop, Cline, and other MCP-compatible clients to manage your Buena.ai data seamlessly.
+
+<Info>
+  **🤖 AI-Native**: Built specifically for AI assistant integration using the
+  official Model Context Protocol standard.
+</Info>
+
+## 📦 Installation & Setup
+
+### Step 1: Install the SDK
+
+```bash
+npm install @buena/sdk
+```
+
+### Step 2: Start the MCP Server
+
+<CodeGroup>
+
+```bash Global Installation
+# If you have the SDK installed globally
+npx @buena/sdk mcp
+
+# Or if installed locally in your project
+./node_modules/.bin/@buena/sdk mcp
+```
+
+```bash Direct Execution
+# Run with environment variables
+BUENA_API_KEY=your-api-key npx @buena/sdk mcp
+```
+
+</CodeGroup>
+
+### Step 3: Configure Your AI Assistant
+
+Add the MCP server to your AI assistant's configuration:
+
+<CodeGroup>
+
+```json Claude Desktop
+{
+  "mcpServers": {
+    "buena": {
+      "command": "npx",
+      "args": ["@buena/sdk", "mcp"],
+      "env": {
+        "BUENA_API_KEY": "your-api-key-here"
+      }
+    }
+  }
+}
+```
+
+```json Cline/Other MCP Clients
+{
+  "name": "Buena.ai",
+  "command": "npx @buena/sdk mcp",
+  "environment": {
+    "BUENA_API_KEY": "your-api-key"
+  }
+}
+```
+
+</CodeGroup>
+
+## 🛠️ Available MCP Tools
+
+The MCP server exposes the following tools to AI assistants:
+
+### Lead Management Tools
+
+#### `buena_list_leads`
+
+Search and filter leads with advanced options.
+
+**Parameters:**
+
+- `limit` (optional): Number of leads to return (default: 50, max: 100)
+- `offset` (optional): Pagination offset (default: 0)
+- `search` (optional): Search term for name/email
+- `company` (optional): Filter by company name
+- `status` (optional): Filter by status (active, inactive, contacted)
+- `sort` (optional): Sort field (created_at, updated_at, first_name, last_name)
+- `order` (optional): Sort order (asc, desc)
+
+#### `buena_create_lead`
+
+Create a new lead in your database.
+
+**Parameters:**
+
+- `first_name` (required): Lead's first name
+- `last_name` (required): Lead's last name
+- `email` (required): Valid email address
+- `company` (optional): Company name
+- `phone` (optional): Phone number
+- `linkedin_url` (optional): LinkedIn profile URL
+- `job_title` (optional): Job title
+- `location` (optional): Location/city
+- `notes` (optional): Additional notes
+- `tags` (optional): Array of tags
+- `custom_fields` (optional): Custom field data as JSON object
+
+#### `buena_get_lead`
+
+Retrieve detailed information about a specific lead.
+
+**Parameters:**
+
+- `lead_id` (required): Unique lead identifier
+
+#### `buena_update_lead`
+
+Update an existing lead's information.
+
+**Parameters:**
+
+- `lead_id` (required): Unique lead identifier
+- All other parameters are optional and same as `create_lead`
+
+#### `buena_delete_lead`
+
+Permanently delete a lead from your database.
+
+**Parameters:**
+
+- `lead_id` (required): Unique lead identifier
+
+### API Key Management Tools
+
+#### `buena_list_api_keys`
+
+List all API keys for your account.
+
+**Parameters:** None
+
+#### `buena_create_api_key`
+
+Create a new API key with specific permissions.
+
+**Parameters:**
+
+- `name` (required): Descriptive name for the API key
+- `permissions` (required): Array of permission strings
+- `description` (optional): Key description
+- `expires_at` (optional): Expiration date (ISO 8601 format)
+
+### System Health Tools
+
+#### `buena_health_check`
+
+Check the API system status and your connection.
+
+**Parameters:** None
+
+## 🤖 AI Assistant Usage Examples
+
+### Lead Management Conversations
+
+**Example 1: Finding Leads**
+
+```
+You: "Show me all leads from technology companies"
+
+AI Assistant uses: buena_list_leads(company="technology", limit=20)
+
+Result: Lists leads with company names containing "technology"
+```
+
+**Example 2: Creating Leads**
+
+```
+You: "Add John Smith from Acme Corp as a new lead. His email is john@acme.com and he's a Software Engineer"
+
+AI Assistant uses: buena_create_lead(
+  first_name="John",
+  last_name="Smith",
+  email="john@acme.com",
+  company="Acme Corp",
+  job_title="Software Engineer"
+)
+
+Result: Creates the lead and returns the new lead ID
+```
+
+**Example 3: Lead Research**
+
+```
+You: "Find all leads who work at startups and haven't been contacted yet"
+
+AI Assistant uses: buena_list_leads(
+  search="startup",
+  status="inactive",
+  limit=50
+)
+
+Result: Returns uncontacted leads from startup companies
+```
+
+### Advanced Workflow Examples
+
+**Lead Qualification Workflow**
+
+```
+You: "Help me qualify leads from last week. Show me new leads and analyze their potential"
+
+AI Assistant:
+1. Uses buena_list_leads(sort="created_at", order="desc") to get recent leads
+2. Analyzes each lead's company, title, and notes
+3. Provides qualification recommendations
+4. Optionally updates lead status using buena_update_lead()
+```
+
+**Lead Cleanup Workflow**
+
+```
+You: "Find and clean up duplicate leads based on email addresses"
+
+AI Assistant:
+1. Uses buena_list_leads() to get all leads
+2. Identifies duplicates by email
+3. Suggests which duplicates to keep/remove
+4. Uses buena_delete_lead() to remove confirmed duplicates
+```
+
+## 🔧 Configuration Options
+
+### Environment Variables
+
+| Variable          | Description                                         | Required |
+| ----------------- | --------------------------------------------------- | -------- |
+| `BUENA_API_KEY`   | Your Buena.ai API key                               | Yes      |
+| `BUENA_API_URL`   | API base URL (default: https://api.buena.ai/api/v2) | No       |
+| `MCP_SERVER_PORT` | Server port (default: auto-assigned)                | No       |
+| `MCP_LOG_LEVEL`   | Logging level (debug, info, warn, error)            | No       |
+
+### Advanced Configuration
+
+Create a `buena-mcp.config.json` file:
+
+```json
+{
+  "server": {
+    "port": 3001,
+    "logLevel": "info"
+  },
+  "api": {
+    "baseUrl": "https://api.buena.ai/api/v2",
+    "timeout": 30000,
+    "retries": 3
+  },
+  "tools": {
+    "enabled": [
+      "buena_list_leads",
+      "buena_create_lead",
+      "buena_get_lead",
+      "buena_update_lead",
+      "buena_delete_lead",
+      "buena_list_api_keys",
+      "buena_create_api_key",
+      "buena_health_check"
+    ],
+    "limits": {
+      "maxLeadsPerQuery": 100,
+      "maxBatchSize": 50
+    }
+  }
+}
+```
+
+## 🔒 Security & Permissions
+
+### API Key Permissions
+
+Ensure your API key has the necessary permissions for MCP operations:
+
+**Required Permissions:**
+
+- `leads:read` - For listing and retrieving leads
+- `leads:write` - For creating and updating leads
+- `leads:delete` - For deleting leads (optional)
+- `api_keys:read` - For listing API keys
+- `api_keys:write` - For creating API keys (optional)
+
+### Safe Usage Guidelines
+
+1. **Environment Isolation**: Use separate API keys for MCP vs production
+2. **Permission Scoping**: Grant only necessary permissions to MCP API keys
+3. **Access Control**: Restrict MCP server access to authorized AI assistants only
+4. **Audit Logging**: Monitor MCP tool usage through API logs
+5. **Rate Limiting**: Be aware of API rate limits when using AI assistants
+
+## 🧪 Testing the MCP Server
+
+### Manual Testing
+
+<CodeGroup>
+
+```bash Test Server Connection
+# Start the MCP server in test mode
+BUENA_API_KEY=your-test-key npx @buena/sdk mcp --test
+
+# Check if server is responding
+curl -X POST http://localhost:3001/mcp/test \
+  -H "Content-Type: application/json" \
+  -d '{"method": "tools/list"}'
+```
+
+```bash Test Tool Execution
+# Test lead listing
+curl -X POST http://localhost:3001/mcp/call \
+  -H "Content-Type: application/json" \
+  -d '{
+    "method": "tools/call",
+    "params": {
+      "name": "buena_list_leads",
+      "arguments": {"limit": 5}
+    }
+  }'
+```
+
+</CodeGroup>
+
+### Integration Testing
+
+```javascript
+// test-mcp-integration.js
+import { McpClient } from "@modelcontextprotocol/sdk/client/index.js";
+import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
+
+async function testMcpServer() {
+  // Connect to MCP server
+  const transport = new StdioClientTransport({
+    command: "npx",
+    args: ["@buena/sdk", "mcp"],
+    env: { BUENA_API_KEY: "your-test-key" },
+  });
+
+  const client = new McpClient(
+    { name: "test-client", version: "1.0.0" },
+    { capabilities: {} }
+  );
+
+  await client.connect(transport);
+
+  try {
+    // Test listing tools
+    const tools = await client.listTools();
+    console.log(
+      "Available tools:",
+      tools.tools.map((t) => t.name)
+    );
+
+    // Test calling a tool
+    const result = await client.callTool({
+      name: "buena_health_check",
+      arguments: {},
+    });
+    console.log("Health check result:", result);
+
+    // Test lead operations
+    const leads = await client.callTool({
+      name: "buena_list_leads",
+      arguments: { limit: 3 },
+    });
+    console.log("Sample leads:", leads);
+  } finally {
+    await client.close();
+  }
+}
+
+testMcpServer().catch(console.error);
+```
+
+## 🛠️ Troubleshooting
+
+### Common Issues
+
+#### 1. Server Won't Start
+
+**Symptoms:** `Error: BUENA_API_KEY not found`
+**Solution:**
+
+```bash
+# Set environment variable
+export BUENA_API_KEY=your-api-key
+npx @buena/sdk mcp
+```
+
+#### 2. AI Assistant Can't Connect
+
+**Symptoms:** "MCP server not responding"
+**Solutions:**
+
+- Check API key permissions
+- Verify network connectivity
+- Check server logs: `npx @buena/sdk mcp --log-level debug`
+
+#### 3. Tool Calls Failing
+
+**Symptoms:** "Permission denied" or "Invalid parameters"
+**Solutions:**
+
+- Verify API key has required permissions
+- Check parameter formats match API specification
+- Test API calls directly first
+
+#### 4. Rate Limiting Issues
+
+**Symptoms:** "Too many requests" errors
+**Solutions:**
+
+- Implement request queuing in AI workflows
+- Use pagination for large data sets
+- Monitor API usage dashboard
+
+### Debug Mode
+
+```bash
+# Start server with debug logging
+DEBUG=* BUENA_API_KEY=your-key npx @buena/sdk mcp --debug
+
+# View detailed logs
+tail -f ~/.buena/mcp-server.log
+```
+
+## 🚀 Advanced Features
+
+### Custom Tool Creation
+
+Extend the MCP server with custom tools:
+
+```typescript
+// custom-tools.ts
+import { Tool } from "@modelcontextprotocol/sdk/types.js";
+
+export const customTools: Tool[] = [
+  {
+    name: "buena_lead_analytics",
+    description: "Generate analytics report for leads",
+    inputSchema: {
+      type: "object",
+      properties: {
+        date_range: {
+          type: "string",
+          description: 'Date range (e.g., "last_30_days")',
+        },
+        group_by: {
+          type: "string",
+          description: "Group by field (company, status, etc.)",
+        },
+      },
+    },
+  },
+];
+```
+
+### Batch Operations
+
+```javascript
+// Batch lead creation example for AI assistants
+async function batchCreateLeads(leads) {
+  const results = [];
+  for (const lead of leads) {
+    try {
+      const result = await mcpClient.callTool({
+        name: "buena_create_lead",
+        arguments: lead,
+      });
+      results.push({ success: true, result });
+    } catch (error) {
+      results.push({ success: false, error: error.message, lead });
+    }
+  }
+  return results;
+}
+```
+
+## 📊 Monitoring & Analytics
+
+### Usage Tracking
+
+The MCP server automatically tracks:
+
+- Tool call frequency
+- Response times
+- Error rates
+- API quota usage
+
+### Integration with Monitoring Tools
+
+```javascript
+// Example: Send MCP metrics to monitoring service
+const mcpMetrics = {
+  toolCalls: {
+    buena_list_leads: 45,
+    buena_create_lead: 12,
+    buena_update_lead: 8,
+  },
+  avgResponseTime: "125ms",
+  errorRate: "2.1%",
+};
+
+// Send to your monitoring service
+await sendMetrics("buena-mcp", mcpMetrics);
+```
+
+## 🤝 Community & Support
+
+### Getting Help
+
+- **📖 MCP Protocol Documentation**: [Model Context Protocol](https://modelcontextprotocol.io/)
+- **💬 Discord**: [Join our community](https://discord.gg/Hb4Y9Rgh6E)
+- **📧 Email Support**: [support@buena.ai](mailto:support@buena.ai)
+- **🐛 Bug Reports**: [GitHub Issues](https://github.com/buena-ai/sdks/issues)
+
+### Contributing
+
+Help improve the MCP integration:
+
+1. **Report Issues**: Share your AI assistant integration experiences
+2. **Feature Requests**: Suggest new MCP tools and capabilities
+3. **Code Contributions**: Submit PRs for new tools or improvements
+4. **Documentation**: Help improve examples and guides
+
+---
+
+<Note>
+  **Next Steps**: After setting up MCP, try asking your AI assistant to "show me
+  my recent leads" or "create a new lead for John from Acme Corp" to see the
+  integration in action!
+</Note>{" "}

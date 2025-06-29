@@ -122,7 +122,8 @@
         "sdks/python",
         "sdks/go",
         "sdks/php",
-        "tools/postman"
+        "tools/postman",
+        "tools/mcp"
       ]
     },
     {
