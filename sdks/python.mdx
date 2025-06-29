@@ -24,58 +24,77 @@ pip install buena-sdk
 ## 🚀 Quick Start
 
 ```python
-from buena_sdk import DefaultApi, Configuration
+import buena_sdk
+from buena_sdk.rest import ApiException
+from buena_sdk.api.default_api import DefaultApi
 
 # Initialize the client
-config = Configuration(
-    host="https://api.buena.ai/api/v2",
-    api_key="your-api-key"
+configuration = buena_sdk.Configuration(
+    host="https://api.buena.ai/api/v2"
 )
-client = DefaultApi(config)
+configuration.api_key['ApiKeyAuth'] = 'your-api-key'
 
-# List leads
-leads = client.list_leads()
-print(leads)
+# Create API client
+with buena_sdk.ApiClient(configuration) as api_client:
+    api_instance = DefaultApi(api_client)
 
-# Create a new lead
-new_lead = client.create_lead({
-    'first_name': 'John',
-    'last_name': 'Doe',
-    'email': 'john@example.com',
-    'company': 'Example Corp'
-})
+    try:
+        # List leads
+        leads = api_instance.list_leads()
+        print(leads)
+
+        # Create a new lead
+        lead_request = buena_sdk.CreateLeadRequest(
+            first_name="John",
+            last_name="Doe",
+            email="john@example.com",
+            company="Example Corp"
+        )
+        new_lead = api_instance.create_lead(lead_request)
+        print(f"Created lead: {new_lead}")
+
+    except ApiException as e:
+        print(f"Exception when calling API: {e}")
 ```
 
 ## 🔧 Configuration
 
 ```python
-from buena_sdk import Configuration
+import buena_sdk
 
-config = Configuration(
-    host='https://api.buena.ai/api/v2',  # Optional
-    api_key='your-api-key',
-    timeout=30,  # Optional, default 30 seconds
-    max_retries=3  # Optional, default 3 retries
+# Basic configuration
+configuration = buena_sdk.Configuration(
+    host='https://api.buena.ai/api/v2',  # API base URL
 )
+
+# Set API key
+configuration.api_key['ApiKeyAuth'] = 'your-api-key'
+
+# Optional: Configure timeouts and retries
+configuration.connection_pool_maxsize = 10
+configuration.proxy = None  # Set proxy if needed
+configuration.verify_ssl = True  # SSL verification
+configuration.ssl_ca_cert = None  # Custom CA certificate
 ```
 
 ## 📋 Available Operations
 
 ### Leads Management
 
-- `client.list_leads()` - List all leads with optional filtering
-- `client.create_lead()` - Create a new lead
-- `client.update_lead()` - Update an existing lead
-- `client.delete_lead()` - Delete a lead
+- `api_instance.list_leads()` - List all leads with optional filtering
+- `api_instance.create_lead(create_lead_request)` - Create a new lead
+- `api_instance.get_lead(lead_id)` - Get a specific lead
+- `api_instance.update_lead(lead_id, update_lead_request)` - Update an existing lead
+- `api_instance.delete_lead(lead_id)` - Delete a lead
 
 ### API Keys Management
 
-- `client.list_api_keys()` - List all API keys
-- `client.create_api_key()` - Create a new API key
+- `api_instance.list_api_keys()` - List all API keys
+- `api_instance.create_api_key(create_api_key_request)` - Create a new API key
 
 ### Health Check
 
-- `client.health_check()` - Check API status
+- `api_instance.health_check()` - Check API status
 
 ## 🔗 Repository & Advanced Usage
 
@@ -93,50 +112,94 @@ For complete documentation, examples, and source code:
 ## 💡 Features
 
 ✅ **Type Hints** - Full type annotations for better IDE support  
-✅ **Async Support** - Optional async/await patterns  
+✅ **Async Support** - Optional async/await patterns with asyncio  
 ✅ **Error Handling** - Comprehensive exception handling  
-✅ **Pagination** - Built-in pagination support  
-✅ **Auto Updates** - Automatically updated from OpenAPI spec  
-✅ **Production Ready** - Battle-tested OpenAPI Generator
+✅ **Pagination** - Built-in pagination support for large datasets  
+✅ **Auto Updates** - Automatically updated from OpenAPI spec via GitHub Actions  
+✅ **Production Ready** - Battle-tested OpenAPI Generator with robust HTTP client
 
 ## 🔄 Async Support
 
-The SDK also supports async/await patterns:
+The SDK supports async/await patterns using the async client:
 
 ```python
 import asyncio
-from buena_sdk import AsyncDefaultApi, Configuration
+import buena_sdk
+from buena_sdk.api.default_api import DefaultApi
+from buena_sdk.rest import ApiException
 
 async def main():
-    config = Configuration(
-        host="https://api.buena.ai/api/v2",
-        api_key="your-api-key"
+    configuration = buena_sdk.Configuration(
+        host="https://api.buena.ai/api/v2"
     )
-    client = AsyncDefaultApi(config)
+    configuration.api_key['ApiKeyAuth'] = 'your-api-key'
 
-    # List leads asynchronously
-    leads = await client.list_leads()
-    print(leads)
+    async with buena_sdk.ApiClient(configuration) as api_client:
+        api_instance = DefaultApi(api_client)
 
-    await client.close()
+        try:
+            # List leads asynchronously
+            leads = await api_instance.list_leads()
+            print(leads)
 
+            # Create lead asynchronously
+            lead_request = buena_sdk.CreateLeadRequest(
+                first_name="Jane",
+                last_name="Smith",
+                email="jane@example.com"
+            )
+            new_lead = await api_instance.create_lead(lead_request)
+            print(f"Created lead: {new_lead}")
+
+        except ApiException as e:
+            print(f"Exception when calling API: {e}")
+
+# Run async function
 asyncio.run(main())
 ```
 
 ## 🛠️ Error Handling
 
 ```python
-from buena_sdk import ApiException
+from buena_sdk.rest import ApiException
 
 try:
-    leads = client.list_leads()
+    leads = api_instance.list_leads()
 except ApiException as e:
+    print(f"Exception when calling DefaultApi->list_leads: {e}")
+
+    # Handle specific error codes
     if e.status == 401:
-        print('Invalid API key')
+        print('Invalid API key - check your authentication')
     elif e.status == 429:
-        print('Rate limit exceeded')
+        print('Rate limit exceeded - please retry later')
+    elif e.status == 500:
+        print('Server error - please contact support')
     else:
-        print(f'API error: {e.reason}')
+        print(f'API error {e.status}: {e.reason}')
+
+except Exception as e:
+    print(f"Unexpected error: {e}")
+```
+
+## 📄 Working with Models
+
+```python
+import buena_sdk
+
+# Create a lead object
+lead_request = buena_sdk.CreateLeadRequest(
+    first_name="John",
+    last_name="Doe",
+    email="john@example.com",
+    company="Example Corp",
+    phone="+1234567890",
+    linkedin_url="https://linkedin.com/in/johndoe"
+)
+
+# Access lead properties
+print(f"Creating lead: {lead_request.first_name} {lead_request.last_name}")
+print(f"Email: {lead_request.email}")
 ```
 
 ## 🆘 Support

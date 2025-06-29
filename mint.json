@@ -117,7 +117,13 @@
     },
     {
       "group": "SDKs & Tools",
-      "pages": ["sdks/javascript", "sdks/python", "tools/postman"]
+      "pages": [
+        "sdks/javascript",
+        "sdks/python",
+        "sdks/go",
+        "sdks/php",
+        "tools/postman"
+      ]
     }
   ],
   "footerSocials": {

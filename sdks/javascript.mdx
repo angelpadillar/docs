@@ -1,5 +1,5 @@
 ---
-title: "JavaScript SDK"
+title: "JavaScript/TypeScript SDK"
 description: "Official JavaScript/TypeScript SDK for Buena.ai API"
 ---
 
@@ -32,20 +32,22 @@ pnpm add @buena/sdk
 ## 🚀 Quick Start
 
 ```typescript
-import { SDK } from "buena-typescript-sdk";
+import { BuenaSdk } from "@buena/sdk";
 
 // Initialize the client
-const buena = new SDK({
-  apiKey: "your-api-key",
-  serverUrl: "https://api.buena.ai/api/v2",
+const buena = new BuenaSdk({
+  security: {
+    apiKey: "your-api-key",
+  },
+  serverURL: "https://api.buena.ai/api/v2",
 });
 
 // List leads
-const leads = await buena.leads.list();
+const leads = await buena.default.listLeads();
 console.log(leads);
 
 // Create a new lead
-const newLead = await buena.leads.create({
+const newLead = await buena.default.createLead({
   firstName: "John",
   lastName: "Doe",
   email: "john@example.com",
@@ -56,11 +58,23 @@ const newLead = await buena.leads.create({
 ## 🔧 Configuration
 
 ```typescript
-const buena = new SDK({
-  apiKey: "your-api-key",
-  serverUrl: "https://api.buena.ai/api/v2", // Optional
-  timeout: 30000, // Optional, default 30 seconds
-  retries: 3, // Optional, default 3 retries
+import { BuenaSdk } from "@buena/sdk";
+
+const buena = new BuenaSdk({
+  security: {
+    apiKey: "your-api-key", // Required
+  },
+  serverURL: "https://api.buena.ai/api/v2", // Optional, defaults to production
+  timeoutMs: 30000, // Optional, default 30 seconds
+  retryConfig: {
+    strategy: "backoff",
+    backoff: {
+      initialInterval: 1000,
+      maxInterval: 10000,
+      maxElapsedTime: 60000,
+    },
+    retryConnectionErrors: true,
+  },
 });
 ```
 
@@ -68,19 +82,19 @@ const buena = new SDK({
 
 ### Leads Management
 
-- `buena.leads.list()` - List all leads
-- `buena.leads.create()` - Create a new lead
-- `buena.leads.update()` - Update a lead
-- `buena.leads.delete()` - Delete a lead
+- `buena.default.listLeads()` - List all leads with optional filtering
+- `buena.default.createLead()` - Create a new lead
+- `buena.default.updateLead()` - Update an existing lead
+- `buena.default.deleteLead()` - Delete a lead
 
 ### API Keys Management
 
-- `buena.apiKeys.list()` - List API keys
-- `buena.apiKeys.create()` - Create API key
+- `buena.default.listApiKeys()` - List API keys
+- `buena.default.createApiKey()` - Create API key
 
 ### Health Check
 
-- `buena.health.check()` - Check API status
+- `buena.default.healthCheck()` - Check API status
 
 ## 🔗 Repository & Advanced Usage
 
@@ -98,11 +112,28 @@ For complete documentation, examples, and source code:
 ## 💡 Features
 
 ✅ **Complete Type Safety** - Full TypeScript definitions  
-✅ **Automatic Retries** - Built-in retry logic with backoff  
-✅ **Error Handling** - Comprehensive error types  
+✅ **Automatic Retries** - Built-in retry logic with exponential backoff  
+✅ **Error Handling** - Comprehensive error types and responses  
 ✅ **Rate Limiting** - Automatic rate limit handling  
-✅ **Auto Updates** - Automatically updated via Speakeasy  
+✅ **Auto Updates** - Automatically updated via GitHub Actions  
 ✅ **Premium Quality** - Enterprise-grade SDK generation
+
+## 🛠️ Error Handling
+
+```typescript
+import { SDKError } from "@buena/sdk/models/errors";
+
+try {
+  const leads = await buena.default.listLeads();
+} catch (error) {
+  if (error instanceof SDKError) {
+    console.error(`API Error: ${error.message}`);
+    console.error(`Status: ${error.statusCode}`);
+  } else {
+    console.error("Unexpected error:", error);
+  }
+}
+```
 
 ## 🆘 Support
 

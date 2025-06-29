@@ -1,0 +1,336 @@
+---
+title: "PHP SDK"
+description: "Official PHP SDK for Buena.ai API"
+---
+
+# PHP SDK
+
+The official PHP SDK for the Buena.ai API provides a powerful and flexible way to integrate Buena.ai's lead generation and LinkedIn automation features into your PHP applications.
+
+<Info>
+  **🔄 Auto-Generated**: Generated with [OpenAPI
+  Generator](https://openapi-generator.tech) and automatically updated via
+  GitHub Actions.
+</Info>
+
+## 📦 Installation
+
+Install the SDK using Composer:
+
+```bash
+composer require buena/sdk
+```
+
+## 🚀 Quick Start
+
+```php
+<?php
+require_once 'vendor/autoload.php';
+
+use Buena\SDK\Configuration;
+use Buena\SDK\Api\DefaultApi;
+use Buena\SDK\ApiException;
+use Buena\SDK\Model\CreateLeadRequest;
+
+// Initialize the client
+$config = Configuration::getDefaultConfiguration()
+    ->setHost('https://api.buena.ai/api/v2')
+    ->setApiKey('ApiKeyAuth', 'your-api-key');
+
+$apiInstance = new DefaultApi(
+    new GuzzleHttp\Client(),
+    $config
+);
+
+try {
+    // List leads
+    $leads = $apiInstance->listLeads();
+    echo "Leads: " . print_r($leads, true) . "\n";
+
+    // Create a new lead
+    $createRequest = new CreateLeadRequest([
+        'first_name' => 'John',
+        'last_name' => 'Doe',
+        'email' => 'john@example.com',
+        'company' => 'Example Corp'
+    ]);
+
+    $newLead = $apiInstance->createLead($createRequest);
+    echo "Created lead: " . print_r($newLead, true) . "\n";
+
+} catch (ApiException $e) {
+    echo 'Exception when calling DefaultApi: ', $e->getMessage(), PHP_EOL;
+    echo 'HTTP Status Code: ', $e->getCode(), PHP_EOL;
+    echo 'Response Body: ', $e->getResponseBody(), PHP_EOL;
+}
+```
+
+## 🔧 Configuration
+
+```php
+<?php
+use Buena\SDK\Configuration;
+use Buena\SDK\Api\DefaultApi;
+use GuzzleHttp\Client;
+
+// Basic configuration
+$config = Configuration::getDefaultConfiguration()
+    ->setHost('https://api.buena.ai/api/v2')  // API base URL
+    ->setApiKey('ApiKeyAuth', 'your-api-key')  // API key
+    ->setUserAgent('BuenaSDK-PHP/1.0.0');     // Custom user agent
+
+// Custom HTTP client with timeout
+$httpClient = new Client([
+    'timeout' => 30,           // Request timeout in seconds
+    'verify' => true,          // SSL verification
+    'debug' => false,          // Debug mode
+]);
+
+// Create API instance
+$apiInstance = new DefaultApi($httpClient, $config);
+
+// Optional: Set custom headers
+$config->setDefaultHeader('X-Custom-Header', 'CustomValue');
+```
+
+## 📋 Available Operations
+
+### Leads Management
+
+- `$apiInstance->listLeads($limit, $offset)` - List all leads with optional pagination
+- `$apiInstance->createLead($createLeadRequest)` - Create a new lead
+- `$apiInstance->getLead($leadId)` - Get a specific lead by ID
+- `$apiInstance->updateLead($leadId, $updateLeadRequest)` - Update an existing lead
+- `$apiInstance->deleteLead($leadId)` - Delete a lead
+
+### API Keys Management
+
+- `$apiInstance->listApiKeys()` - List all API keys
+- `$apiInstance->createApiKey($createApiKeyRequest)` - Create a new API key
+
+### Health Check
+
+- `$apiInstance->healthCheck()` - Check API status
+
+## 🔗 Repository & Advanced Usage
+
+For complete documentation, examples, and source code:
+
+<Card
+  title="📁 PHP SDK Repository"
+  icon="github"
+  href="https://github.com/Buena-AI/buena-php-sdk"
+>
+  Access the full SDK source code, advanced examples, and detailed
+  documentation.
+</Card>
+
+## 💡 Features
+
+✅ **PSR-4 Autoloading** - Full composer autoload support  
+✅ **Type Declarations** - PHP 8.1+ type hints and return types  
+✅ **Error Handling** - Comprehensive exception handling with detailed responses  
+✅ **HTTP Client Flexibility** - Compatible with any PSR-18 HTTP client  
+✅ **Auto Updates** - Automatically updated from OpenAPI spec via GitHub Actions  
+✅ **Production Ready** - Battle-tested OpenAPI Generator with Guzzle HTTP client
+
+## 🛠️ Error Handling
+
+```php
+<?php
+use Buena\SDK\ApiException;
+
+try {
+    $leads = $apiInstance->listLeads();
+
+} catch (ApiException $e) {
+    echo "API Exception: " . $e->getMessage() . PHP_EOL;
+
+    // Handle specific HTTP status codes
+    switch ($e->getCode()) {
+        case 401:
+            echo "Invalid API key - check your authentication" . PHP_EOL;
+            break;
+        case 429:
+            echo "Rate limit exceeded - please retry later" . PHP_EOL;
+            break;
+        case 500:
+            echo "Server error - please contact support" . PHP_EOL;
+            break;
+        default:
+            echo "HTTP error {$e->getCode()}: {$e->getMessage()}" . PHP_EOL;
+            break;
+    }
+
+    // Get detailed response information
+    echo "Response Body: " . $e->getResponseBody() . PHP_EOL;
+    echo "Response Headers: " . print_r($e->getResponseHeaders(), true) . PHP_EOL;
+
+} catch (Exception $e) {
+    echo "Unexpected error: " . $e->getMessage() . PHP_EOL;
+}
+```
+
+## 📄 Working with Models
+
+```php
+<?php
+use Buena\SDK\Model\CreateLeadRequest;
+use Buena\SDK\Model\Lead;
+
+// Create a lead request object
+$leadRequest = new CreateLeadRequest([
+    'first_name' => 'John',
+    'last_name' => 'Doe',
+    'email' => 'john@example.com',
+    'company' => 'Example Corp',
+    'phone' => '+1234567890',
+    'linkedin_url' => 'https://linkedin.com/in/johndoe'
+]);
+
+// Access properties
+echo "Creating lead: " . $leadRequest->getFirstName() . " " . $leadRequest->getLastName() . PHP_EOL;
+echo "Email: " . $leadRequest->getEmail() . PHP_EOL;
+
+// Work with response models
+$lead = $apiInstance->createLead($leadRequest);
+if ($lead instanceof Lead) {
+    echo "Lead ID: " . $lead->getId() . PHP_EOL;
+    echo "Created at: " . $lead->getCreatedAt()->format('Y-m-d H:i:s') . PHP_EOL;
+}
+```
+
+## 🔄 Pagination
+
+```php
+<?php
+// Paginate through leads
+$limit = 50;  // Number of leads per page
+$offset = 0;  // Starting offset
+
+do {
+    try {
+        $response = $apiInstance->listLeads($limit, $offset);
+
+        if ($response && $response->getData()) {
+            $leads = $response->getData();
+            echo "Retrieved " . count($leads) . " leads" . PHP_EOL;
+
+            // Process leads
+            foreach ($leads as $lead) {
+                echo "Lead: " . $lead->getFirstName() . " " . $lead->getLastName() . PHP_EOL;
+            }
+
+            // Check if there are more pages
+            $hasMore = count($leads) == $limit;
+            $offset += $limit;
+
+        } else {
+            break;
+        }
+
+    } catch (ApiException $e) {
+        echo "Error retrieving leads: " . $e->getMessage() . PHP_EOL;
+        break;
+    }
+
+} while ($hasMore);
+```
+
+## 🧪 Testing
+
+Example PHPUnit test using the PHP SDK:
+
+```php
+<?php
+use PHPUnit\Framework\TestCase;
+use Buena\SDK\Configuration;
+use Buena\SDK\Api\DefaultApi;
+use Buena\SDK\Model\CreateLeadRequest;
+use GuzzleHttp\Client;
+
+class BuenaSDKTest extends TestCase
+{
+    private DefaultApi $apiInstance;
+
+    protected function setUp(): void
+    {
+        $config = Configuration::getDefaultConfiguration()
+            ->setHost('https://api.buena.ai/api/v2')
+            ->setApiKey('ApiKeyAuth', 'test-api-key');
+
+        $this->apiInstance = new DefaultApi(new Client(), $config);
+    }
+
+    public function testCreateLead(): void
+    {
+        $createRequest = new CreateLeadRequest([
+            'first_name' => 'Test',
+            'last_name' => 'User',
+            'email' => 'test@example.com'
+        ]);
+
+        $lead = $this->apiInstance->createLead($createRequest);
+
+        $this->assertNotNull($lead);
+        $this->assertEquals('test@example.com', $lead->getEmail());
+        $this->assertEquals('Test', $lead->getFirstName());
+        $this->assertEquals('User', $lead->getLastName());
+    }
+
+    public function testListLeads(): void
+    {
+        $response = $this->apiInstance->listLeads(10, 0);
+
+        $this->assertNotNull($response);
+        $this->assertIsArray($response->getData());
+        $this->assertLessThanOrEqual(10, count($response->getData()));
+    }
+}
+```
+
+## 🔐 Authentication
+
+```php
+<?php
+// Using API key authentication
+$config = Configuration::getDefaultConfiguration()
+    ->setApiKey('ApiKeyAuth', 'your-api-key');
+
+// Optional: Set API key prefix (e.g., "Bearer" for JWT tokens)
+$config->setApiKeyPrefix('ApiKeyAuth', 'Bearer');
+
+// Using custom headers for authentication
+$config->setDefaultHeader('Authorization', 'Bearer your-jwt-token');
+$config->setDefaultHeader('X-API-Key', 'your-api-key');
+```
+
+## 📊 Logging and Debugging
+
+```php
+<?php
+use GuzzleHttp\Client;
+use GuzzleHttp\Middleware;
+use GuzzleHttp\MessageFormatter;
+use Monolog\Logger;
+use Monolog\Handler\StreamHandler;
+
+// Setup logging
+$logger = new Logger('buena-sdk');
+$logger->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
+
+// Create HTTP client with logging middleware
+$stack = \GuzzleHttp\HandlerStack::create();
+$stack->push(Middleware::log($logger, new MessageFormatter(MessageFormatter::DEBUG)));
+
+$httpClient = new Client(['handler' => $stack]);
+
+// Use with API instance
+$apiInstance = new DefaultApi($httpClient, $config);
+```
+
+## 🆘 Support
+
+- **📖 Full Documentation**: [SDK Repository](https://github.com/Buena-AI/buena-php-sdk)
+- **💬 Discord**: [Join our community](https://discord.gg/Hb4Y9Rgh6E)
+- **📧 Email**: [support@buena.ai](mailto:support@buena.ai)

@@ -1,0 +1,305 @@
+---
+title: "Go SDK"
+description: "Official Go SDK for Buena.ai API"
+---
+
+# Go SDK
+
+The official Go SDK for the Buena.ai API provides a robust and efficient way to integrate Buena.ai's lead generation and LinkedIn automation features into your Go applications.
+
+<Info>
+  **🔄 Auto-Generated**: Generated with [OpenAPI
+  Generator](https://openapi-generator.tech) and automatically updated via
+  GitHub Actions.
+</Info>
+
+## 📦 Installation
+
+Install the SDK using Go modules:
+
+```bash
+go get github.com/buena-ai/sdk@latest
+```
+
+Or get a specific version:
+
+```bash
+go get github.com/buena-ai/sdk@v1.0.0
+```
+
+## 🚀 Quick Start
+
+```go
+package main
+
+import (
+    "context"
+    "fmt"
+    "log"
+
+    buena "github.com/buena-ai/sdk"
+)
+
+func main() {
+    // Initialize the client
+    cfg := buena.NewConfiguration()
+    cfg.Servers = []buena.ServerConfiguration{
+        {
+            URL: "https://api.buena.ai/api/v2",
+        },
+    }
+
+    client := buena.NewAPIClient(cfg)
+
+    // Set API key in context
+    ctx := context.WithValue(context.Background(), buena.ContextAPIKeys, map[string]buena.APIKey{
+        "ApiKeyAuth": {
+            Key: "your-api-key",
+        },
+    })
+
+    // List leads
+    leads, resp, err := client.DefaultAPI.ListLeads(ctx).Execute()
+    if err != nil {
+        log.Fatalf("Error listing leads: %v", err)
+    }
+    fmt.Printf("Status: %d\n", resp.StatusCode)
+    fmt.Printf("Leads: %+v\n", leads)
+
+    // Create a new lead
+    createReq := buena.CreateLeadRequest{
+        FirstName: buena.PtrString("John"),
+        LastName:  buena.PtrString("Doe"),
+        Email:     buena.PtrString("john@example.com"),
+        Company:   buena.PtrString("Example Corp"),
+    }
+
+    newLead, resp, err := client.DefaultAPI.CreateLead(ctx).CreateLeadRequest(createReq).Execute()
+    if err != nil {
+        log.Fatalf("Error creating lead: %v", err)
+    }
+    fmt.Printf("Created lead: %+v\n", newLead)
+}
+```
+
+## 🔧 Configuration
+
+```go
+import (
+    "context"
+    "net/http"
+    "time"
+
+    buena "github.com/buena-ai/sdk"
+)
+
+// Basic configuration
+cfg := buena.NewConfiguration()
+cfg.Servers = []buena.ServerConfiguration{
+    {
+        URL: "https://api.buena.ai/api/v2",  // API base URL
+    },
+}
+
+// Custom HTTP client with timeout
+cfg.HTTPClient = &http.Client{
+    Timeout: 30 * time.Second,
+}
+
+// Create client
+client := buena.NewAPIClient(cfg)
+
+// Set API key context
+ctx := context.WithValue(context.Background(), buena.ContextAPIKeys, map[string]buena.APIKey{
+    "ApiKeyAuth": {
+        Key:    "your-api-key",
+        Prefix: "", // Optional prefix like "Bearer"
+    },
+})
+```
+
+## 📋 Available Operations
+
+### Leads Management
+
+- `client.DefaultAPI.ListLeads(ctx).Execute()` - List all leads with optional filtering
+- `client.DefaultAPI.CreateLead(ctx).CreateLeadRequest(req).Execute()` - Create a new lead
+- `client.DefaultAPI.GetLead(ctx, leadId).Execute()` - Get a specific lead
+- `client.DefaultAPI.UpdateLead(ctx, leadId).UpdateLeadRequest(req).Execute()` - Update an existing lead
+- `client.DefaultAPI.DeleteLead(ctx, leadId).Execute()` - Delete a lead
+
+### API Keys Management
+
+- `client.DefaultAPI.ListApiKeys(ctx).Execute()` - List all API keys
+- `client.DefaultAPI.CreateApiKey(ctx).CreateApiKeyRequest(req).Execute()` - Create a new API key
+
+### Health Check
+
+- `client.DefaultAPI.HealthCheck(ctx).Execute()` - Check API status
+
+## 🔗 Repository & Advanced Usage
+
+For complete documentation, examples, and source code:
+
+<Card
+  title="📁 Go SDK Repository"
+  icon="github"
+  href="https://github.com/buena-ai/sdks/tree/main/go"
+>
+  Access the full SDK source code, advanced examples, and detailed
+  documentation.
+</Card>
+
+## 💡 Features
+
+✅ **Type Safety** - Full Go type definitions and compile-time checking  
+✅ **Context Support** - Built-in context.Context support for cancellation and timeouts  
+✅ **Error Handling** - Comprehensive error types and HTTP response details  
+✅ **HTTP Client Customization** - Custom HTTP client configuration  
+✅ **Auto Updates** - Automatically updated from OpenAPI spec via GitHub Actions  
+✅ **Production Ready** - Battle-tested OpenAPI Generator with robust HTTP handling
+
+## 🛠️ Error Handling
+
+```go
+import (
+    "context"
+    "fmt"
+    "net/http"
+
+    buena "github.com/buena-ai/sdk"
+)
+
+leads, resp, err := client.DefaultAPI.ListLeads(ctx).Execute()
+if err != nil {
+    // Check if it's an API error
+    if apiErr, ok := err.(*buena.GenericOpenAPIError); ok {
+        fmt.Printf("API Error: %s\n", apiErr.Error())
+        fmt.Printf("Response Body: %s\n", string(apiErr.Body()))
+    }
+
+    // Handle specific HTTP status codes
+    if resp != nil {
+        switch resp.StatusCode {
+        case http.StatusUnauthorized:
+            fmt.Println("Invalid API key - check your authentication")
+        case http.StatusTooManyRequests:
+            fmt.Println("Rate limit exceeded - please retry later")
+        case http.StatusInternalServerError:
+            fmt.Println("Server error - please contact support")
+        default:
+            fmt.Printf("HTTP error %d: %s\n", resp.StatusCode, resp.Status)
+        }
+    }
+
+    return
+}
+
+// Success - process leads
+fmt.Printf("Retrieved %d leads\n", len(leads.Data))
+```
+
+## 🔄 Context and Cancellation
+
+```go
+import (
+    "context"
+    "time"
+
+    buena "github.com/buena-ai/sdk"
+)
+
+// Create context with timeout
+ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+defer cancel()
+
+// Add API key to context
+ctx = context.WithValue(ctx, buena.ContextAPIKeys, map[string]buena.APIKey{
+    "ApiKeyAuth": {Key: "your-api-key"},
+})
+
+// Make API call with timeout
+leads, resp, err := client.DefaultAPI.ListLeads(ctx).Execute()
+if err != nil {
+    if ctx.Err() == context.DeadlineExceeded {
+        fmt.Println("Request timed out")
+        return
+    }
+    // Handle other errors...
+}
+```
+
+## 📄 Working with Models
+
+```go
+import buena "github.com/buena-ai/sdk"
+
+// Create a lead request
+createReq := buena.CreateLeadRequest{
+    FirstName:   buena.PtrString("John"),
+    LastName:    buena.PtrString("Doe"),
+    Email:       buena.PtrString("john@example.com"),
+    Company:     buena.PtrString("Example Corp"),
+    Phone:       buena.PtrString("+1234567890"),
+    LinkedinUrl: buena.PtrString("https://linkedin.com/in/johndoe"),
+}
+
+// Access optional fields safely
+if createReq.FirstName != nil {
+    fmt.Printf("First name: %s\n", *createReq.FirstName)
+}
+
+// Helper functions for pointer conversion
+fmt.Printf("Email: %s\n", buena.PtrString("test@example.com"))
+fmt.Printf("Age: %d\n", buena.PtrInt32(25))
+```
+
+## 🧪 Testing
+
+Example test using the Go SDK:
+
+```go
+package main
+
+import (
+    "context"
+    "testing"
+
+    buena "github.com/buena-ai/sdk"
+)
+
+func TestCreateLead(t *testing.T) {
+    cfg := buena.NewConfiguration()
+    cfg.Servers = []buena.ServerConfiguration{{URL: "https://api.buena.ai/api/v2"}}
+    client := buena.NewAPIClient(cfg)
+
+    ctx := context.WithValue(context.Background(), buena.ContextAPIKeys, map[string]buena.APIKey{
+        "ApiKeyAuth": {Key: "test-api-key"},
+    })
+
+    createReq := buena.CreateLeadRequest{
+        FirstName: buena.PtrString("Test"),
+        LastName:  buena.PtrString("User"),
+        Email:     buena.PtrString("test@example.com"),
+    }
+
+    lead, resp, err := client.DefaultAPI.CreateLead(ctx).CreateLeadRequest(createReq).Execute()
+    if err != nil {
+        t.Fatalf("Failed to create lead: %v", err)
+    }
+
+    if resp.StatusCode != 200 {
+        t.Errorf("Expected status 200, got %d", resp.StatusCode)
+    }
+
+    if lead.Email == nil || *lead.Email != "test@example.com" {
+        t.Errorf("Expected email test@example.com, got %v", lead.Email)
+    }
+}
+```
+
+## 🆘 Support
+
+- **📖 Full Documentation**: [SDK Repository](https://github.com/buena-ai/sdks)
+- **💬 Discord**: [Join our community](https://discord.gg/Hb4Y9Rgh6E)
+- **📧 Email**: [support@buena.ai](mailto:support@buena.ai)
