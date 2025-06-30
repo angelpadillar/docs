@@ -33,7 +33,7 @@ jobs:
 
       - name: Download latest OpenAPI spec
         run: |
-          curl -o openapi.json https://raw.githubusercontent.com/buena-ai/docs/main/api-reference/openapi.json
+          curl -o openapi.json https://raw.githubusercontent.com/angelpadillar/docs/main/api-reference/openapi.json
 
       - name: Check if OpenAPI spec changed
         id: check-changes
@@ -100,5 +100,5 @@ jobs:
         uses: peter-evans/repository-dispatch@v3
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          repository: buena-ai/docs
+          repository: angelpadillar/docs
           event-type: sdks-updated
