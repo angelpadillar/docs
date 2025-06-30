@@ -1,0 +1,94 @@
+name: 🔄 Sync to Buena-AI
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "api-reference/openapi.json"
+      - "api-reference/**"
+      - "guides/**"
+      - "**.mdx"
+  workflow_dispatch:
+
+jobs:
+  sync-to-buena-ai:
+    runs-on: ubuntu-latest
+    name: Sync changes to Buena-AI/docs
+
+    steps:
+      - name: Checkout source repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Git
+        run: |
+          git config --global user.name "Angel Padilla"
+          git config --global user.email "angelpadillar@users.noreply.github.com"
+
+      - name: Clone Buena-AI docs repo
+        run: |
+          git clone https://${{ secrets.BUENA_AI_TOKEN }}@github.com/buena-ai/docs.git buena-ai-docs
+          cd buena-ai-docs
+          git remote add source ../
+
+      - name: Sync changes
+        run: |
+          cd buena-ai-docs
+
+          # Fetch latest changes from source
+          git fetch source main
+
+          # Copy specific directories and files
+          cp -r ../api-reference ./
+          cp -r ../guides ./
+          cp ../mint.json ./
+          cp ../README.md ./
+
+          # Copy any other MDX files
+          find .. -name "*.mdx" -not -path "../buena-ai-docs/*" -not -path "../.git/*" | while read file; do
+            dest="$(echo "$file" | sed 's|^\.\./||')"
+            mkdir -p "$(dirname "$dest")"
+            cp "$file" "$dest"
+          done
+
+      - name: Check for changes and commit
+        run: |
+          cd buena-ai-docs
+
+          if [[ -n $(git status --porcelain) ]]; then
+            git add .
+            git commit -m "🔄 Auto-sync from angelpadillar/docs
+            
+            Synced changes:
+            - API reference updates
+            - Documentation changes
+            - OpenAPI specification
+            
+            Source commit: ${{ github.sha }}"
+            
+            git push origin main
+            echo "✅ Changes synced to Buena-AI/docs"
+          else
+            echo "ℹ️ No changes to sync"
+          fi
+
+      - name: Trigger SDK updates
+        if: contains(github.event.head_commit.message, 'openapi.json') || github.event_name == 'workflow_dispatch'
+        run: |
+          curl -X POST \
+            -H "Accept: application/vnd.github.v3+json" \
+            -H "Authorization: token ${{ secrets.BUENA_AI_TOKEN }}" \
+            https://api.github.com/repos/buena-ai/docs/dispatches \
+            -d '{"event_type":"openapi-updated","client_payload":{"source":"angelpadillar/docs","commit":"${{ github.sha }}"}}'
+
+          echo "✅ Triggered SDK update workflows"
+
+      - name: Summary
+        run: |
+          echo "## 🎉 Sync Complete!" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Documentation synced to [Buena-AI/docs](https://github.com/buena-ai/docs)" >> $GITHUB_STEP_SUMMARY
+          echo "✅ SDK generation workflows triggered" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Source commit:** \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
