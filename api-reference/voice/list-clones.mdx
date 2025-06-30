@@ -10,8 +10,9 @@ Retrieve a list of all voice clones associated with your account, including thei
 
 ## Request
 
-<ParamField header="x-api-key" type="string" required>
-  Your API key with `voice:read` permission
+<ParamField header="Authorization" type="string" required>
+  Bearer token with your API key that has `voice:read` permission (e.g., "Bearer
+  bna-your-api-key")
 </ParamField>
 
 ### Query Parameters
@@ -34,18 +35,18 @@ Retrieve a list of all voice clones associated with your account, including thei
 
 ```bash cURL
 curl -X GET "https://api.buena.ai/api/v2/voice-clones" \
-  -H "x-api-key: YOUR_API_KEY"
+  -H "Authorization: Bearer bna-your-api-key"
 ```
 
 ```javascript JavaScript
 const response = await fetch("https://api.buena.ai/api/v2/voice-clones", {
   headers: {
-    "x-api-key": "YOUR_API_KEY",
+    Authorization: "Bearer bna-your-api-key",
   },
 });
 
 const data = await response.json();
-console.log(data.data);
+console.log(data.data.voiceClones);
 ```
 
 ```python Python
@@ -53,12 +54,12 @@ import requests
 
 response = requests.get(
     'https://api.buena.ai/api/v2/voice-clones',
-    headers={'x-api-key': 'YOUR_API_KEY'}
+    headers={'Authorization': 'Bearer bna-your-api-key'}
 )
 
 data = response.json()
-for voice in data['data']:
-    print(f"Voice: {voice['name']} - Status: {voice['status']}")
+for voice in data['data']['voiceClones']:
+    print(f"Voice: {voice['name']} - ID: {voice['voiceId']}")
 ```
 
 </CodeGroup>
@@ -69,46 +70,40 @@ for voice in data['data']:
   Always `true` for successful requests
 </ResponseField>
 
-<ResponseField name="data" type="array">
-  Array of voice clone objects
-  <Expandable title="Voice Clone Object">
-    <ResponseField name="id" type="string">
-      Unique voice clone identifier
-    </ResponseField>
-    <ResponseField name="name" type="string">
-      User-defined name for the voice clone
-    </ResponseField>
-    <ResponseField name="description" type="string">
-      Description of the voice clone
-    </ResponseField>
-    <ResponseField name="status" type="string">
-      Training status: "processing", "ready", "failed"
-    </ResponseField>
-    <ResponseField name="elevenlabs_voice_id" type="string">
-      ElevenLabs voice ID for API calls
-    </ResponseField>
-    <ResponseField name="settings" type="object">
-      Voice generation settings
-    </ResponseField>
-    <ResponseField name="usage_stats" type="object">
-      Voice usage statistics
-      <Expandable title="Usage Stats">
-        <ResponseField name="total_generations" type="number">
-          Total number of voice generations
+<ResponseField name="data" type="object">
+  Voice clones data object
+  <Expandable title="Voice Clones Data">
+    <ResponseField name="voiceClones" type="array">
+      Array of voice clone objects
+      <Expandable title="Voice Clone Object">
+        <ResponseField name="voiceId" type="string">
+          Unique voice clone identifier (voiceId)
         </ResponseField>
-        <ResponseField name="total_duration_seconds" type="number">
-          Total audio duration generated
+        <ResponseField name="name" type="string">
+          User-defined name for the voice clone
         </ResponseField>
-        <ResponseField name="last_used_at" type="string">
-          ISO 8601 timestamp of last usage
+        <ResponseField name="description" type="string">
+          Description of the voice clone
+        </ResponseField>
+        <ResponseField name="isActive" type="boolean">
+          Whether the voice clone is active and available for use
+        </ResponseField>
+        <ResponseField name="sampleCount" type="number">
+          Number of audio samples used to train this voice
+        </ResponseField>
+        <ResponseField name="createdAt" type="string">
+          ISO 8601 timestamp when created
+        </ResponseField>
+        <ResponseField name="updatedAt" type="string">
+          ISO 8601 timestamp when last updated
+        </ResponseField>
+        <ResponseField name="labels" type="object">
+          Metadata labels associated with the voice clone
         </ResponseField>
       </Expandable>
     </ResponseField>
-    <ResponseField name="created_at" type="string">
-      ISO 8601 timestamp when created
-    </ResponseField>
-    <ResponseField name="updated_at" type="string">
-      ISO 8601 timestamp when last updated
+    <ResponseField name="total" type="number">
+      Total number of voice clones for the user
     </ResponseField>
   </Expandable>
 </ResponseField>
@@ -118,46 +113,37 @@ for voice in data['data']:
 ```json Response
 {
   "success": true,
-  "data": [
-    {
-      "id": "voice_abc123",
-      "name": "Professional Voice",
-      "description": "Professional outreach voice for LinkedIn",
-      "status": "ready",
-      "elevenlabs_voice_id": "pNInz6obpgDQGcFmaJgB",
-      "settings": {
-        "stability": 0.5,
-        "clarity": 0.75,
-        "use_speaker_boost": true
+  "data": {
+    "voiceClones": [
+      {
+        "voiceId": "pNInz6obpgDQGcFmaJgB",
+        "name": "Professional Voice",
+        "description": "Professional outreach voice for LinkedIn",
+        "createdAt": "2024-01-15T10:30:00.000Z",
+        "updatedAt": "2024-01-19T14:30:00.000Z",
+        "isActive": true,
+        "sampleCount": 3,
+        "labels": {
+          "userId": "user123",
+          "createdAt": "2024-01-15T10:30:00.000Z"
+        }
       },
-      "usage_stats": {
-        "total_generations": 47,
-        "total_duration_seconds": 1240,
-        "last_used_at": "2024-01-19T14:30:00Z"
-      },
-      "created_at": "2024-01-15T10:30:00Z",
-      "updated_at": "2024-01-19T14:30:00Z"
-    },
-    {
-      "id": "voice_def456",
-      "name": "Sales Voice",
-      "description": "Energetic sales voice for cold outreach",
-      "status": "processing",
-      "elevenlabs_voice_id": null,
-      "settings": {
-        "stability": 0.7,
-        "clarity": 0.8,
-        "use_speaker_boost": true
-      },
-      "usage_stats": {
-        "total_generations": 0,
-        "total_duration_seconds": 0,
-        "last_used_at": null
-      },
-      "created_at": "2024-01-20T08:15:00Z",
-      "updated_at": "2024-01-20T08:15:00Z"
-    }
-  ]
+      {
+        "voiceId": "2EiwWnXFnvU5JabPnv8n",
+        "name": "Sales Voice",
+        "description": "Energetic sales voice for cold outreach",
+        "createdAt": "2024-01-20T08:15:00.000Z",
+        "updatedAt": "2024-01-20T08:15:00.000Z",
+        "isActive": true,
+        "sampleCount": 2,
+        "labels": {
+          "userId": "user123",
+          "createdAt": "2024-01-20T08:15:00.000Z"
+        }
+      }
+    ],
+    "total": 2
+  }
 }
 ```
 

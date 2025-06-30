@@ -17,7 +17,7 @@
   ],
   "security": [
     {
-      "ApiKeyAuth": []
+      "BearerAuth": []
     }
   ],
   "paths": {
@@ -199,6 +199,283 @@
           }
         }
       }
+    },
+    "/voice-clones": {
+      "post": {
+        "summary": "Create Voice Clone",
+        "description": "Create a new voice clone from audio file uploads",
+        "operationId": "createVoiceClone",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": ["name", "files"],
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "Descriptive name for the voice clone"
+                  },
+                  "description": {
+                    "type": "string",
+                    "description": "Optional description of the voice clone"
+                  },
+                  "files": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "format": "binary"
+                    },
+                    "description": "Audio files for voice training (1-10 files, max 50MB each)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Voice clone created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VoiceCloneResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "File too large",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Voice clone limit exceeded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "summary": "List Voice Clones",
+        "description": "Retrieve all voice clones for the authenticated user",
+        "operationId": "listVoiceClones",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Number of voice clones to return (1-100)",
+            "schema": {
+              "type": "integer",
+              "default": 50,
+              "minimum": 1,
+              "maximum": 100
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "Pagination offset",
+            "schema": {
+              "type": "integer",
+              "default": 0,
+              "minimum": 0
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of voice clones",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VoiceCloneListResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/voice-clones/preview": {
+      "post": {
+        "summary": "Generate Voice Preview",
+        "description": "Generate a voice preview using a voice clone to test quality",
+        "operationId": "generateVoicePreview",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VoicePreviewRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Voice preview generated successfully",
+            "content": {
+              "audio/mpeg": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary",
+                  "description": "Generated audio file"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Voice clone not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Voice generation failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/voice-clones/{voiceId}": {
+      "put": {
+        "summary": "Update Voice Clone",
+        "description": "Update voice clone settings and metadata",
+        "operationId": "updateVoiceClone",
+        "parameters": [
+          {
+            "name": "voiceId",
+            "in": "path",
+            "required": true,
+            "description": "The unique identifier of the voice clone",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateVoiceCloneRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Voice clone updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpdateVoiceCloneResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Voice clone not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete Voice Clone",
+        "description": "Permanently delete a voice clone",
+        "operationId": "deleteVoiceClone",
+        "parameters": [
+          {
+            "name": "voiceId",
+            "in": "path",
+            "required": true,
+            "description": "The unique identifier of the voice clone",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Voice clone deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeleteVoiceCloneResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Voice clone not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Voice clone is in use",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -323,31 +600,218 @@
           }
         }
       },
-      "Error": {
+      "VoiceClone": {
         "type": "object",
-        "required": ["error", "message"],
         "properties": {
-          "error": {
+          "voiceId": {
             "type": "string",
-            "description": "Error code"
+            "description": "Unique voice clone identifier"
+          },
+          "name": {
+            "type": "string",
+            "description": "User-defined name for the voice clone"
+          },
+          "description": {
+            "type": "string",
+            "description": "Description of the voice clone"
+          },
+          "isActive": {
+            "type": "boolean",
+            "description": "Whether the voice clone is active and available for use"
+          },
+          "sampleCount": {
+            "type": "integer",
+            "description": "Number of audio samples used to train this voice"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the voice clone was created"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the voice clone was last updated"
+          },
+          "labels": {
+            "type": "object",
+            "description": "Metadata labels associated with the voice clone"
+          }
+        }
+      },
+      "VoiceCloneResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": true
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "voiceId": {
+                "type": "string",
+                "description": "Unique voice clone identifier"
+              },
+              "name": {
+                "type": "string",
+                "description": "User-defined name for the voice clone"
+              },
+              "description": {
+                "type": "string",
+                "description": "Description of the voice clone"
+              },
+              "sampleCount": {
+                "type": "integer",
+                "description": "Number of audio samples uploaded for training"
+              },
+              "createdAt": {
+                "type": "string",
+                "format": "date-time",
+                "description": "When the voice clone was created"
+              }
+            }
           },
           "message": {
             "type": "string",
-            "description": "Human-readable error message"
+            "description": "Success message"
+          }
+        }
+      },
+      "VoiceCloneListResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": true
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "voiceClones": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/VoiceClone"
+                }
+              },
+              "total": {
+                "type": "integer",
+                "description": "Total number of voice clones for the user"
+              }
+            }
+          }
+        }
+      },
+      "VoicePreviewRequest": {
+        "type": "object",
+        "required": ["voiceId", "text"],
+        "properties": {
+          "voiceId": {
+            "type": "string",
+            "description": "The ID of the voice clone to use for preview generation"
+          },
+          "text": {
+            "type": "string",
+            "description": "Text to synthesize into speech (1-500 characters)",
+            "minLength": 1,
+            "maxLength": 500
+          }
+        }
+      },
+      "UpdateVoiceCloneRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Updated name for the voice clone"
+          },
+          "description": {
+            "type": "string",
+            "description": "Updated description of the voice clone"
+          },
+          "isActive": {
+            "type": "boolean",
+            "description": "Enable/disable the voice clone"
+          }
+        }
+      },
+      "UpdateVoiceCloneResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": true
+          },
+          "message": {
+            "type": "string",
+            "description": "Success message"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "Updated name for the voice clone"
+              },
+              "description": {
+                "type": "string",
+                "description": "Updated description of the voice clone"
+              },
+              "isActive": {
+                "type": "boolean",
+                "description": "Updated active status"
+              },
+              "updatedAt": {
+                "type": "string",
+                "format": "date-time",
+                "description": "When the voice clone was last updated"
+              }
+            }
+          }
+        }
+      },
+      "DeleteVoiceCloneResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": true
+          },
+          "message": {
+            "type": "string",
+            "description": "Success message"
+          },
+          "deleted_id": {
+            "type": "string",
+            "description": "The ID of the voice clone that was deleted"
+          }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "required": ["success", "error"],
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": false
+          },
+          "error": {
+            "type": "string",
+            "description": "Error message"
           },
           "details": {
-            "type": "object",
+            "type": "string",
             "description": "Additional error details"
           }
         }
       }
     },
     "securitySchemes": {
-      "ApiKeyAuth": {
-        "type": "apiKey",
-        "in": "header",
-        "name": "x-api-key",
-        "description": "API key for authentication"
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "Bearer token authentication using API key (format: 'Bearer bna-your-api-key')"
       }
     }
   }

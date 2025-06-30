@@ -10,8 +10,9 @@ Generate a preview audio sample using one of your voice clones. This allows you 
 
 ## Request
 
-<ParamField header="x-api-key" type="string" required>
-  Your API key with `voice:preview` permission
+<ParamField header="Authorization" type="string" required>
+  Bearer token with your API key that has `voice:preview` permission (e.g.,
+  "Bearer bna-your-api-key")
 </ParamField>
 
 <ParamField header="Content-Type" type="string" required>
@@ -20,32 +21,12 @@ Generate a preview audio sample using one of your voice clones. This allows you 
 
 ### Body Parameters
 
-<ParamField body="voice_id" type="string" required>
+<ParamField body="voiceId" type="string" required>
   The ID of the voice clone to use for preview generation
 </ParamField>
 
 <ParamField body="text" type="string" required>
   Text to synthesize into speech (1-500 characters)
-</ParamField>
-
-<ParamField body="voice_settings" type="object">
-  Optional voice generation settings to override defaults
-  <Expandable title="Voice Settings">
-    <ParamField body="stability" type="number">
-      Voice stability (0.0-1.0). Higher values = more consistent but less
-      expressive
-    </ParamField>
-    <ParamField body="clarity" type="number">
-      Voice clarity and similarity boost (0.0-1.0)
-    </ParamField>
-    <ParamField body="use_speaker_boost" type="boolean">
-      Enhance speaker similarity using ElevenLabs speaker boost
-    </ParamField>
-  </Expandable>
-</ParamField>
-
-<ParamField body="output_format" type="string" default="mp3">
-  Audio output format: `mp3`, `wav`, `ogg_vorbis`, `pcm`
 </ParamField>
 
 ## Examples
@@ -56,12 +37,13 @@ Generate a preview audio sample using one of your voice clones. This allows you 
 
 ```bash cURL
 curl -X POST "https://api.buena.ai/api/v2/voice-clones/preview" \
-  -H "x-api-key: YOUR_API_KEY" \
+  -H "Authorization: Bearer bna-your-api-key" \
   -H "Content-Type: application/json" \
   -d '{
-    "voice_id": "voice_abc123",
+    "voiceId": "pNInz6obpgDQGcFmaJgB",
     "text": "Hello! This is a test of my voice clone. How does it sound?"
-  }'
+  }' \
+  --output preview.mp3
 ```
 
 ```javascript JavaScript
@@ -70,18 +52,21 @@ const response = await fetch(
   {
     method: "POST",
     headers: {
-      "x-api-key": "YOUR_API_KEY",
+      Authorization: "Bearer bna-your-api-key",
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      voice_id: "voice_abc123",
+      voiceId: "pNInz6obpgDQGcFmaJgB",
       text: "Hello! This is a test of my voice clone. How does it sound?",
     }),
   }
 );
 
-const data = await response.json();
-console.log("Preview URL:", data.data.audio_url);
+// Response is audio binary data
+const audioBlob = await response.blob();
+const audioUrl = URL.createObjectURL(audioBlob);
+const audio = new Audio(audioUrl);
+audio.play();
 ```
 
 ```python Python
@@ -90,17 +75,19 @@ import requests
 response = requests.post(
     'https://api.buena.ai/api/v2/voice-clones/preview',
     headers={
-        'x-api-key': 'YOUR_API_KEY',
+        'Authorization': 'Bearer bna-your-api-key',
         'Content-Type': 'application/json'
     },
     json={
-        'voice_id': 'voice_abc123',
+        'voiceId': 'pNInz6obpgDQGcFmaJgB',
         'text': 'Hello! This is a test of my voice clone. How does it sound?'
     }
 )
 
-data = response.json()
-print(f"Preview URL: {data['data']['audio_url']}")
+# Save audio file
+with open('preview.mp3', 'wb') as f:
+    f.write(response.content)
+print("Preview audio saved as preview.mp3")
 ```
 
 </CodeGroup>
@@ -111,18 +98,13 @@ print(f"Preview URL: {data['data']['audio_url']}")
 
 ```bash cURL
 curl -X POST "https://api.buena.ai/api/v2/voice-clones/preview" \
-  -H "x-api-key: YOUR_API_KEY" \
+  -H "Authorization: Bearer bna-your-api-key" \
   -H "Content-Type: application/json" \
   -d '{
-    "voice_id": "voice_abc123",
-    "text": "This is a test with custom voice settings for maximum clarity and stability.",
-    "voice_settings": {
-      "stability": 0.8,
-      "clarity": 0.9,
-      "use_speaker_boost": true
-    },
-    "output_format": "wav"
-  }'
+    "voiceId": "pNInz6obpgDQGcFmaJgB",
+    "text": "This is a test with my voice clone for maximum clarity and stability."
+  }' \
+  --output preview.mp3
 ```
 
 ```javascript JavaScript
@@ -131,30 +113,21 @@ const response = await fetch(
   {
     method: "POST",
     headers: {
-      "x-api-key": "YOUR_API_KEY",
+      Authorization: "Bearer bna-your-api-key",
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      voice_id: "voice_abc123",
-      text: "This is a test with custom voice settings for maximum clarity and stability.",
-      voice_settings: {
-        stability: 0.8,
-        clarity: 0.9,
-        use_speaker_boost: true,
-      },
-      output_format: "wav",
+      voiceId: "pNInz6obpgDQGcFmaJgB",
+      text: "This is a test with my voice clone for maximum clarity and stability.",
     }),
   }
 );
 
-const data = await response.json();
-
-// Download the audio file
-const audioResponse = await fetch(data.data.audio_url);
-const audioBlob = await audioResponse.blob();
+// Response is audio binary data
+const audioBlob = await response.blob();
 const audioUrl = URL.createObjectURL(audioBlob);
 
-// Play or save the audio
+// Play the audio
 const audio = new Audio(audioUrl);
 audio.play();
 ```
@@ -163,65 +136,19 @@ audio.play();
 
 ## Response
 
-<ResponseField name="success" type="boolean">
-  Always `true` for successful requests
-</ResponseField>
+The response is the audio file binary data with Content-Type: `audio/mpeg`
 
-<ResponseField name="data" type="object">
-  Voice preview generation result
-  <Expandable title="Preview Data Object">
-    <ResponseField name="preview_id" type="string">
-      Unique identifier for this preview generation
-    </ResponseField>
-    <ResponseField name="audio_url" type="string">
-      Temporary URL to download the generated audio (expires in 1 hour)
-    </ResponseField>
-    <ResponseField name="audio_format" type="string">
-      Format of the generated audio file
-    </ResponseField>
-    <ResponseField name="duration_seconds" type="number">
-      Duration of the generated audio in seconds
-    </ResponseField>
-    <ResponseField name="file_size_bytes" type="number">
-      Size of the audio file in bytes
-    </ResponseField>
-    <ResponseField name="voice_settings_used" type="object">
-      The actual voice settings applied for generation
-    </ResponseField>
-    <ResponseField name="text_processed" type="string">
-      The text that was processed (may be truncated if too long)
-    </ResponseField>
-    <ResponseField name="generated_at" type="string">
-      ISO 8601 timestamp when the preview was generated
-    </ResponseField>
-    <ResponseField name="expires_at" type="string">
-      ISO 8601 timestamp when the audio URL expires
-    </ResponseField>
-  </Expandable>
-</ResponseField>
+No JSON response is returned - the endpoint streams the audio file directly for immediate playback or download.
 
 <ResponseExample>
 
-```json Response
-{
-  "success": true,
-  "data": {
-    "preview_id": "preview_xyz789",
-    "audio_url": "https://storage.buena.ai/voice-previews/preview_xyz789.mp3?expires=1705757400",
-    "audio_format": "mp3",
-    "duration_seconds": 6.2,
-    "file_size_bytes": 99328,
-    "voice_settings_used": {
-      "stability": 0.5,
-      "clarity": 0.75,
-      "use_speaker_boost": true
-    },
-    "text_processed": "Hello! This is a test of my voice clone. How does it sound?",
-    "generated_at": "2024-01-20T15:30:00Z",
-    "expires_at": "2024-01-20T16:30:00Z"
-  }
-}
+```bash Response Headers
+Content-Type: audio/mpeg
+Content-Length: 99328
+Content-Disposition: attachment; filename="preview.mp3"
 ```
+
+The response body contains the binary audio data that can be played directly or saved to a file.
 
 </ResponseExample>
 
@@ -297,20 +224,13 @@ audio.play();
 
 ## Error Responses
 
-### Voice Clone Not Ready (400)
+### Voice Clone Not Found (404)
 
 ```json
 {
-  "error": true,
-  "code": "VOICE_CLONE_NOT_READY",
-  "message": "Voice clone is still processing. Please wait for training to complete.",
-  "version": "2.0",
-  "timestamp": "2024-01-20T15:30:00Z",
-  "details": {
-    "voice_id": "voice_abc123",
-    "status": "processing",
-    "training_progress": 75
-  }
+  "success": false,
+  "error": "Voice not found or not accessible",
+  "details": "The specified voice ID does not exist or you don't have access to it"
 }
 ```
 
@@ -318,15 +238,9 @@ audio.play();
 
 ```json
 {
-  "error": true,
-  "code": "TEXT_TOO_LONG",
-  "message": "Text exceeds maximum length of 500 characters",
-  "version": "2.0",
-  "timestamp": "2024-01-20T15:30:00Z",
-  "details": {
-    "max_length": 500,
-    "provided_length": 750
-  }
+  "success": false,
+  "error": "Text too long",
+  "details": "Text exceeds maximum length of 500 characters"
 }
 ```
 
@@ -334,15 +248,9 @@ audio.play();
 
 ```json
 {
-  "error": true,
-  "code": "VOICE_GENERATION_FAILED",
-  "message": "Failed to generate voice preview. Please try again.",
-  "version": "2.0",
-  "timestamp": "2024-01-20T15:30:00Z",
-  "details": {
-    "retry_after_seconds": 30,
-    "support_contact": "support@buena.ai"
-  }
+  "success": false,
+  "error": "Voice generation failed",
+  "details": "Failed to generate voice preview. Please try again."
 }
 ```
 
@@ -367,21 +275,23 @@ async function testVoiceQuality(voiceId) {
         {
           method: "POST",
           headers: {
-            "x-api-key": "YOUR_API_KEY",
+            Authorization: "Bearer bna-your-api-key",
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            voice_id: voiceId,
+            voiceId: voiceId,
             text: text,
           }),
         }
       );
 
-      const data = await response.json();
+      const audioBlob = await response.blob();
+      const audioUrl = URL.createObjectURL(audioBlob);
+
       results.push({
         text: text,
-        audio_url: data.data.audio_url,
-        duration: data.data.duration_seconds,
+        audioUrl: audioUrl,
+        size: audioBlob.size,
       });
 
       console.log(`✅ Generated preview for: "${text.substring(0, 30)}..."`);

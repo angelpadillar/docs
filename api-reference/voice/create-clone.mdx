@@ -12,8 +12,9 @@ Create a new AI voice clone from audio samples. Upload high-quality audio files 
 
 ## Request
 
-<ParamField header="x-api-key" type="string" required>
-  Your API key with `voice:create` permission
+<ParamField header="Authorization" type="string" required>
+  Bearer token with your API key that has `voice:create` permission (e.g.,
+  "Bearer bna-your-api-key")
 </ParamField>
 
 <ParamField header="Content-Type" type="string" required>
@@ -47,7 +48,7 @@ Create a new AI voice clone from audio samples. Upload high-quality audio files 
       Voice clarity and similarity boost (0.0-1.0)
     </ParamField>
     <ParamField body="use_speaker_boost" type="boolean" default="true">
-      Enhance speaker similarity using ElevenLabs speaker boost
+      Enhance speaker similarity using speaker boost
     </ParamField>
   </Expandable>
 </ParamField>
@@ -60,7 +61,7 @@ Create a new AI voice clone from audio samples. Upload high-quality audio files 
 
 ```bash cURL
 curl -X POST "https://api.buena.ai/api/v2/voice-clones" \
-  -H "x-api-key: YOUR_API_KEY" \
+  -H "Authorization: Bearer bna-your-api-key" \
   -F "name=Professional Voice" \
   -F "description=Professional outreach voice for LinkedIn" \
   -F "files=@sample1.wav" \
@@ -79,7 +80,7 @@ formData.append("files", audioFile3);
 const response = await fetch("https://api.buena.ai/api/v2/voice-clones", {
   method: "POST",
   headers: {
-    "x-api-key": "YOUR_API_KEY",
+    Authorization: "Bearer bna-your-api-key",
   },
   body: formData,
 });
@@ -104,7 +105,7 @@ data = {
 
 response = requests.post(
     'https://api.buena.ai/api/v2/voice-clones',
-    headers={'x-api-key': 'YOUR_API_KEY'},
+    headers={'Authorization': 'Bearer bna-your-api-key'},
     files=files,
     data=data
 )
@@ -131,7 +132,7 @@ $ch = curl_init();
 curl_setopt($ch, CURLOPT_URL, 'https://api.buena.ai/api/v2/voice-clones');
 curl_setopt($ch, CURLOPT_POST, true);
 curl_setopt($ch, CURLOPT_POSTFIELDS, array_merge($files, $data));
-curl_setopt($ch, CURLOPT_HTTPHEADER, ['x-api-key: YOUR_API_KEY']);
+curl_setopt($ch, CURLOPT_HTTPHEADER, ['Authorization: Bearer bna-your-api-key']);
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
 $response = curl_exec($ch);
@@ -149,12 +150,11 @@ echo $response;
 
 ```bash cURL
 curl -X POST "https://api.buena.ai/api/v2/voice-clones" \
-  -H "x-api-key: YOUR_API_KEY" \
+  -H "Authorization: Bearer bna-your-api-key" \
   -F "name=Sales Voice" \
   -F "description=Energetic sales voice for cold outreach" \
   -F "files=@recording1.wav" \
-  -F "files=@recording2.wav" \
-  -F "settings={\"stability\":0.7,\"clarity\":0.8,\"use_speaker_boost\":true}"
+  -F "files=@recording2.wav"
 ```
 
 ```javascript JavaScript
@@ -163,19 +163,11 @@ formData.append("name", "Sales Voice");
 formData.append("description", "Energetic sales voice for cold outreach");
 formData.append("files", audioFile1);
 formData.append("files", audioFile2);
-formData.append(
-  "settings",
-  JSON.stringify({
-    stability: 0.7,
-    clarity: 0.8,
-    use_speaker_boost: true,
-  })
-);
 
 const response = await fetch("https://api.buena.ai/api/v2/voice-clones", {
   method: "POST",
   headers: {
-    "x-api-key": "YOUR_API_KEY",
+    Authorization: "Bearer bna-your-api-key",
   },
   body: formData,
 });
@@ -192,8 +184,8 @@ const response = await fetch("https://api.buena.ai/api/v2/voice-clones", {
 <ResponseField name="data" type="object">
   The created voice clone information
   <Expandable title="Voice Clone Object">
-    <ResponseField name="id" type="string">
-      Unique voice clone identifier (e.g., "voice_abc123")
+    <ResponseField name="voiceId" type="string">
+      Unique voice clone identifier (e.g., "pNInz6obpgDQGcFmaJgB")
     </ResponseField>
     <ResponseField name="name" type="string">
       User-defined name for the voice clone
@@ -201,34 +193,11 @@ const response = await fetch("https://api.buena.ai/api/v2/voice-clones", {
     <ResponseField name="description" type="string">
       Description of the voice clone
     </ResponseField>
-    <ResponseField name="status" type="string">
-      Training status: "processing", "ready", "failed"
+    <ResponseField name="sampleCount" type="number">
+      Number of audio samples uploaded for training
     </ResponseField>
-    <ResponseField name="elevenlabs_voice_id" type="string">
-      Voice ID for API calls
-    </ResponseField>
-    <ResponseField name="settings" type="object">
-      Voice generation settings
-      <Expandable title="Voice Settings">
-        <ResponseField name="stability" type="number">
-          Voice stability setting (0.0-1.0)
-        </ResponseField>
-        <ResponseField name="clarity" type="number">
-          Voice clarity/similarity boost (0.0-1.0)
-        </ResponseField>
-        <ResponseField name="use_speaker_boost" type="boolean">
-          Whether speaker boost is enabled
-        </ResponseField>
-      </Expandable>
-    </ResponseField>
-    <ResponseField name="training_progress" type="number">
-      Training completion percentage (0-100)
-    </ResponseField>
-    <ResponseField name="created_at" type="string">
+    <ResponseField name="createdAt" type="string">
       ISO 8601 timestamp when the voice clone was created
-    </ResponseField>
-    <ResponseField name="updated_at" type="string">
-      ISO 8601 timestamp when the voice clone was last updated
     </ResponseField>
   </Expandable>
 </ResponseField>
@@ -239,20 +208,13 @@ const response = await fetch("https://api.buena.ai/api/v2/voice-clones", {
 {
   "success": true,
   "data": {
-    "id": "voice_abc123",
+    "voiceId": "pNInz6obpgDQGcFmaJgB",
     "name": "Professional Voice",
     "description": "Professional outreach voice for LinkedIn",
-    "status": "processing",
-    "elevenlabs_voice_id": "pNInz6obpgDQGcFmaJgB",
-    "settings": {
-      "stability": 0.5,
-      "clarity": 0.75,
-      "use_speaker_boost": true
-    },
-    "training_progress": 15,
-    "created_at": "2024-01-20T15:30:00Z",
-    "updated_at": "2024-01-20T15:30:00Z"
-  }
+    "sampleCount": 3,
+    "createdAt": "2024-01-20T15:30:00.000Z"
+  },
+  "message": "Voice clone created successfully"
 }
 ```
 
@@ -298,7 +260,7 @@ const response = await fetch("https://api.buena.ai/api/v2/voice-clones", {
 | Max files per upload      | 10          | Multiple uploads allowed            |
 | Max file size             | 50MB        | Per individual file                 |
 | Training time             | 2-5 minutes | Depends on audio length and quality |
-| Supported languages       | 29+         | ElevenLabs supported languages      |
+| Supported languages       | 29+         | Supported languages by Buena AI     |
 
 ## Error Responses
 
@@ -363,12 +325,9 @@ Voice clone training is asynchronous. Monitor progress using:
 ```javascript
 // Poll for status updates
 async function checkTrainingStatus(voiceId) {
-  const response = await fetch(
-    `https://api.buena.ai/api/v2/voice-clones/${voiceId}`,
-    {
-      headers: { "x-api-key": "YOUR_API_KEY" },
-    }
-  );
+  const response = await fetch(`https://api.buena.ai/api/v2/voice-clones`, {
+    headers: { Authorization: "Bearer bna-your-api-key" },
+  });
 
   const { data } = await response.json();
 
