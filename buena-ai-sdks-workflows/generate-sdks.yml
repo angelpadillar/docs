@@ -99,12 +99,18 @@ jobs:
             -i openapi.json \
             -g typescript-axios \
             -o typescript-temp \
-            --additional-properties=npmName=@buena/sdk,npmVersion=1.0.0,npmDescription=TypeScript_SDK_for_Buena_AI_API,npmRepository=https://github.com/Buena-AI/sdks
+            --additional-properties=npmName=@buena/sdk,npmVersion=1.0.0,npmDescription=TypeScript_SDK_for_Buena_AI_API,npmRepository=https://github.com/Buena-AI/sdks,gitUserId=Buena-AI,gitRepoId=sdks
 
           # Replace the existing typescript directory
           rm -rf typescript/*
           cp -r typescript-temp/* typescript/
           rm -rf typescript-temp
+
+          # Fix repository URL in package.json
+          if [ -f typescript/package.json ]; then
+            sed -i 's|"url": "git+https://github.com/GIT_USER_ID/GIT_REPO_ID.git"|"url": "git+https://github.com/Buena-AI/sdks.git"|g' typescript/package.json
+            sed -i 's|https://github.com/GIT_USER_ID/GIT_REPO_ID|https://github.com/Buena-AI/sdks|g' typescript/package.json
+          fi
 
       - name: Generate PHP SDK
         run: |

@@ -1,4 +1,4 @@
-name: 🟡 Auto-Update TypeScript SDK (Improved)
+name: 🟡 Auto-Update TypeScript SDK
 
 on:
   push:
@@ -9,7 +9,6 @@ on:
 
 permissions:
   contents: write
-  packages: write
 
 jobs:
   publish:
@@ -107,12 +106,3 @@ jobs:
             Changes detected in `/typescript/` directory.
           draft: false
           prerelease: false
-
-      - name: Summary
-        run: |
-          echo "## 🟡 TypeScript SDK Update" >> $GITHUB_STEP_SUMMARY
-          if [[ "${{ steps.version_check.outputs.should_publish }}" == "true" ]]; then
-            echo "✅ Published version ${{ steps.version_check.outputs.new_version }} to npm" >> $GITHUB_STEP_SUMMARY
-            echo "📦 Install: \`npm install @buena/sdk@${{ steps.version_check.outputs.new_version }}\`" >> $GITHUB_STEP_SUMMARY
-          else
-            echo "ℹ️ No changes requiring publication" >> $GITHUB_STEP_SUMMARY

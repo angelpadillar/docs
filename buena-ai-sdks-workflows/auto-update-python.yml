@@ -1,4 +1,4 @@
-name: 🐍 Auto-Update Python SDK (Improved)
+name: 🐍 Auto-Update Python SDK
 
 on:
   push:
@@ -13,7 +13,7 @@ permissions:
 jobs:
   publish:
     runs-on: ubuntu-latest
-
+    
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -21,24 +21,24 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
-          python-version: "3.9"
+          python-version: '3.9'
 
       - name: Install build dependencies
         run: |
           python -m pip install --upgrade pip
           pip install build twine setuptools wheel tomli requests
 
-      - name: Check current version and determine if update needed
+      - name: Check if version exists on PyPI
         id: version_check
         working-directory: ./python
         run: |
           # Get current version from pyproject.toml
           CURRENT_VERSION=$(python -c "import tomli; print(tomli.load(open('pyproject.toml', 'rb'))['project']['version'])")
           echo "Current version: $CURRENT_VERSION"
-
+          
           # Check if this version already exists on PyPI
           HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "https://pypi.org/pypi/buena-sdk/$CURRENT_VERSION/json")
-
+          
           if [ "$HTTP_STATUS" = "200" ]; then
             echo "Version $CURRENT_VERSION already exists on PyPI"
             
@@ -50,9 +50,9 @@ jobs:
               if response.status_code == 200:
                   print(response.json()['info']['version'])
               else:
-                  print('0.0.0')
+                  print('$CURRENT_VERSION')
           except:
-              print('0.0.0')
+              print('$CURRENT_VERSION')
           ")
             echo "Latest PyPI version: $LATEST_PYPI_VERSION"
             
@@ -132,22 +132,12 @@ jobs:
           release_name: Python SDK v${{ steps.version_check.outputs.new_version }}
           body: |
             🐍 **Python SDK Auto-Release**
-
+            
             Install with:
             ```bash
             pip install buena-sdk==${{ steps.version_check.outputs.new_version }}
             ```
-
+            
             Changes detected in `/python/` directory.
           draft: false
           prerelease: false
-
-      - name: Summary
-        run: |
-          echo "## 🐍 Python SDK Update" >> $GITHUB_STEP_SUMMARY
-          if [[ "${{ steps.version_check.outputs.should_publish }}" == "true" ]]; then
-            echo "✅ Published version ${{ steps.version_check.outputs.new_version }} to PyPI" >> $GITHUB_STEP_SUMMARY
-            echo "📦 Install: \`pip install buena-sdk==${{ steps.version_check.outputs.new_version }}\`" >> $GITHUB_STEP_SUMMARY
-          else
-            echo "ℹ️ No changes requiring publication" >> $GITHUB_STEP_SUMMARY
-          fi
