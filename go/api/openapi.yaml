@@ -1,0 +1,734 @@
+openapi: 3.0.1
+info:
+  contact:
+    email: support@buena.ai
+    name: Buena.ai Support
+  description: The most powerful LinkedIn automation and lead management API for modern
+    sales teams and developers.
+  title: Buena.ai API v2
+  version: 2.0.0
+servers:
+- description: Production server
+  url: https://api.buena.ai/api/v2
+security:
+- BearerAuth: []
+paths:
+  /health:
+    get:
+      description: Check the API status and health
+      operationId: healthCheck
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/healthCheck_200_response"
+          description: API is healthy
+      summary: Health Check
+  /keys:
+    get:
+      description: List all API keys for the user
+      operationId: listApiKeys
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: "#/components/schemas/ApiKey"
+                type: array
+          description: List of API keys
+      summary: List API Keys
+    post:
+      description: Create a new API key
+      operationId: createApiKey
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/createApiKey_request"
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiKey"
+          description: API key created successfully
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Bad request
+      summary: Create API Key
+  /leads:
+    get:
+      description: Get a list of leads with optional filtering
+      operationId: listLeads
+      parameters:
+      - description: Maximum number of leads to return
+        explode: true
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 50
+          maximum: 1000
+          type: integer
+        style: form
+      - description: Number of leads to skip
+        explode: true
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          type: integer
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/listLeads_200_response"
+          description: List of leads
+      summary: List Leads
+    post:
+      description: Create a new lead
+      operationId: createLead
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateLeadRequest"
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Lead"
+          description: Lead created successfully
+      summary: Create Lead
+  /voice-clones:
+    get:
+      description: Retrieve all voice clones for the authenticated user
+      operationId: listVoiceClones
+      parameters:
+      - description: Number of voice clones to return (1-100)
+        explode: true
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 50
+          maximum: 100
+          minimum: 1
+          type: integer
+        style: form
+      - description: Pagination offset
+        explode: true
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VoiceCloneListResponse"
+          description: List of voice clones
+      summary: List Voice Clones
+    post:
+      description: Create a new voice clone from audio file uploads
+      operationId: createVoiceClone
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: "#/components/schemas/createVoiceClone_request"
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VoiceCloneResponse"
+          description: Voice clone created successfully
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Bad request
+        "413":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: File too large
+        "429":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Voice clone limit exceeded
+      summary: Create Voice Clone
+  /voice-clones/preview:
+    post:
+      description: Generate a voice preview using a voice clone to test quality
+      operationId: generateVoicePreview
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VoicePreviewRequest"
+        required: true
+      responses:
+        "200":
+          content:
+            audio/mpeg:
+              schema:
+                description: Generated audio file
+                format: binary
+                type: string
+          description: Voice preview generated successfully
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Bad request
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Voice clone not found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Voice generation failed
+      summary: Generate Voice Preview
+  /voice-clones/{voiceId}:
+    delete:
+      description: Permanently delete a voice clone
+      operationId: deleteVoiceClone
+      parameters:
+      - description: The unique identifier of the voice clone
+        explode: false
+        in: path
+        name: voiceId
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeleteVoiceCloneResponse"
+          description: Voice clone deleted successfully
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Voice clone not found
+        "409":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Voice clone is in use
+      summary: Delete Voice Clone
+    put:
+      description: Update voice clone settings and metadata
+      operationId: updateVoiceClone
+      parameters:
+      - description: The unique identifier of the voice clone
+        explode: false
+        in: path
+        name: voiceId
+        required: true
+        schema:
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateVoiceCloneRequest"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UpdateVoiceCloneResponse"
+          description: Voice clone updated successfully
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Voice clone not found
+      summary: Update Voice Clone
+components:
+  schemas:
+    ApiKey:
+      example:
+        permissions:
+        - permissions
+        - permissions
+        last_used: 2000-01-23T04:56:07.000+00:00
+        name: name
+        created_at: 2000-01-23T04:56:07.000+00:00
+        id: id
+        key: key
+      properties:
+        id:
+          description: Unique identifier for the API key
+          type: string
+        name:
+          description: Name of the API key
+          type: string
+        key:
+          description: The actual API key (only shown once during creation)
+          type: string
+        permissions:
+          description: List of permissions
+          items:
+            type: string
+          type: array
+        created_at:
+          description: When the key was created
+          format: date-time
+          type: string
+        last_used:
+          description: When the key was last used
+          format: date-time
+          type: string
+      type: object
+    Lead:
+      example:
+        updated_at: 2000-01-23T04:56:07.000+00:00
+        last_name: last_name
+        created_at: 2000-01-23T04:56:07.000+00:00
+        company: company
+        id: id
+        linkedin_url: linkedin_url
+        title: title
+        first_name: first_name
+        email: email
+        status: new
+      properties:
+        id:
+          description: Unique identifier for the lead
+          type: string
+        first_name:
+          description: First name of the lead
+          type: string
+        last_name:
+          description: Last name of the lead
+          type: string
+        email:
+          description: Email address of the lead
+          format: email
+          type: string
+        company:
+          description: Company name
+          type: string
+        title:
+          description: Job title
+          type: string
+        linkedin_url:
+          description: LinkedIn profile URL
+          type: string
+        status:
+          description: Current status of the lead
+          enum:
+          - new
+          - contacted
+          - responded
+          - converted
+          - unqualified
+          type: string
+        created_at:
+          description: When the lead was created
+          format: date-time
+          type: string
+        updated_at:
+          description: When the lead was last updated
+          format: date-time
+          type: string
+      type: object
+    CreateLeadRequest:
+      example:
+        last_name: last_name
+        company: company
+        linkedin_url: linkedin_url
+        title: title
+        first_name: first_name
+        email: email
+      properties:
+        first_name:
+          description: First name of the lead
+          type: string
+        last_name:
+          description: Last name of the lead
+          type: string
+        email:
+          description: Email address of the lead
+          format: email
+          type: string
+        company:
+          description: Company name
+          type: string
+        title:
+          description: Job title
+          type: string
+        linkedin_url:
+          description: LinkedIn profile URL
+          type: string
+      required:
+      - first_name
+      - last_name
+      type: object
+    VoiceClone:
+      example:
+        sampleCount: 0
+        createdAt: 2000-01-23T04:56:07.000+00:00
+        voiceId: voiceId
+        name: name
+        description: description
+        isActive: true
+        updatedAt: 2000-01-23T04:56:07.000+00:00
+        labels: "{}"
+      properties:
+        voiceId:
+          description: Unique voice clone identifier
+          type: string
+        name:
+          description: User-defined name for the voice clone
+          type: string
+        description:
+          description: Description of the voice clone
+          type: string
+        isActive:
+          description: Whether the voice clone is active and available for use
+          type: boolean
+        sampleCount:
+          description: Number of audio samples used to train this voice
+          type: integer
+        createdAt:
+          description: When the voice clone was created
+          format: date-time
+          type: string
+        updatedAt:
+          description: When the voice clone was last updated
+          format: date-time
+          type: string
+        labels:
+          description: Metadata labels associated with the voice clone
+          type: object
+      type: object
+    VoiceCloneResponse:
+      example:
+        data:
+          sampleCount: 0
+          createdAt: 2000-01-23T04:56:07.000+00:00
+          voiceId: voiceId
+          name: name
+          description: description
+        success: true
+        message: message
+      properties:
+        success:
+          example: true
+          type: boolean
+        data:
+          $ref: "#/components/schemas/VoiceCloneResponse_data"
+        message:
+          description: Success message
+          type: string
+      type: object
+    VoiceCloneListResponse:
+      example:
+        data:
+          voiceClones:
+          - sampleCount: 0
+            createdAt: 2000-01-23T04:56:07.000+00:00
+            voiceId: voiceId
+            name: name
+            description: description
+            isActive: true
+            updatedAt: 2000-01-23T04:56:07.000+00:00
+            labels: "{}"
+          - sampleCount: 0
+            createdAt: 2000-01-23T04:56:07.000+00:00
+            voiceId: voiceId
+            name: name
+            description: description
+            isActive: true
+            updatedAt: 2000-01-23T04:56:07.000+00:00
+            labels: "{}"
+          total: 6
+        success: true
+      properties:
+        success:
+          example: true
+          type: boolean
+        data:
+          $ref: "#/components/schemas/VoiceCloneListResponse_data"
+      type: object
+    VoicePreviewRequest:
+      example:
+        voiceId: voiceId
+        text: text
+      properties:
+        voiceId:
+          description: The ID of the voice clone to use for preview generation
+          type: string
+        text:
+          description: Text to synthesize into speech (1-500 characters)
+          maxLength: 500
+          minLength: 1
+          type: string
+      required:
+      - text
+      - voiceId
+      type: object
+    UpdateVoiceCloneRequest:
+      example:
+        name: name
+        description: description
+        isActive: true
+      properties:
+        name:
+          description: Updated name for the voice clone
+          type: string
+        description:
+          description: Updated description of the voice clone
+          type: string
+        isActive:
+          description: Enable/disable the voice clone
+          type: boolean
+      type: object
+    UpdateVoiceCloneResponse:
+      example:
+        data:
+          name: name
+          description: description
+          isActive: true
+          updatedAt: 2000-01-23T04:56:07.000+00:00
+        success: true
+        message: message
+      properties:
+        success:
+          example: true
+          type: boolean
+        message:
+          description: Success message
+          type: string
+        data:
+          $ref: "#/components/schemas/UpdateVoiceCloneResponse_data"
+      type: object
+    DeleteVoiceCloneResponse:
+      example:
+        deleted_id: deleted_id
+        success: true
+        message: message
+      properties:
+        success:
+          example: true
+          type: boolean
+        message:
+          description: Success message
+          type: string
+        deleted_id:
+          description: The ID of the voice clone that was deleted
+          type: string
+      type: object
+    Error:
+      example:
+        success: false
+        details: details
+        error: error
+      properties:
+        success:
+          example: false
+          type: boolean
+        error:
+          description: Error message
+          type: string
+        details:
+          description: Additional error details
+          type: string
+      required:
+      - error
+      - success
+      type: object
+    healthCheck_200_response:
+      example:
+        status: ok
+        timestamp: 2000-01-23T04:56:07.000+00:00
+      properties:
+        status:
+          example: ok
+          type: string
+        timestamp:
+          format: date-time
+          type: string
+      type: object
+    createApiKey_request:
+      properties:
+        name:
+          description: Name for the API key
+          type: string
+        permissions:
+          description: List of permissions for the key
+          items:
+            type: string
+          type: array
+      type: object
+    listLeads_200_response:
+      example:
+        total: 0
+        leads:
+        - updated_at: 2000-01-23T04:56:07.000+00:00
+          last_name: last_name
+          created_at: 2000-01-23T04:56:07.000+00:00
+          company: company
+          id: id
+          linkedin_url: linkedin_url
+          title: title
+          first_name: first_name
+          email: email
+          status: new
+        - updated_at: 2000-01-23T04:56:07.000+00:00
+          last_name: last_name
+          created_at: 2000-01-23T04:56:07.000+00:00
+          company: company
+          id: id
+          linkedin_url: linkedin_url
+          title: title
+          first_name: first_name
+          email: email
+          status: new
+      properties:
+        leads:
+          items:
+            $ref: "#/components/schemas/Lead"
+          type: array
+        total:
+          type: integer
+      type: object
+    createVoiceClone_request:
+      properties:
+        name:
+          description: Descriptive name for the voice clone
+          type: string
+        description:
+          description: Optional description of the voice clone
+          type: string
+        files:
+          description: "Audio files for voice training (1-10 files, max 50MB each)"
+          items:
+            format: binary
+            type: string
+          type: array
+      required:
+      - files
+      - name
+      type: object
+    VoiceCloneResponse_data:
+      example:
+        sampleCount: 0
+        createdAt: 2000-01-23T04:56:07.000+00:00
+        voiceId: voiceId
+        name: name
+        description: description
+      properties:
+        voiceId:
+          description: Unique voice clone identifier
+          type: string
+        name:
+          description: User-defined name for the voice clone
+          type: string
+        description:
+          description: Description of the voice clone
+          type: string
+        sampleCount:
+          description: Number of audio samples uploaded for training
+          type: integer
+        createdAt:
+          description: When the voice clone was created
+          format: date-time
+          type: string
+      type: object
+    VoiceCloneListResponse_data:
+      example:
+        voiceClones:
+        - sampleCount: 0
+          createdAt: 2000-01-23T04:56:07.000+00:00
+          voiceId: voiceId
+          name: name
+          description: description
+          isActive: true
+          updatedAt: 2000-01-23T04:56:07.000+00:00
+          labels: "{}"
+        - sampleCount: 0
+          createdAt: 2000-01-23T04:56:07.000+00:00
+          voiceId: voiceId
+          name: name
+          description: description
+          isActive: true
+          updatedAt: 2000-01-23T04:56:07.000+00:00
+          labels: "{}"
+        total: 6
+      properties:
+        voiceClones:
+          items:
+            $ref: "#/components/schemas/VoiceClone"
+          type: array
+        total:
+          description: Total number of voice clones for the user
+          type: integer
+      type: object
+    UpdateVoiceCloneResponse_data:
+      example:
+        name: name
+        description: description
+        isActive: true
+        updatedAt: 2000-01-23T04:56:07.000+00:00
+      properties:
+        name:
+          description: Updated name for the voice clone
+          type: string
+        description:
+          description: Updated description of the voice clone
+          type: string
+        isActive:
+          description: Updated active status
+          type: boolean
+        updatedAt:
+          description: When the voice clone was last updated
+          format: date-time
+          type: string
+      type: object
+  securitySchemes:
+    BearerAuth:
+      bearerFormat: JWT
+      description: "Bearer token authentication using API key (format: 'Bearer bna-your-api-key')"
+      scheme: bearer
+      type: http
