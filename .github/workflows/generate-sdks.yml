@@ -63,7 +63,7 @@ jobs:
             -i openapi.json \
             -g python \
             -o python-temp \
-            --additional-properties=packageName=buena_sdk,packageVersion=1.0.0,projectName=buena-sdk,packageCompany=Buena,packageAuthor=Buena,packageDescription="Python SDK for Buena AI API",packageUrl=https://github.com/Buena-AI/sdks
+            --additional-properties=packageName=buena_sdk,packageVersion=1.0.0,projectName=buena-sdk,packageCompany=Buena,packageAuthor=Buena,packageDescription=Python_SDK_for_Buena_AI_API,packageUrl=https://github.com/Buena-AI/sdks
 
           # Replace the existing python directory
           rm -rf python/*
