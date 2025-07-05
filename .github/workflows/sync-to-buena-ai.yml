@@ -8,6 +8,9 @@ on:
       - "api-reference/**"
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   trigger-sdk-updates:
     runs-on: ubuntu-latest

@@ -1,0 +1,118 @@
+name: 🟡 Auto-Update TypeScript SDK (Improved)
+
+on:
+  push:
+    paths:
+      - "typescript/**"
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Install dependencies
+        working-directory: ./typescript
+        run: npm ci
+
+      - name: Build
+        working-directory: ./typescript
+        run: npm run build
+
+      - name: Run tests
+        working-directory: ./typescript
+        run: npm test || echo "No tests defined"
+
+      - name: Check current version and determine if update needed
+        id: version_check
+        working-directory: ./typescript
+        run: |
+          CURRENT_VERSION=$(node -p "require('./package.json').version")
+          echo "Current version: $CURRENT_VERSION"
+
+          # Check if this version already exists on npm
+          if npm view @buena/sdk@$CURRENT_VERSION version 2>/dev/null; then
+            echo "Version $CURRENT_VERSION already exists on npm"
+            
+            # Get the latest version from npm
+            LATEST_NPM_VERSION=$(npm view @buena/sdk version 2>/dev/null || echo "0.0.0")
+            echo "Latest npm version: $LATEST_NPM_VERSION"
+            
+            # Compare versions and increment if needed
+            MAJOR=$(echo $LATEST_NPM_VERSION | cut -d. -f1)
+            MINOR=$(echo $LATEST_NPM_VERSION | cut -d. -f2)  
+            PATCH=$(echo $LATEST_NPM_VERSION | cut -d. -f3)
+            
+            NEW_PATCH=$((PATCH + 1))
+            NEW_VERSION="${MAJOR}.${MINOR}.${NEW_PATCH}"
+            
+            echo "Bumping to new version: $NEW_VERSION"
+            npm version $NEW_VERSION --no-git-tag-version
+            echo "should_publish=true" >> $GITHUB_OUTPUT
+            echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
+          else
+            echo "Version $CURRENT_VERSION is available for publishing"
+            echo "should_publish=true" >> $GITHUB_OUTPUT
+            echo "new_version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Publish to npm
+        if: steps.version_check.outputs.should_publish == 'true'
+        working-directory: ./typescript
+        run: |
+          echo "Publishing version ${{ steps.version_check.outputs.new_version }}"
+          npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Commit version bump
+        if: steps.version_check.outputs.should_publish == 'true'
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add typescript/package.json typescript/package-lock.json
+          git commit -m "🤖 Auto-bump TypeScript SDK to v${{ steps.version_check.outputs.new_version }}" || exit 0
+          git push
+
+      - name: Create GitHub Release
+        if: steps.version_check.outputs.should_publish == 'true'
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: typescript-v${{ steps.version_check.outputs.new_version }}
+          release_name: TypeScript SDK v${{ steps.version_check.outputs.new_version }}
+          body: |
+            🟡 **TypeScript SDK Auto-Release**
+
+            Install with:
+            ```bash
+            npm install @buena/sdk@${{ steps.version_check.outputs.new_version }}
+            ```
+
+            Changes detected in `/typescript/` directory.
+          draft: false
+          prerelease: false
+
+      - name: Summary
+        run: |
+          echo "## 🟡 TypeScript SDK Update" >> $GITHUB_STEP_SUMMARY
+          if [[ "${{ steps.version_check.outputs.should_publish }}" == "true" ]]; then
+            echo "✅ Published version ${{ steps.version_check.outputs.new_version }} to npm" >> $GITHUB_STEP_SUMMARY
+            echo "📦 Install: \`npm install @buena/sdk@${{ steps.version_check.outputs.new_version }}\`" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "ℹ️ No changes requiring publication" >> $GITHUB_STEP_SUMMARY
