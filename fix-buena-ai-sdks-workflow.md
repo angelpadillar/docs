@@ -1,3 +1,54 @@
+# Fix for Buena-AI/sdks Repository
+
+## The Problem
+The `generate-sdks.yml` file in the Buena-AI/sdks repository still has the old Python SDK generation parameters with spaces that cause parsing errors.
+
+## The Fix
+In the Buena-AI/sdks repository, edit `.github/workflows/generate-sdks.yml`:
+
+**Change this line (around line 66):**
+```yaml
+--additional-properties=packageName=buena_sdk,packageVersion=1.0.0,projectName=buena-sdk,packageCompany=Buena,packageAuthor=Buena,packageDescription="Python SDK for Buena AI API",packageUrl=https://github.com/Buena-AI/sdks
+```
+
+**To this:**
+```yaml
+--additional-properties=packageName=buena_sdk,packageVersion=1.0.0,projectName=buena-sdk,packageCompany=Buena,packageAuthor=Buena,packageDescription=Python_SDK_for_Buena_AI_API,packageUrl=https://github.com/Buena-AI/sdks
+```
+
+## Complete Fixed Python SDK Step
+Replace the entire "Generate Python SDK" step with:
+
+```yaml
+      - name: Generate Python SDK
+        run: |
+          echo "🐍 Generating Python SDK..."
+          rm -rf python-temp
+          openapi-generator-cli generate \
+            -i openapi.json \
+            -g python \
+            -o python-temp \
+            --additional-properties=packageName=buena_sdk,packageVersion=1.0.0,projectName=buena-sdk,packageCompany=Buena,packageAuthor=Buena,packageDescription=Python_SDK_for_Buena_AI_API,packageUrl=https://github.com/Buena-AI/sdks
+
+          # Replace the existing python directory
+          rm -rf python/*
+          cp -r python-temp/* python/
+          rm -rf python-temp
+```
+
+## Steps to Apply the Fix
+
+1. **Go to the Buena-AI/sdks repository**
+2. **Edit the file**: `.github/workflows/generate-sdks.yml`
+3. **Find the Python SDK generation step** (around line 50-70)
+4. **Replace the packageDescription parameter** as shown above
+5. **Commit and push the changes**
+
+## Alternative: Copy the Entire Fixed File
+
+If you want to copy the entire workflow, here's the complete fixed version:
+
+```yaml
 name: 🔄 Generate SDKs from OpenAPI
 
 on:
@@ -178,3 +229,12 @@ jobs:
           fi
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Source:** ${{ github.event.client_payload.source || 'Manual trigger' }}" >> $GITHUB_STEP_SUMMARY
+```
+
+## After Making the Fix
+
+1. **Commit the changes in Buena-AI/sdks**
+2. **Test the workflow again** by triggering it from your angelpadillar/docs repository
+3. **The Python SDK should now generate successfully** and the other SDKs will continue processing
+
+The key fix is removing the quotes and spaces from the packageDescription parameter.
